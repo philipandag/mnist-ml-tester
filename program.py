@@ -5,9 +5,11 @@ from scipy import signal
 from scipy.io import wavfile
 import os
 import numpy as np
+from tones import tones
 
 
-def cuttop(spectrogram, n):
+#zero any values other than top n in each time segment
+def cut_top_n(spectrogram, n):
     for i in range(len(spectrogram)):
         sorted = np.array(spectrogram[i])
         sorted.sort()
@@ -20,7 +22,7 @@ def cuttop(spectrogram, n):
     return spectrogram
 
                 
-
+#zero any values lower than mid
 def cut(spectrogram, mid):
     for i in range(len(spectrogram)):
         for j in range(len(spectrogram[i])):
@@ -28,6 +30,7 @@ def cut(spectrogram, mid):
                 spectrogram[i][j] = 0
 
     return spectrogram
+
 
 def print_spectrogram(spectrogram):
     for time in range(len(times)):
@@ -38,20 +41,19 @@ def print_spectrogram(spectrogram):
 
 
 sample_rate, samples = wavfile.read('piano.wav')
+
 #usrednione probki fali - jeden kanal
 samples = np.mean(np.array(samples), axis=1) 
 
-frequencies, times, spectrogram = signal.spectrogram(samples, sample_rate, nperseg=4096)
-
-mid = np.mean(spectrogram)
-cut(spectrogram, mid)
-
-
-
+frequencies, times, spectrogram = signal.spectrogram(samples, sample_rate, nperseg=8162)
 
 plt.pcolormesh(times, frequencies, spectrogram)
 plt.ylabel('Frequency [Hz]')
 plt.xlabel('Time [sec]')
 plt.title('Spectrogram')
 plt.ylim(0, 2000)
+
+for frequency in list(tones.keys()):
+    plt.plot(times, [frequency for _ in range(len(times))], "r", linewidth="0.1")
+
 plt.show()
