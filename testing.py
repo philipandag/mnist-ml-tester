@@ -8,9 +8,10 @@ class MidiFile:
         self.file.addTempo(0, 0, tempo)
         self.fileName = None
     
-    def addNote(self, note, start, length, volume):
-        note += 12 #our C0 has index 0 but midi C0 has index 12
-        self.file.addNote(0, 0, note, start, length, volume)
+    def addNote(self, pitch, start, length, volume):
+        pitch = int(pitch)
+        volume = int(volume)
+        self.file.addNote(0, 0, pitch, start, length, volume)
     
     def write(self, fileName):
         self.fileName = fileName
@@ -18,6 +19,7 @@ class MidiFile:
             self.file.writeFile(output_file)
     
     def play(self):
+        pygame.mixer.init()
         pygame.mixer.music.load(self.fileName, "midi")
         pygame.mixer.music.play()
 

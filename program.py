@@ -6,7 +6,8 @@ from scipy.io import wavfile
 import os
 import numpy as np
 from tones import tones
-
+from tones import tones_to_pitch
+from testing import MidiFile
 
 sample_rate, samples = wavfile.read('piano.wav')
 
@@ -37,7 +38,7 @@ for time_index in range(len(times)):
                     lowest_difference = abs(tone - frequencies[frequency_index])
                     best_fit_frequency = tone
 
-            notes[time_index].append( (tones[best_fit_frequency], spectrogram[frequency_index][time_index]/max) )
+            notes[time_index].append( (best_fit_frequency, spectrogram[frequency_index][time_index]/max) )
                 
 for time in notes:
     time.sort(key=lambda a: a[1], reverse=True)
@@ -45,7 +46,16 @@ for time in notes:
 for i in range(len(notes)):
     print("\nTime ", times[i], " : ")
     for note in notes[i]:
-        print("\tf:", note[0], "strength:", note[1])
+        print("\tf:", tones[note[0]], "strength:", note[1])
+
+
+file = MidiFile(40)
+for t in range(len(notes)):
+    for note in notes[t]:
+        file.addNote(tones_to_pitch[note[0]], times[t], 1, note[1]*255)
+file.write("test.midi")
+file.play()
+exit()
 
 plt.pcolormesh(times, frequencies, spectrogram)
 plt.ylabel('Frequency [Hz]')

@@ -117,3 +117,8 @@ tones = {
     7458.62 : "A#8",
     7902.13 : "B8",
 }
+tones_to_pitch = {}
+i=12
+for tone in list(tones.keys()):
+    tones_to_pitch[tone] = i
+    i = i+1
