@@ -38,9 +38,9 @@ class MidiFile:
 
 def print_spectrogram(frequencies, times, spectrogram):
     for time in range(len(times)):
-        print("\n\nt", time, ": ")
+        print("\n\nt", times[time], ": ")
         for frequency in range(len(spectrogram[time])):
-            print("t: ", time, "f: ", frequency, ": ", spectrogram[time][frequency], "%")
+            print("t: ", times[time], "f: ", frequency, ": ", spectrogram[time][frequency], "%")
 
 
 def plot_spectrogram(frequencies, times, spectrogram):

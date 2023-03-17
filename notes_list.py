@@ -30,17 +30,37 @@ def scale_volumes_to_percent(notes, value_for_100_percent):
 
 #laczenie duplikatow dzwiekow sumujac ich glosnosc
 def sum_duplicates(notes):
-    for time in notes:
-        if len(time) < 2:
+    to_delete = [[] for _ in range(len(notes))]
+    for time in range(len(notes)):
+        if len(notes[time]) < 2:
             continue
-        print(time)
+
+        for i in range(len(notes[time])):
+            for j in range(i+1, len(notes[time])):
+                if notes[time][i][0] == notes[time][j][0]:
+                    notes[time][i] = (notes[time][i][0], notes[time][i][1] + notes[time][j][1])
+                    to_delete[time].append(j)
+
+    for time in range(len(to_delete)):
+        to_delete[time].sort(reverse=True) # should be sorted to avoid changing indexes
+        for i in to_delete[time]:
+            notes[time].pop(i)
+
+
+def max_value(notes):
+    m = 0
+    for time in notes:
+        for note in time:
+            if note[1] > m:
+                m = note[1]
+    return m
 
 #wypisanie listy nut
 def print_notes_list(notes, times):
     for i in range(len(notes)):
-        print("\nTime ", times[i], " : ")
+        print("\nTime ", times[i], "s : ")
         for note in notes[i]:
-            print("\tf:", tones[note[0]], "strength:", note[1])
+            print("\tf:", tones[note[0]], "strength:", note[1], "%")
 
 #sortowanie listy nut z malejaca intensywnoscia
 def sort_by_intensity(notes):

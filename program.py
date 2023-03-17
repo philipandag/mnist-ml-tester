@@ -19,14 +19,14 @@ max = np.max(spectrogram)
 
 
 notes = get_notes(times, frequencies, spectrogram, max/10)
-scale_volumes_to_percent(notes, max)    
 sum_duplicates(notes)
+scale_volumes_to_percent(notes, max_value(notes)) # wazne by skalowac po sumowaniu inaczej sumy moga wyjsc poza zakres
 sort_by_intensity(notes)
 
+print_notes_list(notes, times)
 #print_notes_list(notes, times)
 
-print_spectrogram(frequencies, times, spectrogram)
-plot_spectrogram(frequencies, times, spectrogram)
+#plot_spectrogram(frequencies, times, spectrogram)
 
 file = MidiFile(times)
 file.add_notes_list(notes, times)
