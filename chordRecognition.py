@@ -73,4 +73,4 @@ def getChordFromTonenames(names):
     return getChordFromTones(tones)
 
 #print(getChordFromFreqs([82.41,130.81,24.50,7902.13]))
-print(getChordFromTonenames(["G", "D", "B"]))
+#print(getChordFromTonenames(["G", "D", "B"]))
