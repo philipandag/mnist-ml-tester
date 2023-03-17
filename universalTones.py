@@ -261,8 +261,14 @@ def findToneByName(name):
     return universalTones[name]
 
 
+#def findInterval(tone1: Tone, tone2: Tone):
+#    return abs(tone1.index - tone2.index)
+
 def findInterval(tone1: Tone, tone2: Tone):
-    return abs(tone1.index - tone2.index)
+    if(tone1.index <= tone2.index):
+        return tone2.index - tone1.index
+    else:
+        return (12-(tone1.index - tone2.index))
 
 
 #testTone = findTone(32.70)
