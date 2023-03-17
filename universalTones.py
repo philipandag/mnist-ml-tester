@@ -257,14 +257,17 @@ def findTone(freq):
     
     return universalTones[toneNames[target]]
 
+def findToneByName(name):
+    return universalTones[name]
+
 
 def findInterval(tone1: Tone, tone2: Tone):
     return abs(tone1.index - tone2.index)
 
 
-testTone = findTone(32.70)
-testTone2 = findTone(30.87)
-print(testTone.name, testTone.index)
-print(testTone2.name, testTone2.index)
+#testTone = findTone(32.70)
+#testTone2 = findTone(30.87)
+#print(testTone.name, testTone.index)
+#print(testTone2.name, testTone2.index)
 
-print(findInterval(testTone2, testTone))
+#print(findInterval(testTone2, testTone))
