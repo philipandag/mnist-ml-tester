@@ -48,6 +48,35 @@ def applyTemplate(root: Tone, tones: Tone, template: ChordTemplate) -> bool:
     else:
         return False
         
+def getTemplateScore(root: Tone, tones: Tone, template: ChordTemplate) -> int:
+    score = 0
+    intervals = []
+    values = []
+    for tone in tones:
+        val = tone.value
+        if(val > 0):
+            intervals.append(findInterval(root,tone))
+            values.append(tone.value)
+    
+    for i in range(len(intervals)):
+        if(intervals[i] in template.intervals):
+            score += values[i]
+        else:
+            score -= values[i]
+    return score
+    
+def getChordFromTonesScored(tones: Tone):
+    bestChord : Chord = None
+    bestScore : int = -1
+    for root in tones:
+        for template in chordTemplates:
+            score = getTemplateScore(root, tones, template)
+            if(score > bestScore):
+                bestScore = score
+                bestChord = Chord(root, template)
+                
+    return bestChord, bestScore
+    
 
 def getChordFromTones(tones: Tone):
     bestChord : Chord = None
@@ -72,5 +101,8 @@ def getChordFromTonenames(names):
         tones.append(findToneByName(name))
     return getChordFromTones(tones)
 
+
+#ch, sc = getChordFromTonesScored([findToneByName("C"), findToneByName("E"), findToneByName("G"), findToneByName("B")])
+#print(ch, sc)
 #print(getChordFromFreqs([82.41,130.81,24.50,7902.13]))
 #print(getChordFromTonenames(["G", "D", "B"]))
