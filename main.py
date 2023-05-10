@@ -19,8 +19,9 @@ class MainWindow(QMainWindow):
         self.X = self.mnist.data
         self.y = self.mnist.target
 
-        # Sprawdzenie, czy baza danych została wczytana poprawnie
+        self.resolution = int(np.sqrt(self.X.shape[1]))
 
+        # Sprawdzenie, czy baza danych została wczytana poprawnie
         print(f"X: {self.X.shape}")
         print(self.mnist.data)
         print(f"y: {self.y.shape}")
@@ -62,7 +63,7 @@ class MainWindow(QMainWindow):
         msgBox2.exec_()
 
         # Ustawienie interfejsu
-        self.canvas = Canvas(self, width=280, height=280)
+        self.canvas = Canvas(self, width=280, height=280, resolution=self.resolution)
         self.canvas.move(20, 25)
 
         # Ustawienie menu
@@ -101,12 +102,13 @@ class MainWindow(QMainWindow):
 
 
 class Canvas(QWidget):
-    def __init__(self, parent, width, height):
+    def __init__(self, parent, width, height, resolution):
         super().__init__(parent)
         self.width = width
         self.height = height
         self.converted_image = None
         self.setFixedSize(self.width, self.height)
+        self.resolution = resolution
 
         self.image = QImage(280, 280, QImage.Format_RGB32)
         self.image.fill(Qt.white)
@@ -138,7 +140,7 @@ class Canvas(QWidget):
         if self.drawing:
             self.drawing = False
             # Konwersja obrazka na czarno-biały 28x28 px
-            _image = self.image.convertToFormat(QImage.Format_Grayscale8).scaled(28, 28)
+            _image = self.image.convertToFormat(QImage.Format_Grayscale8).scaled(self.resolution, self.resolution)
             width = _image.width()
             height = _image.height()
 
@@ -146,7 +148,7 @@ class Canvas(QWidget):
             data = _image.bits().asstring(width * height)
             arr = np.frombuffer(data, dtype=np.uint8).reshape((height, width))
 
-            self.image = self.image.scaled(28, 28)
+            self.image = self.image.scaled(self.resolution, self.resolution)
             self.update()
 
             self.converted_image = arr
