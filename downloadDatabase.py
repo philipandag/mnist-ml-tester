@@ -1,7 +1,7 @@
 from sklearn.datasets import fetch_openml
 import joblib
 
-mnist = fetch_openml('mnist_', as_frame=False)
+mnist = fetch_openml('mnist_784', as_frame=False)
 
 # Odwróć kolorystykę obrazków
 mnist.data = 255 - mnist.data
