@@ -1,2 +1,3 @@
-/minecraft.mp3
-/test.midi
+__pychache__
+.idea
+*.joblib
