@@ -5,9 +5,9 @@ import numpy as np
 from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
+
+from AbstractModel import Model
 
 
 class MainWindow(QMainWindow):
@@ -19,26 +19,31 @@ class MainWindow(QMainWindow):
         self.X = self.mnist.data
         self.y = self.mnist.target
 
+        # Sprawdzenie, czy baza danych została wczytana poprawnie
+
+        print(f"X: {self.X.shape}")
+        print(self.mnist.data)
+        print(f"y: {self.y.shape}")
+        print(self.mnist.target)
+
         # Podział na zbiór treningowy i testowy
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, test_size=0.2,
                                                                                 random_state=42)
 
         # Wybór modelu
         self.model_type, ok = QInputDialog.getItem(self, "Wybierz", "Wybierz model",
-                                                   ["Drzewo decyzyjne z biblioteki sklearn", "Własne drzewo decyzyjne",
-                                                    "Random Forest z biblioteki sklearn"], 0, False)
+                                                   ["Model 1", "Model 2", "Model 3"], 0, False)
         # Jeśli użytkownik kliknął "Cancel"
         if not ok:
             sys.exit()
 
         # Jeśli wybrał własne drzewo decyzyjne itd.
-        if self.model_type == "Własne drzewo decyzyjne":
-            # Wczytaj tutaj model self.clf = ...
-            pass
-        elif self.model_type == "Drzewo decyzyjne z biblioteki sklearn":
-            self.clf = DecisionTreeClassifier()
-        elif self.model_type == "Random Forest z biblioteki sklearn":
-            self.clf = RandomForestClassifier()
+        if self.model_type == "Model 1":
+            self.model = Model()
+        elif self.model_type == "Model 2":
+            self.model = Model()
+        elif self.model_type == "Model 3":
+            self.model = Model()
 
         # Trenowanie modelu
         msgBox = QMessageBox()
@@ -46,14 +51,14 @@ class MainWindow(QMainWindow):
         msgBox.show()
 
         print("Trenuję...")
-        print(self.X_train.shape)
+        print(f"Rozmiar danych treningowych {self.X_train.shape}")
 
-        self.clf.fit(self.X_train, self.y_train)
+        self.model.fit(self.X_train, self.y_train)
 
         msgBox.close()
         msgBox2 = QMessageBox()
         msgBox2.setWindowTitle("Trenowanie zakończone")
-        msgBox2.setText(f"Wynik na danych testowych: {self.clf.score(self.X_test, self.y_test)}")
+        msgBox2.setText(f"Wynik na danych testowych: {self.model.score(self.X_test, self.y_test)}")
         msgBox2.exec_()
 
         # Ustawienie interfejsu
@@ -85,7 +90,7 @@ class MainWindow(QMainWindow):
         image = image.reshape(1, -1).astype(np.float32)
 
         # Tutaj klasyfikacja
-        prediction = self.clf.predict(image)
+        prediction = self.model.predict(image)
 
         # Wpisanie wyniku do menu
         self.results_action.setText(f"Wyniki: {prediction}")
