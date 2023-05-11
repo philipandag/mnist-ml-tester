@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 
 from AbstractModel import Model
 
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -137,7 +136,7 @@ class Canvas(QWidget):
     def mouseMoveEvent(self, event):
         if self.drawing:
             painter = QPainter(self.image)
-            painter.setPen(QPen(Qt.black, 15, Qt.SolidLine, Qt.RoundCap))
+            painter.setPen(QPen(Qt.black, 30, Qt.SolidLine, Qt.RoundCap))
             painter.drawLine(self.last_point, event.pos())
             self.last_point = event.pos()
 
@@ -146,10 +145,10 @@ class Canvas(QWidget):
     def image_pixel_average(self, image: PyQt5.QtGui.QImage, posX, posY, width, height):
         pixel_sum = 0
         pixels_in_area = 0
-        for x in range(posX-width//2, posX + width//2):
+        for x in range(posX-width//4, posX + width//4):
             if x < 0 or x >= image.width():
                 continue
-            for y in range(posY-width//2, posY + height//2):
+            for y in range(posY-width//4, posY + height//4):
                 if y < 0 or y >= image.height():
                     continue
                 pixel_sum += image.pixel(x, y)
@@ -178,9 +177,6 @@ class Canvas(QWidget):
             # Wyciągnięcie danych z pikseli i zamiana na macierz numpy
             data = _image.bits().asstring(width * height)
             arr = np.frombuffer(data, dtype=np.uint8).reshape((height, width))
-
-            plt.imshow(arr.reshape(28, 28), cmap='gray')
-            plt.show()
 
             self.image = _image
             self.update()
