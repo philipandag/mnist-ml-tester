@@ -1,11 +1,14 @@
 import sys
 
+import PyQt5.QtGui
 import joblib
 import numpy as np
 from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from sklearn.model_selection import train_test_split
+
+import matplotlib.pyplot as plt
 
 from AbstractModel import Model
 
@@ -40,11 +43,11 @@ class MainWindow(QMainWindow):
 
         # Jeśli wybrał własne drzewo decyzyjne itd.
         if self.model_type == "Model 1":
-            self.model = Model()
+            self.model = None
         elif self.model_type == "Model 2":
-            self.model = Model()
+            self.model = None
         elif self.model_type == "Model 3":
-            self.model = Model()
+            self.model = None
 
         # Trenowanie modelu
         msgBox = QMessageBox()
@@ -54,13 +57,13 @@ class MainWindow(QMainWindow):
         print("Trenuję...")
         print(f"Rozmiar danych treningowych {self.X_train.shape}")
 
-        self.model.fit(self.X_train, self.y_train)
+        #self.model.fit(self.X_train, self.y_train)
 
-        msgBox.close()
-        msgBox2 = QMessageBox()
-        msgBox2.setWindowTitle("Trenowanie zakończone")
-        msgBox2.setText(f"Wynik na danych testowych: {self.model.score(self.X_test, self.y_test)}")
-        msgBox2.exec_()
+        #msgBox.close()
+        #msgBox2 = QMessageBox()
+        #msgBox2.setWindowTitle("Trenowanie zakończone")
+        #msgBox2.setText(f"Wynik na danych testowych: {self.model.score(self.X_test, self.y_test)}")
+        #msgBox2.exec_()
 
         # Ustawienie interfejsu
         self.canvas = Canvas(self, width=280, height=280, resolution=self.resolution)
@@ -92,6 +95,10 @@ class MainWindow(QMainWindow):
 
         # Tutaj klasyfikacja
         prediction = self.model.predict(image)
+
+        # Jeśli to wektor prawdopodobieństw to wybierz najbardziej prawdopodobną cyfrę
+        if len(prediction.shape) == 2:
+            prediction = np.argmax(prediction, axis=1)[0]
 
         # Wpisanie wyniku do menu
         self.results_action.setText(f"Wyniki: {prediction}")
@@ -136,11 +143,35 @@ class Canvas(QWidget):
 
             self.update()
 
+    def image_pixel_average(self, image: PyQt5.QtGui.QImage, posX, posY, width, height):
+        pixel_sum = 0
+        pixels_in_area = 0
+        for x in range(posX-width//2, posX + width//2):
+            if x < 0 or x >= image.width():
+                continue
+            for y in range(posY-width//2, posY + height//2):
+                if y < 0 or y >= image.height():
+                    continue
+                pixel_sum += image.pixel(x, y)
+                pixels_in_area += 1
+        return int(pixel_sum / pixels_in_area)
+    def downsize(self, image: PyQt5.QtGui.QImage, new_width, new_height):
+        new_pixel_size = (int(image.width() / new_width), int(image.height() / new_height))
+        new_image = QImage(new_width, new_height, QImage.Format_Grayscale8)
+        for x in range(new_width):
+            for y in range(new_height):
+                v = self.image_pixel_average(image, x * new_pixel_size[0], y * new_pixel_size[1], new_pixel_size[0], new_pixel_size[1])
+                new_image.setPixel(x, y, v)
+
+        return new_image
+
+
     def mouseReleaseEvent(self, event):
         if self.drawing:
             self.drawing = False
-            # Konwersja obrazka na czarno-biały 28x28 px
-            _image = self.image.convertToFormat(QImage.Format_Grayscale8).scaled(self.resolution, self.resolution)
+            # Konwersja obrazka na czarno-biały 28x28 px z antyaliasingiem
+            _image = self.downsize(self.image, 28, 28)
+
             width = _image.width()
             height = _image.height()
 
@@ -148,7 +179,10 @@ class Canvas(QWidget):
             data = _image.bits().asstring(width * height)
             arr = np.frombuffer(data, dtype=np.uint8).reshape((height, width))
 
-            self.image = self.image.scaled(self.resolution, self.resolution)
+            plt.imshow(arr.reshape(28, 28), cmap='gray')
+            plt.show()
+
+            self.image = _image
             self.update()
 
             self.converted_image = arr
