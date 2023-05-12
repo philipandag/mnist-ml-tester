@@ -9,14 +9,16 @@ from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QPainter, QImage, QPen
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushButton, QWidget, QInputDialog, QFileDialog
 from matplotlib import pyplot as plt
+from sklearn.model_selection import train_test_split
 
-from downloadDatabase import downloadBase
 from AbstractModel import Model
+from downloadDatabase import downloadBase
 
 # Tutaj wstaw swoje modele
 models = [
     Model
 ]
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -53,6 +55,15 @@ class MainWindow(QMainWindow):
         pobierz_action = QAction("Pobierz", self)
         baza_menu.addAction(wczytaj_baze_action)
         baza_menu.addAction(pobierz_action)
+
+        # Add the checkable QAction to a new menu
+        plot_menu = menubar.addMenu('Inne')
+
+        # Add checkbox for showing plots
+        # Create a checkable QAction
+        self.plot_checkbox = QAction('Pokazuj wykresy', self, checkable=True)
+        self.plot_checkbox.setChecked(True)
+        plot_menu.addAction(self.plot_checkbox)
 
         # Connect the actions to their respective methods
         nowy_action.triggered.connect(self.nowy_model)
@@ -220,7 +231,8 @@ class MainWindow(QMainWindow):
                 self.predicted_value.setText(f"Predicted value: {predicted}")
                 value = predicted
 
-            self.canvas.showResult(value)
+            if self.plot_checkbox.isChecked():
+                self.canvas.showResult(value)
             self.komunikat(f"Klasyfikacja zakończona, wynik: {value}", color="green")
             self.canvas.clear()
 
@@ -268,14 +280,15 @@ class MainWindow(QMainWindow):
                         f"Wybrana baza: {self.selected_base} {self.canvas.resolution}x{self.canvas.resolution}")
                     self.selected_base_label.setEnabled(True)
 
-                    for i in range(10):
-                        plt.subplot(2, 5, i + 1)
-                        random = np.random.randint(0, len(self.X))
-                        print(self.X[random])
-                        plt.imshow(self.X[random].reshape(self.canvas.resolution, self.canvas.resolution), cmap='gray',
-                                   vmin=0, vmax=255)
-                        plt.axis('off')
-                    plt.show()
+                    if self.plot_checkbox.isChecked():
+                        for i in range(10):
+                            plt.subplot(2, 5, i + 1)
+                            random = np.random.randint(0, len(self.X))
+                            plt.imshow(self.X[random].reshape(self.canvas.resolution, self.canvas.resolution),
+                                       cmap='gray',
+                                       vmin=0, vmax=255)
+                            plt.axis('off')
+                        plt.show()
 
                     print("Wczytano dane:")
                     print(f"X_train: {self.X_train.shape}")
