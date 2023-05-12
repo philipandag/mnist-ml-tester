@@ -1,27 +1,28 @@
-from sklearn.datasets import fetch_openml
+from sklearn.datasets import fetch_openml, load_digits
 import joblib
 import matplotlib.pyplot as plt
 import numpy as np
 
-mnist = fetch_openml('mnist_784', as_frame=False)
 
-# Odwróć kolorystykę obrazków
-mnist.data = 255 - mnist.data
+def downloadBase(nazwa_bazy):
+    if nazwa_bazy == 'mnist_64':
+        mnist = load_digits()
+    else:
+        mnist = fetch_openml(nazwa_bazy, as_frame=False)
 
-# Wyswietlenie randomowych 10 obrazków
-for i in range(10):
-    plt.subplot(2, 5, i + 1)
-    random = np.random.randint(0, len(mnist.data))
-    plt.imshow(mnist.data[random].reshape(28, 28), cmap='gray')
-    plt.axis('off')
-plt.show()
+    rozdzielczosc = int(np.sqrt(mnist.data.shape[1]))
 
-joblib.dump(mnist, 'mnist.joblib')
+    # Odwróć kolorystykę obrazków
+    mnist.data = 255 - mnist.data
 
-print("Pobrano bazę danych MNIST")
+    # Wyświetlenie randomowych 10 obrazków
+    for i in range(10):
+        plt.subplot(2, 5, i + 1)
+        random = np.random.randint(0, len(mnist.data))
+        plt.imshow(mnist.data[random].reshape(rozdzielczosc, rozdzielczosc), cmap='gray')
+        plt.axis('off')
+    plt.show()
 
-# Żeby wczytać bazę danych do programu
+    joblib.dump(mnist, f'{nazwa_bazy}.joblib')
 
-# mnist = joblib.load('mnist.joblib')
-# X = mnist.data
-# y = mnist.target
+    print(f"Pobrano bazę danych {nazwa_bazy}")
