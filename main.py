@@ -30,8 +30,6 @@ class MainWindow(QMainWindow):
         self.X_test = None
         self.y_test = None
 
-        self.image_to_predict = None
-
         # Create the menu bar
         menubar = self.menuBar()
 
@@ -40,11 +38,9 @@ class MainWindow(QMainWindow):
         nowy_action = QAction("Nowy", self)
         zapisz_action = QAction("Zapisz", self)
         wczytaj_action = QAction("Wczytaj", self)
-        trenuj_action = QAction("Trenuj", self)
         model_menu.addAction(nowy_action)
         model_menu.addAction(zapisz_action)
         model_menu.addAction(wczytaj_action)
-        model_menu.addAction(trenuj_action)
 
         # Create the Baza menu and add actions to it
         baza_menu = menubar.addMenu("Baza")
@@ -57,7 +53,6 @@ class MainWindow(QMainWindow):
         nowy_action.triggered.connect(self.nowy_model)
         zapisz_action.triggered.connect(self.zapisz_model)
         wczytaj_action.triggered.connect(self.wczytaj_model)
-        trenuj_action.triggered.connect(self.trenuj_model)
         pobierz_action.triggered.connect(self.pobierz_baze)
         wczytaj_baze_action.triggered.connect(self.wczytaj_baze)
 
@@ -86,14 +81,19 @@ class MainWindow(QMainWindow):
         self.status = self.statusBar()
         self.status.addWidget(self.label)
 
-        # Add button predict
+        # Fit button
+        self.button_trenuj = QPushButton('Trenuj', self)
+        self.button_trenuj.move(100, 330)
+        self.button_trenuj.clicked.connect(self.trenuj_model)
+
+        # Predict button
         self.button_predict = QPushButton('Klasyfikuj', self)
-        self.button_predict.move(50, 330)
+        self.button_predict.move(200, 330)
         self.button_predict.clicked.connect(self.klasyfikuj)
 
-        # Add button clear next to predict
+        # Clear button
         self.button_clear = QPushButton('Wyczyść', self)
-        self.button_clear.move(150, 330)
+        self.button_clear.move(300, 330)
         self.button_clear.clicked.connect(self.clear)
 
         # Add text field for predicted value
@@ -103,11 +103,11 @@ class MainWindow(QMainWindow):
         self.predicted_value.resize(170, 300)
         self.predicted_value.setStyleSheet("border: 1px solid black;"
                                            "background-color: white;"
-                                           "font-size: 20px;")
-        self.predicted_value.setFrameShape(QLabel.Box)
+                                           "font-size: 15px;")
+        self.predicted_value.setWordWrap(True)
 
         # Add canvas for drawing
-        self.canvas = Canvas(self, width=300, height=300, image=self.image_to_predict)
+        self.canvas = Canvas(self, width=300, height=300)
         self.canvas.move(5, 25)
 
     def komunikat(self, text, color="black"):
@@ -117,22 +117,33 @@ class MainWindow(QMainWindow):
     def nowy_model(self):
         self.komunikat("Wybrano opcję Nowy")
 
-        # ComboBox with models
+        if self.selected_base is None:
+            self.komunikat("Nie wybrano bazy", color="red")
+            return
+
+        # Combobox with models
         model_type, ok_pressed = QInputDialog.getItem(self, "Wybór modelu", "Wybierz model:",
-                                                      ("Model 1", "Model 2", "Model 3"), 0, False)
+                                                      ("Model_1", "Model_2", "Model_3"), 0, False)
 
         if ok_pressed:
-            self.selected_model = model_type
-            self.selected_model_label.setText(f"Wybrany model: {self.selected_model}")
-            self.selected_model_label.setEnabled(True)
-            self.komunikat(f"Wybrano model {self.selected_model}", color="green")
 
-            if model_type == "Model 1":
+            if model_type == "Model_1":
                 self.model = None
-            elif model_type == "Model 2":
+            elif model_type == "Model_2":
                 self.model = None
-            elif model_type == "Model 3":
+            elif model_type == "Model_3":
                 self.model = None
+
+            if self.model is not None:
+                self.selected_model = model_type
+                self.selected_model_label.setText(f"Wybrany model: {self.selected_model}")
+                self.selected_model_label.setEnabled(True)
+                self.komunikat(f"Wybrano model {self.selected_model}", color="green")
+                self.fitted = False
+            else:
+                self.komunikat("Model pusty", color="red")
+        else:
+            self.komunikat("Nie wybrano modelu", color="red")
 
     def zapisz_model(self):
         self.komunikat("Wybrano opcję Zapisz")
@@ -151,9 +162,10 @@ class MainWindow(QMainWindow):
         file_name, ok = QFileDialog.getOpenFileName(self, "Wczytaj model", "", "Plik modelu (*.pkl)")
         if ok:
             self.model = pickle.load(open(file_name, "rb"))
-            self.selected_model = file_name.split(".")[0]
+            self.selected_model = file_name.split("/")[-1].split(".")[0]
             self.selected_model_label.setText(f"Wybrany model: {self.selected_model}")
             self.selected_model_label.setEnabled(True)
+            self.canvas.clear()
             self.komunikat(f"Wczytano model {self.selected_model}", color="green")
         else:
             self.komunikat("Nie wybrano modelu", color="red")
@@ -171,13 +183,41 @@ class MainWindow(QMainWindow):
 
             self.model.fit(self.X_train, self.y_train)
 
+            try:
+                score = self.model.score(self.X_test, self.y_test)
+            except:
+                score = self.model.evaluate(self.X_test, self.y_test)[1]
+
+            self.komunikat(f"Model wyćwiczony, wynik: {score}", color="green")
+
+            self.canvas.clear()
+
     def klasyfikuj(self):
         self.komunikat("Wybrano opcję Klasyfikuj")
         if self.fitted is False:
             self.komunikat("Model nie wyćwiczony", color="red")
         else:
             self.komunikat("Klasyfikowanie...", color="green")
-            self.predicted_value.setText(f"Predicted value: {self.model.predict(self.image_to_predict)}")
+
+            predicted_value = self.model.predict(self.canvas.getConvertedImage())[0]
+
+            if type(predicted_value) == np.int32:
+                self.predicted_value.setText(f"Predicted value: {predicted_value}")
+            else:
+                text = "<html><body>"
+                max_index = np.argmax(predicted_value)
+
+                for i in range(len(predicted_value)):
+                    if i == max_index:
+                        text += f"<b>{i}: {predicted_value[i]:.5f}</b>\n"
+                    else:
+                        text += f"{i}: {predicted_value[i]:.5f}\n"
+
+                text += "</body></html>"
+                self.predicted_value.setText(text)
+
+            self.canvas.clear()
+            self.komunikat("Klasyfikacja zakończona", color="green")
 
     def pobierz_baze(self):
         self.komunikat("Wybrano opcję Pobierz")
@@ -198,22 +238,22 @@ class MainWindow(QMainWindow):
         file_name, ok = QFileDialog.getOpenFileName(self, "Wybierz plik", "", "Pliki joblib (*.joblib)")
         if ok:
             if os.path.exists(f"{file_name}"):
-                # From absolute path get only file name without extension
-                self.selected_base = os.path.splitext(os.path.basename(file_name))[0]
-                self.komunikat(f"Wybrano bazę {self.selected_base}", color="green")
-
-                test_size, ok = QInputDialog.getInt(self, "Wybierz",
-                                                    "Podaj rozmiar testowy (w %):",
-                                                    min=1, max=99, step=1, value=20)
+                train_size, ok = QInputDialog.getInt(self, "Wybierz",
+                                                     "Podaj rozmiar treningowy (w %):",
+                                                     min=1, max=99, step=1, value=80)
 
                 if ok:
-                    test_size /= 100
+                    # From absolute path get only file name without extension
+                    self.selected_base = os.path.splitext(os.path.basename(file_name))[0]
+                    self.komunikat(f"Wybrano bazę {self.selected_base}", color="green")
+
+                    train_size /= 100
                     self.mnist = joblib.load(f'{self.selected_base}.joblib')
                     self.X = self.mnist.data
                     self.y = self.mnist.target
 
                     self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y,
-                                                                                            test_size=test_size,
+                                                                                            train_size=train_size,
                                                                                             random_state=42)
                     self.fitted = False
 
@@ -238,14 +278,14 @@ class MainWindow(QMainWindow):
 
 
 class Canvas(QWidget):
-    def __init__(self, parent, width, height, resolution=64, image=None):
+    def __init__(self, parent, width, height, resolution=64):
         super().__init__(parent)
         self.width = width
         self.height = height
         self.setFixedSize(self.width, self.height)
         self.resolution = resolution
 
-        self.convertedImage = image
+        self.converted_image = None
 
         self.fullresImage = QImage(300, 300, QImage.Format.Format_Grayscale8)
         self.fullresImage.fill(Qt.white)
@@ -314,13 +354,18 @@ class Canvas(QWidget):
 
             self.image = self.resizedImage
             self.update()
-
+            arr = arr.reshape(1, -1).astype(np.float32)
             self.converted_image = arr
 
     def clear(self):
         self.fullresImage.fill(Qt.white)
         self.resizedImage.fill(Qt.white)
         self.update()
+
+    def getConvertedImage(self):
+        if self.converted_image is None:
+            return np.full((1, self.resolution * self.resolution), 255, dtype=np.float32)
+        return self.converted_image
 
 
 if __name__ == "__main__":

@@ -8,7 +8,11 @@ def downloadBase(nazwa_bazy):
     if nazwa_bazy == 'mnist_64':
         mnist = load_digits()
     else:
-        mnist = fetch_openml(nazwa_bazy, as_frame=False)
+        try:
+            mnist = fetch_openml(nazwa_bazy, as_frame=False)
+        except:
+            print(f"Baza danych {nazwa_bazy} nie istnieje")
+            return
 
     rozdzielczosc = int(np.sqrt(mnist.data.shape[1]))
 
