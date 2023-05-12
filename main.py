@@ -11,7 +11,12 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushBut
 from sklearn.model_selection import train_test_split
 
 from downloadDatabase import downloadBase
+from AbstractModel import Model
 
+# Tutaj wstaw swoje modele
+models = [
+    Model
+]
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -123,16 +128,10 @@ class MainWindow(QMainWindow):
 
         # Combobox with models
         model_type, ok_pressed = QInputDialog.getItem(self, "Wybór modelu", "Wybierz model:",
-                                                      ("Model_1", "Model_2", "Model_3"), 0, False)
+                                                      (model.__name__ for model in models), 0, False)
 
         if ok_pressed:
-
-            if model_type == "Model_1":
-                self.model = None
-            elif model_type == "Model_2":
-                self.model = None
-            elif model_type == "Model_3":
-                self.model = None
+            self.model = globals()[model_type]()
 
             if self.model is not None:
                 self.selected_model = model_type
