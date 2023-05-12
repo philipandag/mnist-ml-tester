@@ -8,7 +8,7 @@ import numpy as np
 from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QPainter, QImage, QPen
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushButton, QWidget, QInputDialog, QFileDialog
-from sklearn.model_selection import train_test_split
+from matplotlib import pyplot as plt
 
 from downloadDatabase import downloadBase
 
@@ -44,10 +44,10 @@ class MainWindow(QMainWindow):
 
         # Create the Baza menu and add actions to it
         baza_menu = menubar.addMenu("Baza")
-        pobierz_action = QAction("Pobierz", self)
         wczytaj_baze_action = QAction("Wczytaj", self)
-        baza_menu.addAction(pobierz_action)
+        pobierz_action = QAction("Pobierz", self)
         baza_menu.addAction(wczytaj_baze_action)
+        baza_menu.addAction(pobierz_action)
 
         # Connect the actions to their respective methods
         nowy_action.triggered.connect(self.nowy_model)
@@ -152,6 +152,8 @@ class MainWindow(QMainWindow):
             self.komunikat("Nie wybrano modelu", color="red")
         elif self.model is None:
             self.komunikat("Model pusty", color="red")
+        if self.fitted is False:
+            self.komunikat("Model nie jest wytrenowany", color="red")
         else:
             pickle.dump(self.model, open(f"{self.selected_model}.pkl", "wb"))
             self.komunikat("Zapisano model", color="green")
@@ -199,25 +201,29 @@ class MainWindow(QMainWindow):
         else:
             self.komunikat("Klasyfikowanie...", color="green")
 
-            predicted_value = self.model.predict(self.canvas.getConvertedImage())[0]
+            predicted = self.model.predict(self.canvas.getConvertedImage())[0]
+
+            print(f"Predicted: {predicted}")
 
             try:
                 text = "<html><body>"
-                max_index = np.argmax(predicted_value)
+                value = np.argmax(predicted)
 
-                for i in range(len(predicted_value)):
-                    if i == max_index:
-                        text += f"<b>{i}: {predicted_value[i]:.5f}</b>\n"
+                for i in range(len(predicted)):
+                    if i == value:
+                        text += f"<b>{i}: {predicted[i]:.5f}</b>\n"
                     else:
-                        text += f"{i}: {predicted_value[i]:.5f}\n"
+                        text += f"{i}: {predicted[i]:.5f}\n"
 
                 text += "</body></html>"
                 self.predicted_value.setText(text)
             except:
-                self.predicted_value.setText(f"Predicted value: {predicted_value}")
+                self.predicted_value.setText(f"Predicted value: {predicted}")
+                value = predicted
 
-        self.canvas.clear()
-        self.komunikat("Klasyfikacja zakończona", color="green")
+            self.canvas.showResult(value)
+            self.komunikat(f"Klasyfikacja zakończona, wynik: {value}", color="green")
+            self.canvas.clear()
 
     def pobierz_baze(self):
         self.komunikat("Wybrano opcję Pobierz")
@@ -262,6 +268,29 @@ class MainWindow(QMainWindow):
                     self.selected_base_label.setText(
                         f"Wybrana baza: {self.selected_base} {self.canvas.resolution}x{self.canvas.resolution}")
                     self.selected_base_label.setEnabled(True)
+
+                    for i in range(10):
+                        plt.subplot(2, 5, i + 1)
+                        random = np.random.randint(0, len(self.X))
+                        print(self.X[random])
+                        plt.imshow(self.X[random].reshape(self.canvas.resolution, self.canvas.resolution), cmap='gray',
+                                   vmin=0, vmax=255)
+                        plt.axis('off')
+                    plt.show()
+
+                    print("Wczytano dane:")
+                    print(f"X_train: {self.X_train.shape}")
+                    print(f"X_test: {self.X_test.shape}")
+                    print(f"y_train: {self.y_train.shape}")
+                    print(f"y_test: {self.y_test.shape}")
+
+                    print("X:")
+                    print(self.X)
+                    print("y:")
+                    print(self.y)
+
+                    self.komunikat("Wczytano dane", color="green")
+
                 else:
                     self.komunikat("Anulowano", color="red")
             else:
@@ -270,7 +299,7 @@ class MainWindow(QMainWindow):
             self.komunikat("Anulowano", color="red")
 
     def clear(self):
-        self.komunikat("Wyczyszczono")
+        self.komunikat("Wyczyszczono", color="green")
         self.canvas.clear()
 
     def exit(self):
@@ -360,12 +389,21 @@ class Canvas(QWidget):
     def clear(self):
         self.fullresImage.fill(Qt.white)
         self.resizedImage.fill(Qt.white)
+        self.converted_image = None
         self.update()
 
     def getConvertedImage(self):
         if self.converted_image is None:
-            return np.full((1, self.resolution * self.resolution), 255, dtype=np.float32)
+            self.converted_image = np.zeros((1, self.resolution * self.resolution), dtype=np.float32) + 255
         return self.converted_image
+
+    def showResult(self, result):
+        try:
+            plt.imshow(self.converted_image.reshape(self.resolution, self.resolution), cmap='gray', vmin=0, vmax=255)
+            plt.title(f"Rozpoznano: {result}")
+            plt.show()
+        except:
+            print("Nie można wyświetlić obrazka")
 
 
 if __name__ == "__main__":
