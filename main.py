@@ -195,15 +195,13 @@ class MainWindow(QMainWindow):
     def klasyfikuj(self):
         self.komunikat("Wybrano opcję Klasyfikuj")
         if self.fitted is False:
-            self.komunikat("Model nie wyćwiczony", color="red")
+            self.komunikat("Model niewyćwiczony", color="red")
         else:
             self.komunikat("Klasyfikowanie...", color="green")
 
             predicted_value = self.model.predict(self.canvas.getConvertedImage())[0]
 
-            if type(predicted_value) == np.int32:
-                self.predicted_value.setText(f"Predicted value: {predicted_value}")
-            else:
+            try:
                 text = "<html><body>"
                 max_index = np.argmax(predicted_value)
 
@@ -215,9 +213,11 @@ class MainWindow(QMainWindow):
 
                 text += "</body></html>"
                 self.predicted_value.setText(text)
+            except:
+                self.predicted_value.setText(f"Predicted value: {predicted_value}")
 
-            self.canvas.clear()
-            self.komunikat("Klasyfikacja zakończona", color="green")
+        self.canvas.clear()
+        self.komunikat("Klasyfikacja zakończona", color="green")
 
     def pobierz_baze(self):
         self.komunikat("Wybrano opcję Pobierz")
