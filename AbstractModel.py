@@ -19,6 +19,7 @@ class Model(object):
     def score(self, X_test: np.ndarray, y_test: np.ndarray) -> float:
         raise NotImplementedError("score not implemented")
 
+
 class DummyModel(Model):
     def __init__(self):
         print("Dummy model initialized")
@@ -30,7 +31,7 @@ class DummyModel(Model):
     # return an array of 10 floats where each float represents the probability of the corresponding digit
     def predict(self, X_test: np.ndarray) -> np.ndarray:
         print("Dummy model predict")
-        return np.zeros((X_test.shape[0], 10))
+        return np.random.rand(X_test.shape[0], 10)
 
     # return the mean accuracy on the given test data and labels
     def score(self, X_test: np.ndarray, y_test: np.ndarray) -> float:
