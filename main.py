@@ -2,18 +2,14 @@ import os
 import pickle
 import sys
 
-import PyQt5
 import joblib
 import numpy as np
-from PyQt5.QtCore import QPoint, Qt
-from PyQt5.QtGui import QPainter, QImage, QPen, QColor
-from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushButton, QWidget, QInputDialog, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushButton, QInputDialog, QFileDialog
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 
-from Canvas import Canvas
-from AbstractModel import Model
 from AbstractModel import DummyModel
+from Canvas import Canvas
 from downloadDatabase import downloadBase
 
 # Tutaj wstaw swoje modele
@@ -132,7 +128,6 @@ class MainWindow(QMainWindow):
         # Add canvas for drawing
         self.canvas = Canvas(self, width=300, height=300)
         self.canvas.move(5, 25)
-
 
     def komunikat(self, text, color="black"):
         self.label.setText(text)
@@ -333,6 +328,7 @@ class MainWindow(QMainWindow):
 
     def exit(self):
         QApplication.quit()
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
