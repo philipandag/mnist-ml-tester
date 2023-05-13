@@ -12,11 +12,12 @@ from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 
 from AbstractModel import Model
+from AbstractModel import DummyModel
 from downloadDatabase import downloadBase
 
 # Tutaj wstaw swoje modele
 models = [
-    Model
+    DummyModel,
 ]
 
 
@@ -130,6 +131,7 @@ class MainWindow(QMainWindow):
         # Add canvas for drawing
         self.canvas = Canvas(self, width=300, height=300)
         self.canvas.move(5, 25)
+
 
     def komunikat(self, text, color="black"):
         self.label.setText(text)
@@ -331,6 +333,13 @@ class MainWindow(QMainWindow):
     def exit(self):
         QApplication.quit()
 
+    def randomImage(self):
+        if self.selected_base is None:
+            self.komunikat("Nie wybrano bazy", color="red")
+        else:
+            self.canvas.putImage(self.X[np.random.randint(0, len(self.X))]
+                                 .reshape(self.canvas.resolution, self.canvas.resolution))
+
 
 class Canvas(QWidget):
     def __init__(self, parent, width, height, resolution=64):
@@ -349,6 +358,7 @@ class Canvas(QWidget):
 
         self.drawing = False
         self.last_point = QPoint()
+        self.last_width = 0
 
     def paintEvent(self, event):
         # Rysowanie płótna
@@ -364,7 +374,16 @@ class Canvas(QWidget):
     def mouseMoveEvent(self, event):
         if self.drawing:
             painter = QPainter(self.fullresImage)
-            painter.setPen(QPen(Qt.black, self.width // self.resolution, Qt.SolidLine, Qt.RoundCap))
+
+            dist = event.pos() - self.last_point
+            module = np.abs(np.sqrt(dist.x() ** 2 + dist.y() ** 2))
+
+            width = (self.width / self.resolution) * 1/(module-0.5)
+
+            width = self.last_width * 0.9 + width * 0.1
+            self.last_width = width
+
+            painter.setPen(QPen(Qt.black, int(width), Qt.SolidLine, Qt.RoundCap))
             painter.drawLine(self.last_point, event.pos())
             self.last_point = event.pos()
 
@@ -373,23 +392,24 @@ class Canvas(QWidget):
     def image_pixel_average(self, image: PyQt5.QtGui.QImage, posX, posY, width, height):
         pixel_sum = 0
         pixels_in_area = 0
-        for x in range(posX - width // 4, posX + width // 4):
+        for x in range(posX, posX + width):
             if x < 0 or x >= image.width():
                 continue
-            for y in range(posY - width // 4, posY + height // 4):
+            for y in range(posY, posY + height):
                 if y < 0 or y >= image.height():
                     continue
                 pixel_sum += image.pixel(x, y)
                 pixels_in_area += 1
+
         return int(pixel_sum / pixels_in_area)
 
     def downsize(self, image: PyQt5.QtGui.QImage, new_width, new_height):
-        new_pixel_size = (int(image.width() / new_width), int(image.height() / new_height))
+        new_pixel_size = (image.width() / new_width, image.height() / new_height)
         new_image = QImage(new_width, new_height, QImage.Format_Grayscale8)
         for x in range(new_width):
             for y in range(new_height):
-                v = self.image_pixel_average(image, x * new_pixel_size[0], y * new_pixel_size[1], new_pixel_size[0],
-                                             new_pixel_size[1])
+                v = self.image_pixel_average(image, int(x * new_pixel_size[0]), int(y * new_pixel_size[1]),
+                                             int(new_pixel_size[0]*0.5), int(new_pixel_size[1]*0.5))
                 new_image.setPixel(x, y, v)
 
         return new_image
@@ -398,8 +418,8 @@ class Canvas(QWidget):
         if self.drawing:
             self.drawing = False
             # TODO Konwersja obrazka na czarno-biały z antyaliasingiem
-            # self.resizedImage = self.downsize(self.fullresImage, self.resolution, self.resolution)
-            self.resizedImage = self.fullresImage.scaled(self.resolution, self.resolution, Qt.KeepAspectRatio)
+            self.resizedImage = self.downsize(self.fullresImage, self.resolution, self.resolution)
+            #self.resizedImage = self.fullresImage.scaled(self.resolution, self.resolution, Qt.KeepAspectRatio)
 
             width = self.resizedImage.width()
             height = self.resizedImage.height()
