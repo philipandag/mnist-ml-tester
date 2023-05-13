@@ -6,7 +6,7 @@ import PyQt5
 import joblib
 import numpy as np
 from PyQt5.QtCore import QPoint, Qt
-from PyQt5.QtGui import QPainter, QImage, QPen
+from PyQt5.QtGui import QPainter, QImage, QPen, QColor
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushButton, QWidget, QInputDialog, QFileDialog
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
@@ -281,7 +281,7 @@ class MainWindow(QMainWindow):
                                                                                             random_state=42)
                     self.fitted = False
 
-                    self.canvas.resolution = int(np.sqrt(self.X.shape[1]))
+                    self.canvas.set_resolution(int(np.sqrt(self.X.shape[1])))
                     self.canvas.clear()
 
                     self.selected_base_label.setText(
@@ -349,16 +349,19 @@ class Canvas(QWidget):
         self.setFixedSize(self.width, self.height)
         self.resolution = resolution
 
+        self.image = QImage(resolution, resolution, QImage.Format.Format_Grayscale8)
+        self.image.fill(Qt.white)
         self.converted_image = None
 
-        self.fullresImage = QImage(width, height, QImage.Format.Format_Grayscale8)
-        self.fullresImage.fill(Qt.white)
-        self.image = self.fullresImage
-        self.resizedImage = self.downsize(self.fullresImage, self.resolution, self.resolution)
-
         self.drawing = False
-        self.last_point = QPoint()
+        self.last_point_canvas = QPoint()
+        self.last_point_screen = QPoint()
         self.last_width = 0
+
+    def set_resolution(self, resolution):
+        self.resolution = resolution
+        self.image = QImage(resolution, resolution, QImage.Format.Format_Grayscale8)
+        self.image.fill(Qt.white)
 
     def paintEvent(self, event):
         # Rysowanie płótna
@@ -367,99 +370,89 @@ class Canvas(QWidget):
 
     def mousePressEvent(self, event):
         self.drawing = True
-        self.last_point = event.pos()
+        self.last_point_screen = event.pos()
+        self.last_point_canvas = self.scale_point_to_canvas(event.pos())
 
-        self.image = self.fullresImage
+    def scale_point_to_canvas(self, point):
+        return point.x() / (self.width / self.resolution), point.y()/ (self.height / self.resolution)
+
+    def drawPoint(self, pos, width):
+        pixel_pos = (int(pos[0]), int(pos[1]))
+        width_px = int(width)
+        for dy in range(-width_px, width_px+2):
+            for dx in range(-width_px, width_px+2):
+
+                if pixel_pos[0] + dx < 0 or pixel_pos[0] + dx >= self.resolution or \
+                        pixel_pos[1] + dy < 0 or pixel_pos[1] + dy >= self.resolution:
+                    continue
+
+                color = QColor(self.image.pixelColor(pixel_pos[0] + dx, pixel_pos[1] + dy))
+
+                distx = pos[0]-(pixel_pos[0]+dx)
+                disty = pos[1]-(pixel_pos[1]+dy)
+                dist = np.sqrt(distx**2+disty**2)*0.1
+                value = 20-dist*255/width_px
+                print(dist)
+                newR = round(max(min(color.red(), color.red() - value), 0))
+                newG = round(max(min(color.green(), color.green() - value), 0))
+                newB = round(max(min(color.blue(), color.blue() - value), 0))
+                color.setRgb(newR, newG, newB)
+
+                self.image.setPixelColor(pixel_pos[0] + dx, pixel_pos[1] + dy, color)
+
+    def drawLine(self, p1, p2, width):
+        self.drawPoint(p2, width)
+
+
 
     def mouseMoveEvent(self, event):
         if self.drawing:
-            painter = QPainter(self.fullresImage)
+            pos_screen = event.pos()
+            pos_canvas = self.scale_point_to_canvas(event.pos())
 
-            dist = event.pos() - self.last_point
-            module = np.abs(np.sqrt(dist.x() ** 2 + dist.y() ** 2))
+            dist = pos_screen - self.last_point_screen
+            module = np.sqrt(dist.x() ** 2 + dist.y() ** 2)
 
-            width = (self.width / self.resolution) * 1/(module-0.5)
 
+            width = max(self.resolution * 0.3 / (module+1), 1)
             width = self.last_width * 0.9 + width * 0.1
             self.last_width = width
 
-            painter.setPen(QPen(Qt.black, int(width), Qt.SolidLine, Qt.RoundCap))
-            painter.drawLine(self.last_point, event.pos())
-            self.last_point = event.pos()
-
+            self.drawLine(self.last_point_canvas, pos_canvas, width)
+            self.last_point_screen = pos_screen
+            self.last_point_canvas = pos_canvas
             self.update()
-
-    def image_pixel_average(self, image: PyQt5.QtGui.QImage, posX, posY, width, height):
-        pixel_sum = 0
-        pixels_in_area = 0
-        for x in range(posX, posX + width):
-            if x < 0 or x >= image.width():
-                continue
-            for y in range(posY, posY + height):
-                if y < 0 or y >= image.height():
-                    continue
-                pixel_sum += image.pixel(x, y)
-                pixels_in_area += 1
-
-        return int(pixel_sum / pixels_in_area)
-
-    def downsize(self, image: PyQt5.QtGui.QImage, new_width, new_height):
-        new_pixel_size = (image.width() / new_width, image.height() / new_height)
-        new_image = QImage(new_width, new_height, QImage.Format_Grayscale8)
-        for x in range(new_width):
-            for y in range(new_height):
-                v = self.image_pixel_average(image, int(x * new_pixel_size[0]), int(y * new_pixel_size[1]),
-                                             int(new_pixel_size[0]*0.5), int(new_pixel_size[1]*0.5))
-                new_image.setPixel(x, y, v)
-
-        return new_image
 
     def mouseReleaseEvent(self, event):
         if self.drawing:
             self.drawing = False
-            # TODO Konwersja obrazka na czarno-biały z antyaliasingiem
-            self.resizedImage = self.downsize(self.fullresImage, self.resolution, self.resolution)
-            #self.resizedImage = self.fullresImage.scaled(self.resolution, self.resolution, Qt.KeepAspectRatio)
-
-            width = self.resizedImage.width()
-            height = self.resizedImage.height()
-
-            # Wyciągnięcie danych z pikseli i zamiana na macierz numpy
-            data = self.resizedImage.bits().asstring(width * height)
-            self.converted_image = np.frombuffer(data, dtype=np.uint8).astype(np.float32).reshape(1, width * height)
-
-            self.image = self.resizedImage
             self.update()
 
     def clear(self):
-        self.fullresImage.fill(Qt.white)
-        self.resizedImage.fill(Qt.white)
-        self.converted_image = None
+        self.image.fill(Qt.white)
         self.update()
-
-    def getConvertedImage(self):
-        if self.converted_image is None:
-            self.converted_image = np.zeros((1, self.resolution * self.resolution), dtype=np.float32) + 255
-        return self.converted_image
 
     def setImage(self, image):
         _image = image.reshape(self.resolution, self.resolution).astype(np.uint8)
 
-        self.resizedImage = QImage(_image, self.resolution, self.resolution, QImage.Format.Format_Grayscale8)
-        self.fullresImage = self.resizedImage.scaled(self.width, self.height, Qt.KeepAspectRatio)
-
-        self.converted_image = image.reshape(1, self.resolution * self.resolution)
-        self.image = self.resizedImage
+        self.image = QImage(_image, self.resolution, self.resolution, QImage.Format.Format_Grayscale8)
         self.update()
 
     def showResult(self, result):
         try:
-            plt.imshow(self.converted_image.reshape(self.resolution, self.resolution), cmap='gray', vmin=0, vmax=255)
+            plt.imshow(self.getConvertedImage().reshape(self.resolution, self.resolution), cmap='gray', vmin=0, vmax=255)
             plt.title(f"Rozpoznano: {result}")
             plt.show()
         except:
             print("Nie można wyświetlić obrazka")
 
+    def getConvertedImage(self):
+        width = self.image.width()
+        height = self.image.height()
+
+        data = self.image.bits().asstring(width * height)
+        self.converted_image = np.frombuffer(data, dtype=np.uint8).astype(np.float32).reshape(1, width * height)
+        return self.converted_image
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
