@@ -18,6 +18,20 @@ models = [
 ]
 
 
+class Confusion:
+    def __init__(self, value):
+        self.value = 0
+        self.tp = 0
+        self.fp = 0
+        self.fn = 0
+        self.tn = 0
+        self.accuracy = 0
+        self.precision = 0
+        self.recall = 0
+        self.f1 = 0
+
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -67,6 +81,11 @@ class MainWindow(QMainWindow):
         self.plot_checkbox = QAction('Pokazuj wykresy', self, checkable=True)
         self.plot_checkbox.setChecked(True)
         other_menu.addAction(self.plot_checkbox)
+
+        # Add button to Inne menu to create confusion matrix
+        self.confusion_matrix_button = QAction("Macierz pomyłek", self)
+        other_menu.addAction(self.confusion_matrix_button)
+        self.confusion_matrix_button.triggered.connect(self.macierz_konfuzji)
 
         # Connect the actions to their respective methods
         nowy_action.triggered.connect(self.nowy_model)
@@ -325,6 +344,46 @@ class MainWindow(QMainWindow):
         random = np.random.randint(0, len(self.X))
         self.komunikat(f"Wybrano obraz #{random}. Klasa {self.y[random]}", color="green")
         self.canvas.setImage(self.X[random])
+
+    def macierz_konfuzji(self):
+        self.komunikat("Wybrano opcję Macierz Konfuzji")
+        if self.fitted is False:
+            self.komunikat("Model niewyćwiczony", color="red")
+        else:
+            self.komunikat("Generowanie macierzy konfuzji...", color="green")
+
+            confusion_matrix = [Confusion(i) for i in range(0, 10)]
+
+            for i in range(len(self.X_test)):
+                predicted = np.argmax(self.model.predict(self.X_test[i])[0])
+                for j in range(10):
+                    if j == predicted:
+                        if j == np.argmax(self.y_test[i]):
+                            confusion_matrix[j].tp += 1
+                        else:
+                            confusion_matrix[j].fp += 1
+                    else:
+                        if j == np.argmax(self.y_test[i]):
+                            confusion_matrix[j].fn += 1
+                        else:
+                            confusion_matrix[j].tn += 1
+
+            for i in range(10):
+                confusion_matrix[i].accuracy = (confusion_matrix[i].tp + confusion_matrix[i].tn) / (confusion_matrix[i].tp + confusion_matrix[i].tn + confusion_matrix[i].fp + confusion_matrix[i].fn)
+                confusion_matrix[i].precision = confusion_matrix[i].tp / (confusion_matrix[i].tp + confusion_matrix[i].fp)
+                confusion_matrix[i].recall = confusion_matrix[i].tp / (confusion_matrix[i].tp + confusion_matrix[i].fn)
+                confusion_matrix[i].f1 = 2 * confusion_matrix[i].precision * confusion_matrix[i].recall / (confusion_matrix[i].precision + confusion_matrix[i].recall)
+
+            print("Confusion matrix:")
+            for i in range(10):
+                print("Class: ", i, "TP: ", confusion_matrix[i].fp, "TN: ", confusion_matrix[i].tn, "FP: ", confusion_matrix[i].fp, "FN: ", confusion_matrix[i].fn,
+                      "\n\tAccurracy: ", confusion_matrix[i].accuracy, "\n\tPrecision: ", confusion_matrix[i].precision, "\n\tRecall: ", confusion_matrix[i].recall, "\n\tF1: ", confusion_matrix[i].f1)
+
+
+
+
+
+
 
     def exit(self):
         QApplication.quit()
