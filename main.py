@@ -57,13 +57,18 @@ class MainWindow(QMainWindow):
         baza_menu.addAction(pobierz_action)
 
         # Add the checkable QAction to a new menu
-        plot_menu = menubar.addMenu('Inne')
+        other_menu = menubar.addMenu('Inne')
+
+        # Add button to Inne menu to upload random image
+        upload_random_image = QAction("Dodaj losowy obraz", self)
+        other_menu.addAction(upload_random_image)
+        upload_random_image.triggered.connect(self.set_random_image)
 
         # Add checkbox for showing plots
         # Create a checkable QAction
         self.plot_checkbox = QAction('Pokazuj wykresy', self, checkable=True)
         self.plot_checkbox.setChecked(True)
-        plot_menu.addAction(self.plot_checkbox)
+        other_menu.addAction(self.plot_checkbox)
 
         # Connect the actions to their respective methods
         nowy_action.triggered.connect(self.nowy_model)
@@ -275,6 +280,7 @@ class MainWindow(QMainWindow):
                     self.fitted = False
 
                     self.canvas.resolution = int(np.sqrt(self.X.shape[1]))
+                    self.canvas.clear()
 
                     self.selected_base_label.setText(
                         f"Wybrana baza: {self.selected_base} {self.canvas.resolution}x{self.canvas.resolution}")
@@ -314,6 +320,14 @@ class MainWindow(QMainWindow):
         self.komunikat("Wyczyszczono", color="green")
         self.canvas.clear()
 
+    def set_random_image(self):
+        if self.X is None:
+            self.komunikat("Nie wczytano bazy", color="red")
+            return
+        random = np.random.randint(0, len(self.X))
+        self.komunikat(f"Wybrano obraz #{random}. Klasa {self.y[random]}", color="green")
+        self.canvas.setImage(self.X[random])
+
     def exit(self):
         QApplication.quit()
 
@@ -328,7 +342,7 @@ class Canvas(QWidget):
 
         self.converted_image = None
 
-        self.fullresImage = QImage(300, 300, QImage.Format.Format_Grayscale8)
+        self.fullresImage = QImage(width, height, QImage.Format.Format_Grayscale8)
         self.fullresImage.fill(Qt.white)
         self.image = self.fullresImage
         self.resizedImage = self.downsize(self.fullresImage, self.resolution, self.resolution)
@@ -383,20 +397,19 @@ class Canvas(QWidget):
     def mouseReleaseEvent(self, event):
         if self.drawing:
             self.drawing = False
-            # Konwersja obrazka na czarno-biały z antyaliasingiem
-            self.resizedImage = self.downsize(self.fullresImage, self.resolution, self.resolution)
+            # TODO Konwersja obrazka na czarno-biały z antyaliasingiem
+            # self.resizedImage = self.downsize(self.fullresImage, self.resolution, self.resolution)
+            self.resizedImage = self.fullresImage.scaled(self.resolution, self.resolution, Qt.KeepAspectRatio)
 
             width = self.resizedImage.width()
             height = self.resizedImage.height()
 
             # Wyciągnięcie danych z pikseli i zamiana na macierz numpy
             data = self.resizedImage.bits().asstring(width * height)
-            arr = np.frombuffer(data, dtype=np.uint8).reshape((height, width))
+            self.converted_image = np.frombuffer(data, dtype=np.uint8).astype(np.float32).reshape(1, width * height)
 
             self.image = self.resizedImage
             self.update()
-            arr = arr.reshape(1, -1).astype(np.float32)
-            self.converted_image = arr
 
     def clear(self):
         self.fullresImage.fill(Qt.white)
@@ -408,6 +421,16 @@ class Canvas(QWidget):
         if self.converted_image is None:
             self.converted_image = np.zeros((1, self.resolution * self.resolution), dtype=np.float32) + 255
         return self.converted_image
+
+    def setImage(self, image):
+        _image = image.reshape(self.resolution, self.resolution).astype(np.uint8)
+
+        self.resizedImage = QImage(_image, self.resolution, self.resolution, QImage.Format.Format_Grayscale8)
+        self.fullresImage = self.resizedImage.scaled(self.width, self.height, Qt.KeepAspectRatio)
+
+        self.converted_image = image.reshape(1, self.resolution * self.resolution)
+        self.image = self.resizedImage
+        self.update()
 
     def showResult(self, result):
         try:

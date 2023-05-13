@@ -16,6 +16,8 @@ def downloadBase(nazwa_bazy):
 
     mnist.data = 255 - mnist.data  # Odwróć kolory
 
+    mnist.data[mnist.data < 0] = 0  # Zamień wartości ujemne na 0
+
     # Zamień tablicę klas na inty jeśli jest stringiem
     if type(mnist.target[0]) == str:
         mnist.target = mnist.target.astype(np.int8)
