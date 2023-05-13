@@ -55,7 +55,7 @@ class Canvas(QWidget):
                 disty = pos[1]-(pixel_pos[1]+dy)
                 dist = np.sqrt(distx**2+disty**2)*0.1
                 value = 20-dist*255/width_px
-                print(dist)
+
                 newR = round(max(min(color.red(), color.red() - value), 0))
                 newG = round(max(min(color.green(), color.green() - value), 0))
                 newB = round(max(min(color.blue(), color.blue() - value), 0))
