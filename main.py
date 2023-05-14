@@ -193,7 +193,6 @@ class MainWindow(QMainWindow):
             self.selected_model = file_name.split("/")[-1].split(".")[0]
             self.selected_model_label.setText(f"Wybrany model: {self.selected_model}")
             self.selected_model_label.setEnabled(True)
-            #self.canvas.clear()
             self.komunikat(f"Wczytano model {self.selected_model}", color="green")
         else:
             self.komunikat("Nie wybrano modelu", color="red")
@@ -222,7 +221,6 @@ class MainWindow(QMainWindow):
 
             self.komunikat(f"Model wyćwiczony, wynik: {score}, czas {(end - start):.3f}s", color="green")
 
-            #self.canvas.clear()
 
     def klasyfikuj(self):
         self.komunikat("Wybrano opcję Klasyfikuj")
@@ -254,7 +252,7 @@ class MainWindow(QMainWindow):
             if self.plot_checkbox.isChecked():
                 self.canvas.showResult(value)
             self.komunikat(f"Klasyfikacja zakończona, wynik: {value}", color="green")
-            #self.canvas.clear()
+
 
     def pobierz_baze(self):
         self.komunikat("Wybrano opcję Pobierz")
