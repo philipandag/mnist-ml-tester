@@ -345,9 +345,28 @@ class MainWindow(QMainWindow):
         if self.X is None:
             self.komunikat("Nie wczytano bazy", color="red")
             return
-        random = np.random.randint(0, len(self.X))
-        self.komunikat(f"Wybrano obraz #{random}. Klasa {self.y[random]}", color="green")
-        self.canvas.setImage(self.X[random])
+
+        # Dialog box to get number of class
+        class_number, ok = QInputDialog.getInt(self, "Wybierz",
+                                               "Podaj numer klasy:",
+                                               min=0, max=np.max(self.y), step=1, value=0)
+
+        if ok:
+            # Find all images from selected class
+            images = np.where(self.y == class_number)[0]
+
+            if len(images) == 0:
+                self.komunikat("Nie znaleziono obrazów", color="red")
+                return
+
+            # Select a random image from selected class
+            random_idx = np.random.choice(images)
+            self.canvas.setImage(self.X[random_idx])
+
+            self.komunikat(f"Wybrano obraz #{random_idx}. Klasa {self.y[random_idx]}", color="green")
+
+        else:
+            self.komunikat("Anulowano", color="red")
 
     def macierz_konfuzji(self):
         self.komunikat("Wybrano opcję Macierz Konfuzji")
