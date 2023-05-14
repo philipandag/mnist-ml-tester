@@ -5,31 +5,20 @@ import time
 
 import joblib
 import numpy as np
-from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushButton, QInputDialog, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushButton, QInputDialog, QFileDialog, \
+    QMessageBox
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 
 from AbstractModel import DummyModel
 from Canvas import Canvas
 from downloadDatabase import downloadBase
+from ConfusionMatrix import ConfusionMatrix
 
 # Tutaj wstaw swoje modele
 models = [
     DummyModel,
 ]
-
-
-class Confusion:
-    def __init__(self, value):
-        self.value = 0
-        self.tp = 0
-        self.fp = 0
-        self.fn = 0
-        self.tn = 0
-        self.accuracy = 0
-        self.precision = 0
-        self.recall = 0
-        self.f1 = 0
 
 
 class MainWindow(QMainWindow):
@@ -86,6 +75,11 @@ class MainWindow(QMainWindow):
         self.confusion_matrix_button = QAction("Macierz pomyłek", self)
         other_menu.addAction(self.confusion_matrix_button)
         self.confusion_matrix_button.triggered.connect(self.macierz_konfuzji)
+
+        # Add button to Inne menu to do crossvalidation
+        self.crossvalidation_button = QAction("Crossvalidation", self)
+        other_menu.addAction(self.crossvalidation_button)
+        self.crossvalidation_button.triggered.connect(self.crossvalidation)
 
         # Connect the actions to their respective methods
         nowy_action.triggered.connect(self.nowy_model)
@@ -199,7 +193,7 @@ class MainWindow(QMainWindow):
             self.selected_model = file_name.split("/")[-1].split(".")[0]
             self.selected_model_label.setText(f"Wybrany model: {self.selected_model}")
             self.selected_model_label.setEnabled(True)
-            self.canvas.clear()
+            #self.canvas.clear()
             self.komunikat(f"Wczytano model {self.selected_model}", color="green")
         else:
             self.komunikat("Nie wybrano modelu", color="red")
@@ -228,7 +222,7 @@ class MainWindow(QMainWindow):
 
             self.komunikat(f"Model wyćwiczony, wynik: {score}, czas {(end - start):.3f}s", color="green")
 
-            self.canvas.clear()
+            #self.canvas.clear()
 
     def klasyfikuj(self):
         self.komunikat("Wybrano opcję Klasyfikuj")
@@ -260,7 +254,7 @@ class MainWindow(QMainWindow):
             if self.plot_checkbox.isChecked():
                 self.canvas.showResult(value)
             self.komunikat(f"Klasyfikacja zakończona, wynik: {value}", color="green")
-            self.canvas.clear()
+            #self.canvas.clear()
 
     def pobierz_baze(self):
         self.komunikat("Wybrano opcję Pobierz")
@@ -375,41 +369,63 @@ class MainWindow(QMainWindow):
         else:
             self.komunikat("Generowanie macierzy konfuzji...", color="green")
 
-            try:
-                c_matrix = [Confusion(i) for i in range(0, 10)]
+            confusion_matrix = ConfusionMatrix(self.y_test[0].shape[0])
 
-                for i in range(len(self.X_test)):
-                    predicted = np.argmax(self.model.predict(self.X_test[i])[0])
-                    for j in range(10):
-                        if j == predicted:
-                            if j == np.argmax(self.y_test[i]):
-                                c_matrix[j].tp += 1
-                            else:
-                                c_matrix[j].fp += 1
-                        else:
-                            if j == np.argmax(self.y_test[i]):
-                                c_matrix[j].fn += 1
-                            else:
-                                c_matrix[j].tn += 1
+            for i in range(len(self.X_test)):
+                predicted = np.argmax(self.model.predict(self.X_test[i])[0])
+                actual = np.argmax(self.y_test[i])
+                confusion_matrix.add(predicted, actual)
 
-                for i in range(10):
-                    c_matrix[i].accuracy = (c_matrix[i].tp + c_matrix[i].tn) / (
-                            c_matrix[i].tp + c_matrix[i].tn + c_matrix[i].fp + c_matrix[i].fn)
-                    c_matrix[i].precision = c_matrix[i].tp / (c_matrix[i].tp + c_matrix[i].fp)
-                    c_matrix[i].recall = c_matrix[i].tp / (c_matrix[i].tp + c_matrix[i].fn)
-                    c_matrix[i].f1 = 2 * c_matrix[i].precision * c_matrix[i].recall / (
-                            c_matrix[i].precision + c_matrix[i].recall)
+            print("Confusion matrix:")
+            for i in range(len(confusion_matrix.matrix)):
+                conf = confusion_matrix.matrix[i]
+                print("Class ", i, "TP: ", conf.tp, "FP: ", conf.fp, "FN: ", conf.fn, "TN: ", conf.tn)
+                print("\tPrecision: ", conf.precision(), "Jak czesto mial racje wybierajac go")
+                print("\tRecall: ", conf.recall(), "Jak często wybieral go gdy powinien")
+                print("\tF1: ", conf.fb(1))
+                print("\tAccuracy: ", conf.accuracy(), "Jak często miał racje wybierając lub nie wybierając", end="\n\n")
 
-                print("Confusion matrix:")
-                for i in range(10):
-                    print("Class: ", i, "TP: ", c_matrix[i].fp, "TN: ", c_matrix[i].tn, "FP: ",
-                          c_matrix[i].fp, "FN: ", c_matrix[i].fn,
-                          "\n\tAccurracy: ", c_matrix[i].accuracy, "\n\tPrecision: ", c_matrix[i].precision,
-                          "\n\tRecall: ", c_matrix[i].recall, "\n\tF1: ", c_matrix[i].f1)
+    def crossvalidation(self):
 
-            except:
-                self.komunikat("Błąd podczas generowania macierzy konfuzji", color="red")
-                print("Unexpected error:", sys.exc_info())
+        n_splits, ok = QInputDialog.getInt(self, "Wybierz",
+                                            "Podaj ilość podziałów:",
+                                            min=2, max=10, step=1, value=5)
+
+        if self.selected_model is None:
+            self.komunikat("Nie wybrano modelu", color="red")
+            return
+        if self.selected_base is None:
+            self.komunikat("Nie wczytano bazy", color="red")
+            return
+
+        cv_model = self.model.__class__() # nowy model tej samej klasy zeby nie stracic starego
+
+        self.komunikat("Wybrano opcję Cross Validation")
+        splitted_data = np.array_split(self.X, n_splits)
+        accuracy = []
+        for n in range(n_splits):
+            self.komunikat(f"Fold {n+1}/{n_splits}", color="green")
+            X_test = splitted_data[n]
+            X_train = np.concatenate(np.delete(splitted_data, n, axis=0))
+            y_test = np.array_split(self.y, n_splits)[n]
+            y_train = np.concatenate(np.delete(np.array_split(self.y, n_splits), n, axis=0))
+            cv_model.fit(X_train, y_train)
+            acc = cv_model.score(X_test, y_test)
+            self.komunikat(f"Fold {n+1}/{n_splits} accuracy: {acc}", color="green")
+            accuracy.append(acc)
+        mean_accuracy = np.mean(accuracy)
+        self.komunikat(f"Accuracy: {mean_accuracy}", color="green")
+
+        #popup mean_accuracy
+        msg = QMessageBox()
+        msg.setWindowTitle("Cross Validation")
+        msg.setText(f"Accuracy: {mean_accuracy}")
+        msg.exec_()
+
+
+        return mean_accuracy
+
+
 
     def exit(self):
         QApplication.quit()
