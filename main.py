@@ -1,6 +1,7 @@
 import os
 import pickle
 import sys
+import time
 
 import joblib
 import numpy as np
@@ -29,7 +30,6 @@ class Confusion:
         self.precision = 0
         self.recall = 0
         self.f1 = 0
-
 
 
 class MainWindow(QMainWindow):
@@ -215,14 +215,18 @@ class MainWindow(QMainWindow):
             self.komunikat("Trenowanie modelu...", color="green")
             self.fitted = True
 
+            start = time.time()
+
             self.model.fit(self.X_train, self.y_train)
+
+            end = time.time()
 
             try:
                 score = self.model.score(self.X_test, self.y_test)
             except:
                 score = self.model.evaluate(self.X_test, self.y_test)[1]
 
-            self.komunikat(f"Model wyćwiczony, wynik: {score}", color="green")
+            self.komunikat(f"Model wyćwiczony, wynik: {score}, czas {(end - start):.3f}s", color="green")
 
             self.canvas.clear()
 
@@ -352,38 +356,41 @@ class MainWindow(QMainWindow):
         else:
             self.komunikat("Generowanie macierzy konfuzji...", color="green")
 
-            confusion_matrix = [Confusion(i) for i in range(0, 10)]
+            try:
+                c_matrix = [Confusion(i) for i in range(0, 10)]
 
-            for i in range(len(self.X_test)):
-                predicted = np.argmax(self.model.predict(self.X_test[i])[0])
-                for j in range(10):
-                    if j == predicted:
-                        if j == np.argmax(self.y_test[i]):
-                            confusion_matrix[j].tp += 1
+                for i in range(len(self.X_test)):
+                    predicted = np.argmax(self.model.predict(self.X_test[i])[0])
+                    for j in range(10):
+                        if j == predicted:
+                            if j == np.argmax(self.y_test[i]):
+                                c_matrix[j].tp += 1
+                            else:
+                                c_matrix[j].fp += 1
                         else:
-                            confusion_matrix[j].fp += 1
-                    else:
-                        if j == np.argmax(self.y_test[i]):
-                            confusion_matrix[j].fn += 1
-                        else:
-                            confusion_matrix[j].tn += 1
+                            if j == np.argmax(self.y_test[i]):
+                                c_matrix[j].fn += 1
+                            else:
+                                c_matrix[j].tn += 1
 
-            for i in range(10):
-                confusion_matrix[i].accuracy = (confusion_matrix[i].tp + confusion_matrix[i].tn) / (confusion_matrix[i].tp + confusion_matrix[i].tn + confusion_matrix[i].fp + confusion_matrix[i].fn)
-                confusion_matrix[i].precision = confusion_matrix[i].tp / (confusion_matrix[i].tp + confusion_matrix[i].fp)
-                confusion_matrix[i].recall = confusion_matrix[i].tp / (confusion_matrix[i].tp + confusion_matrix[i].fn)
-                confusion_matrix[i].f1 = 2 * confusion_matrix[i].precision * confusion_matrix[i].recall / (confusion_matrix[i].precision + confusion_matrix[i].recall)
+                for i in range(10):
+                    c_matrix[i].accuracy = (c_matrix[i].tp + c_matrix[i].tn) / (
+                            c_matrix[i].tp + c_matrix[i].tn + c_matrix[i].fp + c_matrix[i].fn)
+                    c_matrix[i].precision = c_matrix[i].tp / (c_matrix[i].tp + c_matrix[i].fp)
+                    c_matrix[i].recall = c_matrix[i].tp / (c_matrix[i].tp + c_matrix[i].fn)
+                    c_matrix[i].f1 = 2 * c_matrix[i].precision * c_matrix[i].recall / (
+                            c_matrix[i].precision + c_matrix[i].recall)
 
-            print("Confusion matrix:")
-            for i in range(10):
-                print("Class: ", i, "TP: ", confusion_matrix[i].fp, "TN: ", confusion_matrix[i].tn, "FP: ", confusion_matrix[i].fp, "FN: ", confusion_matrix[i].fn,
-                      "\n\tAccurracy: ", confusion_matrix[i].accuracy, "\n\tPrecision: ", confusion_matrix[i].precision, "\n\tRecall: ", confusion_matrix[i].recall, "\n\tF1: ", confusion_matrix[i].f1)
+                print("Confusion matrix:")
+                for i in range(10):
+                    print("Class: ", i, "TP: ", c_matrix[i].fp, "TN: ", c_matrix[i].tn, "FP: ",
+                          c_matrix[i].fp, "FN: ", c_matrix[i].fn,
+                          "\n\tAccurracy: ", c_matrix[i].accuracy, "\n\tPrecision: ", c_matrix[i].precision,
+                          "\n\tRecall: ", c_matrix[i].recall, "\n\tF1: ", c_matrix[i].f1)
 
-
-
-
-
-
+            except:
+                self.komunikat("Błąd podczas generowania macierzy konfuzji", color="red")
+                print("Unexpected error:", sys.exc_info())
 
     def exit(self):
         QApplication.quit()
