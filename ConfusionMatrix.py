@@ -58,4 +58,4 @@ class ConfusionMatrix:
         return self.matrix[i].accuracy()
 
     def fb(self, b, i):
-        return self.matrix[i].Fb(b)
+        return self.matrix[i].fb(b)

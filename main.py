@@ -72,12 +72,12 @@ class MainWindow(QMainWindow):
         other_menu.addAction(self.plot_checkbox)
 
         # Add button to Inne menu to create confusion matrix
-        self.confusion_matrix_button = QAction("Macierz pomyłek", self)
+        self.confusion_matrix_button = QAction("Macierz konfuzji", self)
         other_menu.addAction(self.confusion_matrix_button)
         self.confusion_matrix_button.triggered.connect(self.macierz_konfuzji)
 
         # Add button to Inne menu to do crossvalidation
-        self.crossvalidation_button = QAction("Crossvalidation", self)
+        self.crossvalidation_button = QAction("Cross Validation", self)
         other_menu.addAction(self.crossvalidation_button)
         self.crossvalidation_button.triggered.connect(self.crossvalidation)
 
@@ -221,7 +221,6 @@ class MainWindow(QMainWindow):
 
             self.komunikat(f"Model wyćwiczony, wynik: {score}, czas {(end - start):.3f}s", color="green")
 
-
     def klasyfikuj(self):
         self.komunikat("Wybrano opcję Klasyfikuj")
         if self.fitted is False:
@@ -252,7 +251,6 @@ class MainWindow(QMainWindow):
             if self.plot_checkbox.isChecked():
                 self.canvas.showResult(value)
             self.komunikat(f"Klasyfikacja zakończona, wynik: {value}", color="green")
-
 
     def pobierz_baze(self):
         self.komunikat("Wybrano opcję Pobierz")
@@ -367,7 +365,7 @@ class MainWindow(QMainWindow):
         else:
             self.komunikat("Generowanie macierzy konfuzji...", color="green")
 
-            confusion_matrix = ConfusionMatrix(self.y_test[0].shape[0])
+            confusion_matrix = ConfusionMatrix(np.max(self.y_test) + 1)
 
             for i in range(len(self.X_test)):
                 predicted = np.argmax(self.model.predict(self.X_test[i])[0])
@@ -378,16 +376,19 @@ class MainWindow(QMainWindow):
             for i in range(len(confusion_matrix.matrix)):
                 conf = confusion_matrix.matrix[i]
                 print("Class ", i, "TP: ", conf.tp, "FP: ", conf.fp, "FN: ", conf.fn, "TN: ", conf.tn)
-                print("\tPrecision: ", conf.precision(), "Jak czesto mial racje wybierajac go")
-                print("\tRecall: ", conf.recall(), "Jak często wybieral go gdy powinien")
+                print("\tPrecision: ", conf.precision(), "Jak często miał rację wybierając go")
+                print("\tRecall: ", conf.recall(), "Jak często wybierał go gdy powinien")
                 print("\tF1: ", conf.fb(1))
-                print("\tAccuracy: ", conf.accuracy(), "Jak często miał racje wybierając lub nie wybierając", end="\n\n")
+                print("\tAccuracy: ", conf.accuracy(), "Jak często miał rację wybierając lub nie wybierając",
+                      end="\n\n")
+
+            self.komunikat("Wygenerowano macierz konfuzji", color="green")
 
     def crossvalidation(self):
 
         n_splits, ok = QInputDialog.getInt(self, "Wybierz",
-                                            "Podaj ilość podziałów:",
-                                            min=2, max=10, step=1, value=5)
+                                           "Podaj ilość podziałów:",
+                                           min=2, max=10, step=1, value=5)
 
         if self.selected_model is None:
             self.komunikat("Nie wybrano modelu", color="red")
@@ -396,34 +397,31 @@ class MainWindow(QMainWindow):
             self.komunikat("Nie wczytano bazy", color="red")
             return
 
-        cv_model = self.model.__class__() # nowy model tej samej klasy zeby nie stracic starego
+        cv_model = self.model.__class__()  # nowy model tej samej klasy zeby nie stracic starego
 
         self.komunikat("Wybrano opcję Cross Validation")
         splitted_data = np.array_split(self.X, n_splits)
         accuracy = []
         for n in range(n_splits):
-            self.komunikat(f"Fold {n+1}/{n_splits}", color="green")
+            self.komunikat(f"Fold {n + 1}/{n_splits}", color="green")
             X_test = splitted_data[n]
             X_train = np.concatenate(np.delete(splitted_data, n, axis=0))
             y_test = np.array_split(self.y, n_splits)[n]
             y_train = np.concatenate(np.delete(np.array_split(self.y, n_splits), n, axis=0))
             cv_model.fit(X_train, y_train)
             acc = cv_model.score(X_test, y_test)
-            self.komunikat(f"Fold {n+1}/{n_splits} accuracy: {acc}", color="green")
+            self.komunikat(f"Fold {n + 1}/{n_splits} accuracy: {acc}", color="green")
             accuracy.append(acc)
         mean_accuracy = np.mean(accuracy)
         self.komunikat(f"Accuracy: {mean_accuracy}", color="green")
 
-        #popup mean_accuracy
+        # popup mean_accuracy
         msg = QMessageBox()
         msg.setWindowTitle("Cross Validation")
         msg.setText(f"Accuracy: {mean_accuracy}")
         msg.exec_()
 
-
         return mean_accuracy
-
-
 
     def exit(self):
         QApplication.quit()
