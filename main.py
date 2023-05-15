@@ -5,7 +5,6 @@ import time
 
 import joblib
 import numpy as np
-from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushButton, QInputDialog, QFileDialog
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushButton, QInputDialog, QFileDialog, \
     QMessageBox
 from matplotlib import pyplot as plt
@@ -13,9 +12,8 @@ from sklearn.model_selection import train_test_split
 
 from AbstractModel import DummyModel
 from Canvas import Canvas
-from downloadDatabase import downloadBase
 from ConfusionMatrix import ConfusionMatrix
-from KerasMLP.KerasMLP import KerasMLP
+from downloadDatabase import downloadBase
 
 # Tutaj wstaw swoje modele
 models = [
@@ -39,6 +37,7 @@ class MainWindow(QMainWindow):
         self.y_train = None
         self.X_test = None
         self.y_test = None
+        self.ilosc_klas = None
 
         # Create the menu bar
         menubar = self.menuBar()
@@ -238,7 +237,7 @@ class MainWindow(QMainWindow):
                 text = "<html><body>"
                 value = np.argmax(predicted)
 
-                for i in range(len(predicted)):
+                for i in range(len(predicted)):  # If predicted is a vector of probabilities
                     if i == value:
                         text += f"<b>{i}: {predicted[i]:.5f}</b>\n"
                     else:
@@ -246,7 +245,7 @@ class MainWindow(QMainWindow):
 
                 text += "</body></html>"
                 self.predicted_value.setText(text)
-            except:
+            except:  # If len throws an error, print predicted value as a number
                 self.predicted_value.setText(f"Predicted value: {predicted}")
                 value = predicted
 
@@ -414,9 +413,9 @@ class MainWindow(QMainWindow):
             self.komunikat(f"Fold {n + 1}/{n_splits}", color="green")
 
             X_test = x_splitted[n]
-            X_train = np.concatenate(np.delete(x_splitted, n, axis=0)) # = X - X_test
+            X_train = np.concatenate(np.delete(x_splitted, n, axis=0))  # = X - X_test
             y_test = y_splitted[n]
-            y_train = np.concatenate(np.delete(y_splitted, n, axis=0)) # = y - y_test
+            y_train = np.concatenate(np.delete(y_splitted, n, axis=0))  # = y - y_test
 
             cv_model.fit(X_train, y_train)
             acc = cv_model.score(X_test, y_test)
@@ -438,7 +437,11 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec_())
+    try:
+        app = QApplication(sys.argv)
+        window = MainWindow()
+        window.show()
+        sys.exit(app.exec_())
+    except Exception:
+        print("Unexpected error:", sys.exc_info())
+        exit()

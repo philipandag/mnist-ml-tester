@@ -11,7 +11,8 @@ class Model(object):
     def fit(self, X_train: np.ndarray, y_train: np.ndarray) -> None:
         raise NotImplementedError("fit not implemented")
 
-    # return an array of 10 floats where each float represents the probability of the corresponding digit
+    # return an array of n floats where each float represents the probability of the corresponding digit
+    # where n is the number of classes in the training data
     def predict(self, X_test: np.ndarray) -> np.ndarray:
         raise NotImplementedError("predict not implemented")
 
@@ -21,20 +22,23 @@ class Model(object):
 
 
 class DummyModel(Model):
+
     def __init__(self):
+        self.X = None
+        self.y = None
+        self.fitted = False
         print("Dummy model initialized")
 
-    # fit the model to the training data
     def fit(self, X_train: np.ndarray, y_train: np.ndarray) -> None:
-        print("Dummy model fit")
+        self.X = X_train
+        self.y = y_train
+        self.fitted = True
 
-    # return an array of 10 floats where each float represents the probability of the corresponding digit
     def predict(self, X_test: np.ndarray) -> np.ndarray:
-        print("Dummy model predict")
-        r = np.random.rand(10)
-        return r / np.sum(r)
+        if not self.fitted:
+            raise Exception("Model not fitted")
+        return np.array(np.random.rand(1, len(np.unique(self.y))))
 
-    # return the mean accuracy on the given test data and labels
     def score(self, X_test: np.ndarray, y_test: np.ndarray) -> float:
         sum_of_correct = 0
         for i in range(len(X_test)):

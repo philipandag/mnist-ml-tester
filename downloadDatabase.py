@@ -25,3 +25,5 @@ def downloadBase(nazwa_bazy):
     joblib.dump(mnist, f'{nazwa_bazy}.joblib')
 
     print(f"Pobrano bazę danych {nazwa_bazy}")
+    # X (np.ndarray) – shape (n_samples, n_features)
+    # y (np.ndarray) – shape (n_samples,)

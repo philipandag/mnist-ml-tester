@@ -1,6 +1,3 @@
-import numpy as np
-
-
 class Confusion:
     def __init__(self):
         self.tp = 0
