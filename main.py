@@ -5,6 +5,7 @@ import time
 
 import joblib
 import numpy as np
+from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushButton, QInputDialog, QFileDialog
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushButton, QInputDialog, QFileDialog, \
     QMessageBox
 from matplotlib import pyplot as plt
@@ -14,6 +15,7 @@ from AbstractModel import DummyModel
 from Canvas import Canvas
 from downloadDatabase import downloadBase
 from ConfusionMatrix import ConfusionMatrix
+from KerasMLP.KerasMLP import KerasMLP
 
 # Tutaj wstaw swoje modele
 models = [
@@ -284,6 +286,7 @@ class MainWindow(QMainWindow):
                     self.mnist = joblib.load(f'{self.selected_base}.joblib')
                     self.X = self.mnist.data
                     self.y = self.mnist.target
+                    self.ilosc_klas = len(np.unique(self.y))
 
                     self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y,
                                                                                             train_size=train_size,
@@ -365,11 +368,11 @@ class MainWindow(QMainWindow):
         else:
             self.komunikat("Generowanie macierzy konfuzji...", color="green")
 
-            confusion_matrix = ConfusionMatrix(np.max(self.y_test) + 1)
+            confusion_matrix = ConfusionMatrix(self.ilosc_klas)
 
             for i in range(len(self.X_test)):
                 predicted = np.argmax(self.model.predict(self.X_test[i])[0])
-                actual = np.argmax(self.y_test[i])
+                actual = self.y_test[i]
                 confusion_matrix.add(predicted, actual)
 
             print("Confusion matrix:")
@@ -384,6 +387,8 @@ class MainWindow(QMainWindow):
 
             self.komunikat("Wygenerowano macierz konfuzji", color="green")
 
+    # trenujemy model n razy, za każdym razem inny z pośród n równomiernych części zbioru
+    # służy do testów, a reszta do treningu, wyniki uśredniamy
     def crossvalidation(self):
 
         n_splits, ok = QInputDialog.getInt(self, "Wybierz",
@@ -400,19 +405,24 @@ class MainWindow(QMainWindow):
         cv_model = self.model.__class__()  # nowy model tej samej klasy zeby nie stracic starego
 
         self.komunikat("Wybrano opcję Cross Validation")
-        splitted_data = np.array_split(self.X, n_splits)
+
+        x_splitted = np.array_split(self.X, n_splits)
+        y_splitted = np.array_split(self.y, n_splits)
+
         accuracy = []
         for n in range(n_splits):
             self.komunikat(f"Fold {n + 1}/{n_splits}", color="green")
-            X_test = splitted_data[n]
-            X_train = np.concatenate(np.delete(splitted_data, n, axis=0))
-            y_test = np.array_split(self.y, n_splits)[n]
-            y_train = np.concatenate(np.delete(np.array_split(self.y, n_splits), n, axis=0))
+
+            X_test = x_splitted[n]
+            X_train = np.concatenate(np.delete(x_splitted, n, axis=0)) # = X - X_test
+            y_test = y_splitted[n]
+            y_train = np.concatenate(np.delete(y_splitted, n, axis=0)) # = y - y_test
+
             cv_model.fit(X_train, y_train)
             acc = cv_model.score(X_test, y_test)
-            self.komunikat(f"Fold {n + 1}/{n_splits} accuracy: {acc}", color="green")
             accuracy.append(acc)
         mean_accuracy = np.mean(accuracy)
+
         self.komunikat(f"Accuracy: {mean_accuracy}", color="green")
 
         # popup mean_accuracy

@@ -31,9 +31,13 @@ class DummyModel(Model):
     # return an array of 10 floats where each float represents the probability of the corresponding digit
     def predict(self, X_test: np.ndarray) -> np.ndarray:
         print("Dummy model predict")
-        return np.random.rand(X_test.shape[0], 10)
+        r = np.random.rand(10)
+        return r / np.sum(r)
 
     # return the mean accuracy on the given test data and labels
     def score(self, X_test: np.ndarray, y_test: np.ndarray) -> float:
-        print("Dummy model score")
-        return 0.0
+        sum_of_correct = 0
+        for i in range(len(X_test)):
+            if np.argmax(self.predict(X_test[i])) == y_test[i]:
+                sum_of_correct += 1
+        return sum_of_correct / len(X_test)
