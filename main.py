@@ -10,14 +10,18 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushBut
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 
-from AbstractModel import DummyModel
 from Canvas import Canvas
 from ConfusionMatrix import ConfusionMatrix
+from Networks.KerasMLP import KerasMLP
+from Trees.DecisionTree import DecisionTree
+from Trees.RandomForest import RandomForest
 from downloadDatabase import downloadBase
 
 # Tutaj wstaw swoje modele
 models = [
-    DummyModel,
+    KerasMLP,
+    RandomForest,
+    DecisionTree,
 ]
 
 
@@ -437,11 +441,7 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == "__main__":
-    try:
-        app = QApplication(sys.argv)
-        window = MainWindow()
-        window.show()
-        sys.exit(app.exec_())
-    except Exception:
-        print("Unexpected error:", sys.exc_info())
-        exit()
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec_())
