@@ -1,5 +1,7 @@
 import numpy as np
 from keras.utils import to_categorical
+
+
 class KNN:
 
     # initialize the object
@@ -10,11 +12,11 @@ class KNN:
         self.output_size = output_size
         self.K = output_size * 2
 
-
     # fit the model to the training data
     def fit(self, X_train: np.ndarray, y_train: np.ndarray) -> None:
         self.X = X_train
         self.y = y_train
+
     def predict(self, X_test: np.ndarray) -> np.ndarray:
         distances = np.array(list(map(lambda x: self.distance(x, X_test), self.X)))
         sorted_idx = distances.argsort()[:self.K]  # get the indices of the K nearest neighbours (sorted by distance
@@ -28,7 +30,9 @@ class KNN:
 
         sorted_neighbours = sorted(neigbour_count.items(), key=lambda x: x[1], reverse=True)
 
-        return to_categorical(sorted_neighbours[0][0], self.output_size)  # convert to vector of 0s and a 1 at the index of the class with the most votes
+        # convert to vector of 0s and a 1 at the index of the class with the most votes
+
+        return to_categorical(sorted_neighbours[0][0], self.output_size)
 
     # return the mean accuracy on the given test data and labels
     def score(self, X_test: np.ndarray, y_test: np.ndarray) -> float:
@@ -39,4 +43,4 @@ class KNN:
         return sum_of_correct / len(X_test)
 
     def distance(self, x1, x2):
-        return np.sqrt(np.sum(np.power(x1-x2, 2)))
+        return np.sqrt(np.sum(np.power(x1 - x2, 2)))

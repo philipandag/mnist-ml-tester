@@ -23,9 +23,9 @@ class KerasMLP(Model):
 
     # predict the output for a given input
     def predict(self, input_data):
-        input_data = input_data.reshape(1, self.input_size)
-        return self.model(input_data, training=False)
-        #return self.model.predict(input_data, verbose=0, use_multiprocessing=True)
+        input_data = np.array(input_data).reshape(1, self.input_size)
+        return self.model(input_data, training=False)[0]
+        # return self.model.predict(input_data, verbose=0, use_multiprocessing=True)
 
     # train the network
     def fit(self, x_train, y_train):
@@ -54,9 +54,6 @@ class KerasMLP(Model):
         y_test = self.prepare_y(y_test)
         result = self.model.evaluate(x_test, y_test)
         return result[1]
-
-
-
 
     def prepare_y(self, y):
         y = keras.utils.to_categorical(y, self.output_size)
@@ -88,6 +85,7 @@ class KerasMLP(Model):
             kernel_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5),
             bias_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5)
         ))
+
     def init_layers_784(self):
         self.model.add(keras.layers.Dense(
             512,
@@ -147,5 +145,3 @@ class KerasMLP(Model):
             kernel_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5),
             bias_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5)
         ))
-
-

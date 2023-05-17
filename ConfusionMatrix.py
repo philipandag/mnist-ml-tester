@@ -25,7 +25,7 @@ class Confusion:
         r = self.recall()
         if p == 0 and r == 0:
             return 0
-        return (1 + b ** 2) * p * r / (b ** 2 * p + r)
+        return (1 + b ** 2) * (p * r) / (b ** 2 * p + r)
 
 
 class ConfusionMatrix:
