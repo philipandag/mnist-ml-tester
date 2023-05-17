@@ -15,6 +15,7 @@ from ConfusionMatrix import ConfusionMatrix
 from Networks.KerasMLP import KerasMLP
 from Trees.DecisionTree import DecisionTree
 from Trees.RandomForest import RandomForest
+from OtherModels.KNN import KNN
 from downloadDatabase import downloadBase
 
 # Tutaj wstaw swoje modele
@@ -22,6 +23,7 @@ models = [
     KerasMLP,
     RandomForest,
     DecisionTree,
+    KNN
 ]
 
 
@@ -198,6 +200,7 @@ class MainWindow(QMainWindow):
             self.selected_model = file_name.split("/")[-1].split(".")[0]
             self.selected_model_label.setText(f"Wybrany model: {self.selected_model}")
             self.selected_model_label.setEnabled(True)
+            self.fitted = True
             self.komunikat(f"Wczytano model {self.selected_model}", color="green")
         else:
             self.komunikat("Nie wybrano modelu", color="red")
