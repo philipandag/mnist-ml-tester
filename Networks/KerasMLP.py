@@ -24,6 +24,7 @@ class KerasMLP(Model):
     # predict the output for a given input
     def predict(self, input_data):
         input_data = np.array(input_data).reshape(1, self.input_size)
+        input_data = input_data.astype("float32") / 255
         return self.model(input_data, training=False)[0]
         # return self.model.predict(input_data, verbose=0, use_multiprocessing=True)
 
@@ -32,8 +33,8 @@ class KerasMLP(Model):
         # SGD - stochastic gradient descent
         # MSE - mean squared error
         self.model.compile(
-            optimizer='sgd',
-            loss='mse',
+            optimizer='adam',
+            loss='categorical_crossentropy',
             metrics=['accuracy'],
             loss_weights=None,
             weighted_metrics=None,
@@ -42,16 +43,19 @@ class KerasMLP(Model):
             jit_compile=None
         )
 
-        self.epochs = 20
-        self.batch_size = 0
+        self.epochs = 10
+        self.batch_size = 128
 
         y_train = self.prepare_y(y_train)
+        x_train = x_train.astype("float32") / 255
 
-        self.model.fit(x_train, y_train, epochs=self.epochs)
+        self.model.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_size)
 
     # return the mean accuracy on the given test data and labels
     def score(self, x_test: np.ndarray, y_test: np.ndarray) -> float:
+        x_test = x_test.astype("float32") / 255
         y_test = self.prepare_y(y_test)
+
         result = self.model.evaluate(x_test, y_test)
         return result[1]
 
@@ -89,20 +93,20 @@ class KerasMLP(Model):
     def init_layers_784(self):
         self.model.add(keras.layers.Dense(
             512,
-            activation='sigmoid',
+            activation='relu',
             input_shape=(self.input_size,),
             kernel_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5),
             bias_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5)
         ))
         self.model.add(keras.layers.Dense(
             256,
-            activation='sigmoid',
+            activation='relu',
             kernel_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5),
             bias_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5)
         ))
         self.model.add(keras.layers.Dense(
             128,
-            activation='sigmoid',
+            activation='relu',
             kernel_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5),
             bias_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5)
         ))

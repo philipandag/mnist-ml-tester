@@ -1,6 +1,5 @@
 import keras
 import numpy as np
-from keras.layers import *
 from AbstractModel import Model
 
 
@@ -8,7 +7,7 @@ class KerasCNN(Model):
     def __init__(self, input_size=784, output_size=10):
         self.model = None
         self.epochs = None
-        self.batch_size = 1
+        self.batch_size = None
         self.input_size = input_size
         self.output_size = output_size
         self.image_dimension = int(np.sqrt(self.input_size))
@@ -26,8 +25,8 @@ class KerasCNN(Model):
         # SGD - stochastic gradient descent
         # MSE - mean squared error
         self.model.compile(
-            optimizer='sgd',
-            loss='mse',
+            optimizer='adam',
+            loss='categorical_crossentropy',
             metrics=['accuracy'],
             loss_weights=None,
             weighted_metrics=None,
@@ -44,12 +43,13 @@ class KerasCNN(Model):
 
     # train the network
     def fit(self, x_train, y_train):
-        self.epochs = 1
-        self.batch_size = 0
+        self.epochs = 5
+        self.batch_size = 128
 
         y_train = self.prepare_y(y_train)
         x_train = self.prepare_x(x_train)
-        self.model.fit(x_train, y_train, epochs=self.epochs)
+
+        self.model.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_size)
 
     # return the mean accuracy on the given test data and labels
     def score(self, x_test: np.ndarray, y_test: np.ndarray) -> float:
@@ -63,110 +63,23 @@ class KerasCNN(Model):
         return y
 
     def prepare_x(self, x_train):
-        X = []
-        for x in x_train:
-            x = x.reshape(self.image_dimension, self.image_dimension, 1)
-            # print(x)
-            X.append(x)
-        return np.array(X)
+        x_train = x_train.reshape(len(x_train), self.image_dimension, self.image_dimension, 1)
+        x_train = x_train.astype("float32") / 255
+        #x_train = np.expand_dims(x_train, -1)
+        return x_train
 
     def init_layers_64(self):
-       self.model.add(keras.layers.Conv2D(
-           16,
-           kernel_size=(3, 3),
-           activation='relu',
-           input_shape=(self.image_dimension, self.image_dimension, 1), # batch of 1, image with one chanel (Grayscale)
-           kernel_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5),
-           bias_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5),
-       ))
-       self.model.add(keras.layers.MaxPool2D())
-       self.model.add(keras.layers.Conv2D(
-           32,
-           kernel_size=(3, 3),
-           activation='relu',
-           kernel_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5),
-           bias_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5),
-       ))
-       self.model.add(keras.layers.MaxPool2D(padding='same'))
-       self.model.add(keras.layers.Flatten())
-       self.model.add(keras.layers.Dense(
-           64,
-           activation='sigmoid',
-           kernel_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5),
-           bias_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5)
-       ))
-       self.model.add(keras.layers.Dense(
-           32,
-           activation='sigmoid',
-           kernel_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5),
-           bias_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5)
-       ))
-       self.model.add(keras.layers.Dense(
-           10,
-           activation='softmax',
-           kernel_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5),
-           bias_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5)
-       ))
-
+        raise NotImplementedError()
 
     def init_layers_784(self):
-        self.model.add(keras.layers.Conv2D(
-            24,
-            kernel_size=5,
-            padding='same',
-            activation='relu',
-            input_shape=(self.image_dimension, self.image_dimension, 1),
-        ))
-        self.model.add(keras.layers.MaxPool2D())
-        self.model.add(keras.layers.Conv2D(
-            24,
-            kernel_size=5,
-            padding='same',
-            activation='relu',
-            input_shape=(self.image_dimension, self.image_dimension, 1),
-        ))
-        self.model.add(keras.layers.MaxPool2D())
-        self.model.add(keras.layers.Conv2D(
-            48,
-            kernel_size=5,
-            padding='same',
-            activation='relu',
-            input_shape=(self.image_dimension, self.image_dimension, 1),
-        ))
-        self.model.add(keras.layers.MaxPool2D())
-        self.model.add(keras.layers.Conv2D(
-            24,
-            kernel_size=5,
-            padding='same',
-            activation='relu',
-            input_shape=(self.image_dimension, self.image_dimension, 1),
-        ))
-        self.model.add(keras.layers.MaxPool2D())
-        self.model.add(keras.layers.Conv2D(
-            48,
-            kernel_size=5,
-            padding='same',
-            activation='relu',
-            input_shape=(self.image_dimension, self.image_dimension, 1),
-        ))
-        self.model.add(keras.layers.MaxPool2D())
-        self.model.add(keras.layers.Conv2D(
-            64,
-            kernel_size=5,
-            padding='same',
-            activation='relu',
-            input_shape=(self.image_dimension, self.image_dimension, 1),
-        ))
-        self.model.add(keras.layers.MaxPool2D(padding='same'))
+        self.model.add(keras.layers.Input(shape=(self.image_dimension, self.image_dimension, 1)))
+        self.model.add(keras.layers.Conv2D(32, kernel_size=(3, 3), activation="relu", padding="same"))
+        self.model.add(keras.layers.MaxPooling2D(pool_size=(2, 2), padding="same"))
+        self.model.add(keras.layers.Conv2D(64, kernel_size=(3, 3), activation="relu", padding="same"))
+        self.model.add(keras.layers.MaxPooling2D(pool_size=(2, 2), padding="same"))
         self.model.add(keras.layers.Flatten())
-        self.model.add(keras.layers.Dense(
-            256,
-            activation='relu',
-        ))
-        self.model.add(keras.layers.Dense(
-            10,
-            activation='softmax',
-        ))
+        self.model.add(keras.layers.Dropout(0.5))
+        self.model.add(keras.layers.Dense(self.output_size, activation="softmax"))
 
     def init_layers_proportionally(self):
         raise NotImplementedError()

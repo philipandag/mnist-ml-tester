@@ -1,9 +1,9 @@
-import os
-import pickle
-import sys
-import time
+from os.path import exists as path_exists, basename as path_basename, splitext as path_splitext
+from pickle import dump as pickle_dump, load as pickle_load
+from sys import exit as sys_exit, argv as sys_argv
+from time import time
 
-import joblib
+from joblib import load as joblib_load
 import numpy as np
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushButton, QInputDialog, QFileDialog, \
     QMessageBox
@@ -12,12 +12,15 @@ from sklearn.model_selection import train_test_split
 
 from Canvas import Canvas
 from ConfusionMatrix import ConfusionMatrix
+from downloadDatabase import downloadBase
+
+from Networks.MyNetwork.network import MyNetwork
 from Networks.KerasMLP import KerasMLP
 from Networks.KerasCNN import KerasCNN
 from Trees.DecisionTree import DecisionTree
 from Trees.RandomForest import RandomForest
 from OtherModels.KNN import KNN
-from downloadDatabase import downloadBase
+
 
 # Tutaj wstaw swoje modele
 models = [
@@ -25,7 +28,8 @@ models = [
     KerasMLP,
     RandomForest,
     DecisionTree,
-    KNN
+    KNN,
+    MyNetwork
 ]
 
 
@@ -174,7 +178,11 @@ class MainWindow(QMainWindow):
                                                       (model.__name__ for model in models), 0, False)
 
         if ok_pressed:
-            self.model = globals()[model_type](self.input_size, self.output_size)
+            try:
+                self.model = globals()[model_type](self.input_size, self.output_size)
+            except NotImplementedError:
+                self.komunikat("Model niezaimplementowany dla tych danych", color="red")
+                return
 
             if self.model is not None:
                 self.selected_model = model_type
@@ -197,7 +205,7 @@ class MainWindow(QMainWindow):
         if self.fitted is False:
             self.komunikat("Model nie jest wytrenowany", color="red")
         else:
-            pickle.dump(self.model, open(f"{self.selected_model}.pkl", "wb"))
+            pickle_dump(self.model, open(f"{self.selected_model}.pkl", "wb"))
             self.komunikat("Zapisano model", color="green")
 
     def wczytaj_model(self):
@@ -205,7 +213,7 @@ class MainWindow(QMainWindow):
 
         file_name, ok = QFileDialog.getOpenFileName(self, "Wczytaj model", "", "Plik modelu (*.pkl)")
         if ok:
-            self.model = pickle.load(open(file_name, "rb"))
+            self.model = pickle_load(open(file_name, "rb"))
             self.selected_model = file_name.split("/")[-1].split(".")[0]
             self.selected_model_label.setText(f"Wybrany model: {self.selected_model}")
             self.selected_model_label.setEnabled(True)
@@ -225,11 +233,11 @@ class MainWindow(QMainWindow):
             self.komunikat("Trenowanie modelu...", color="green")
             self.fitted = True
 
-            start = time.time()
+            start = time()
 
             self.model.fit(self.X_train, self.y_train)
 
-            end = time.time()
+            end = time()
 
             self.komunikat(f"Model wyćwiczony, czas {(end - start):.3f}s", color="green")
 
@@ -278,18 +286,18 @@ class MainWindow(QMainWindow):
         # Show file selection dialog
         file_name, ok = QFileDialog.getOpenFileName(self, "Wybierz plik", "", "Pliki joblib (*.joblib)")
         if ok:
-            if os.path.exists(f"{file_name}"):
+            if path_exists(f"{file_name}"):
                 train_size, ok = QInputDialog.getInt(self, "Wybierz",
                                                      "Podaj rozmiar treningowy (w %):",
                                                      min=1, max=99, step=1, value=80)
 
                 if ok:
                     # From absolute path get only file name without extension
-                    self.selected_base = os.path.splitext(os.path.basename(file_name))[0]
+                    self.selected_base = path_splitext(path_basename(file_name))[0]
                     self.komunikat(f"Wybrano bazę {self.selected_base}", color="green")
 
                     train_size /= 100
-                    self.mnist = joblib.load(f'{self.selected_base}.joblib')
+                    self.mnist = joblib_load(f'{self.selected_base}.joblib')
                     self.X = self.mnist.data
                     self.y = self.mnist.target
                     self.input_size = self.X.shape[1]
@@ -472,7 +480,7 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
+    app = QApplication(sys_argv)
     window = MainWindow()
     window.show()
-    sys.exit(app.exec_())
+    sys_exit(app.exec_())

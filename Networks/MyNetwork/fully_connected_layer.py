@@ -1,4 +1,4 @@
-from MLP.layer import Layer
+from Networks.MyNetwork.layer import Layer
 import numpy as np
 
 class FullyConnectedLayer(Layer):
