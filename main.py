@@ -13,6 +13,7 @@ from sklearn.model_selection import train_test_split
 from Canvas import Canvas
 from ConfusionMatrix import ConfusionMatrix
 from Networks.KerasMLP import KerasMLP
+from Networks.KerasCNN import KerasCNN
 from Trees.DecisionTree import DecisionTree
 from Trees.RandomForest import RandomForest
 from OtherModels.KNN import KNN
@@ -20,6 +21,7 @@ from downloadDatabase import downloadBase
 
 # Tutaj wstaw swoje modele
 models = [
+    KerasCNN,
     KerasMLP,
     RandomForest,
     DecisionTree,
