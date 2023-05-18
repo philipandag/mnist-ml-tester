@@ -21,7 +21,6 @@ class KerasCNN(Model):
         else:
             self.init_layers_proportionally()
 
-
         # SGD - stochastic gradient descent
         # MSE - mean squared error
         self.model.compile(
@@ -65,7 +64,7 @@ class KerasCNN(Model):
     def prepare_x(self, x_train):
         x_train = x_train.reshape(len(x_train), self.image_dimension, self.image_dimension, 1)
         x_train = x_train.astype("float32") / 255
-        #x_train = np.expand_dims(x_train, -1)
+        # x_train = np.expand_dims(x_train, -1)
         return x_train
 
     def init_layers_64(self):
@@ -90,4 +89,3 @@ class KerasCNN(Model):
 
     def init_layers_proportionally(self):
         raise NotImplementedError()
-

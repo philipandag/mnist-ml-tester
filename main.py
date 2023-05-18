@@ -3,24 +3,21 @@ from pickle import dump as pickle_dump, load as pickle_load
 from sys import exit as sys_exit, argv as sys_argv
 from time import time
 
-from joblib import load as joblib_load
 import numpy as np
-from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushButton, QInputDialog, QFileDialog, \
-    QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushButton, QInputDialog, QFileDialog
+from joblib import load as joblib_load
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 
 from Canvas import Canvas
 from ConfusionMatrix import ConfusionMatrix
-from downloadDatabase import downloadBase
-
-from Networks.MyNetwork.network import MyNetwork
-from Networks.KerasMLP import KerasMLP
 from Networks.KerasCNN import KerasCNN
+from Networks.KerasMLP import KerasMLP
+from Networks.MyNetwork.network import MyNetwork
+from OtherModels.KNN import KNN
 from Trees.DecisionTree import DecisionTree
 from Trees.RandomForest import RandomForest
-from OtherModels.KNN import KNN
-
+from downloadDatabase import downloadBase
 
 # Tutaj wstaw swoje modele
 models = [
@@ -398,7 +395,8 @@ class MainWindow(QMainWindow):
             print("Precision: TP/(TP+FP) Stosunek poprawnie wybranych do wszystkich wybranych tej klasy")
             print("Recall:  TP/(TP+FN) Stosunek poprawnie wybranych do ilości wystąpień tej klasy")
             print("F1: 2*Precision*Recall/(Precision+Recall) Wskaźnik wiążący precision i recall")
-            print("Accuracy:  (TP+TN)/(TP+FP+FN+TN) Stosunek poprawnie wybranych lub poprawnie odrzuconych do liczby danych")
+            print(
+                "Accuracy:  (TP+TN)/(TP+FP+FN+TN) Stosunek poprawnie wybranych lub poprawnie odrzuconych do liczby danych")
             print()
 
             for i in range(len(confusion_matrix.matrix)):

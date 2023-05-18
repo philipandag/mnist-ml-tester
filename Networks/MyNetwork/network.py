@@ -1,12 +1,12 @@
 import numpy as np
 from keras.utils import to_categorical
 
-from Networks.MyNetwork.fully_connected_layer import FullyConnectedLayer
-from Networks.MyNetwork.activation_layer import ActivationLayer
-from Networks.MyNetwork.activation_functions import tanh, sigmoid, relu, softmax
-from Networks.MyNetwork.error_functions import mse, categorical_crossentropy
-
 from AbstractModel import Model
+from Networks.MyNetwork.activation_functions import sigmoid, softmax
+from Networks.MyNetwork.activation_layer import ActivationLayer
+from Networks.MyNetwork.error_functions import categorical_crossentropy
+from Networks.MyNetwork.fully_connected_layer import FullyConnectedLayer
+
 
 class MyNetwork(Model):
     def __init__(self, input_size=64, output_size=10):
@@ -23,12 +23,12 @@ class MyNetwork(Model):
             self.init_layers_784()
         else:
             raise Exception("Invalid input size")
-    
-    #add a layer
+
+    # add a layer
     def add(self, layer):
         self.layers.append(layer)
-    
-    #predict the output for a given input
+
+    # predict the output for a given input
     def predict(self, input_data):  # input_data = (1, 64)
         input_data = np.array(input_data).reshape(1, self.input_size)
         output = input_data.astype("float32") / 255
@@ -37,7 +37,7 @@ class MyNetwork(Model):
             output = layer.forward_propagation(output)
         return output[0]
 
-    #train the network
+    # train the network
     def fit(self, x_train, y_train):
 
         samples = len(x_train)
@@ -53,7 +53,7 @@ class MyNetwork(Model):
                 output = x_train[j]
                 for layer in self.layers:
                     output = layer.forward_propagation(output)
-                    #print(output.shape)
+                    # print(output.shape)
 
                 trained_count += 1
                 if np.argmax(output[0]) == np.argmax(y_train[j]):
@@ -61,17 +61,17 @@ class MyNetwork(Model):
 
                 # backward propagation
                 error = self.loss(y_train[j], output, derivative=True)
-                #print("starting error: ", error.shape)
+                # print("starting error: ", error.shape)
                 for layer in reversed(self.layers):
                     error = layer.backward_propagation(error, self.learning_rate)
-                    #print(error.shape)
-
+                    # print(error.shape)
 
                 print("\r                    \r", end="", flush=True)
-                print("Epoch: ", i, "/", self.epochs, " (", j+1, "/", samples, "), acc: ", true_count/trained_count, end="")
+                print("Epoch: ", i, "/", self.epochs, " (", j + 1, "/", samples, "), acc: ", true_count / trained_count,
+                      end="")
             print("\r                    \r", end="", flush=True)
-            print("Epoch: ", i, "/", self.epochs, " (", j+1, "/", samples, "), acc: ", true_count/trained_count, end="\n")
-
+            print("Epoch: ", i, "/", self.epochs, " (", j + 1, "/", samples, "), acc: ", true_count / trained_count,
+                  end="\n")
 
     # return the mean accuracy on the given test data and labels
     def score(self, x_test: np.ndarray, y_test: np.ndarray) -> float:
@@ -86,8 +86,8 @@ class MyNetwork(Model):
                 output = layer.forward_propagation(output)
 
             correct_sum += np.argmax(output[0]) == y_test[i]
-        #print("Incorrect responses: ", error_sum, "out of", len(x_test))
-        return correct_sum/len(x_test)
+        # print("Incorrect responses: ", error_sum, "out of", len(x_test))
+        return correct_sum / len(x_test)
 
     def prepare_y(self, y):
         y = to_categorical(y, self.output_size)
