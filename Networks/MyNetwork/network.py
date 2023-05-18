@@ -94,9 +94,21 @@ class MyNetwork(Model):
         return y
 
     def init_layers_64(self):
-        self.add(FullyConnectedLayer(64, 32))
+        self.add(FullyConnectedLayer(self.input_size, 32))
         self.add(ActivationLayer(sigmoid))
-        self.add(FullyConnectedLayer(32, 10))
+        self.add(FullyConnectedLayer(32, self.output_size))
         self.add(ActivationLayer(softmax))
         self.loss = categorical_crossentropy
-        self.epochs = 50
+        self.epochs = 10
+
+    def init_layers_784(self):
+        self.add(FullyConnectedLayer(self.input_size, 512))
+        self.add(ActivationLayer(sigmoid))
+        self.add(FullyConnectedLayer(512, 256))
+        self.add(ActivationLayer(sigmoid))
+        self.add(FullyConnectedLayer(256, 128))
+        self.add(ActivationLayer(sigmoid))
+        self.add(FullyConnectedLayer(128, 10))
+        self.add(ActivationLayer(softmax))
+        self.loss = categorical_crossentropy
+        self.epochs = 2

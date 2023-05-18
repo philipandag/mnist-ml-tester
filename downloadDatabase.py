@@ -9,7 +9,8 @@ def downloadBase(nazwa_bazy):
         mnist.data = mnist.data * 16
     else:
         try:
-            mnist = fetch_openml(nazwa_bazy, as_frame=False)
+            print(f"Pobieranie bazy danych {nazwa_bazy}")
+            mnist = fetch_openml(nazwa_bazy, as_frame=False, parser='auto')
         except:
             print(f"Baza danych {nazwa_bazy} nie istnieje")
             return

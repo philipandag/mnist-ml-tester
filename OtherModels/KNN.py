@@ -31,8 +31,10 @@ class KNN:
         sorted_neighbours = sorted(neigbour_count.items(), key=lambda x: x[1], reverse=True)
 
         # convert to vector of 0s and a 1 at the index of the class with the most votes
-
-        return to_categorical(sorted_neighbours[0][0], self.output_size)
+        result = np.zeros(self.output_size)
+        for i in range(len(sorted_neighbours)):
+            result[sorted_neighbours[i][0]] = sorted_neighbours[i][1]/self.K
+        return np.array(result)
 
     # return the mean accuracy on the given test data and labels
     def score(self, X_test: np.ndarray, y_test: np.ndarray) -> float:

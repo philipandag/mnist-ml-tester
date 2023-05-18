@@ -205,7 +205,7 @@ class MainWindow(QMainWindow):
         if self.fitted is False:
             self.komunikat("Model nie jest wytrenowany", color="red")
         else:
-            pickle_dump(self.model, open(f"{self.selected_model}.pkl", "wb"))
+            pickle_dump(self.model, open(f"{self.selected_model}_{self.selected_base}.pkl", "wb"))
             self.komunikat("Zapisano model", color="green")
 
     def wczytaj_model(self):
@@ -257,9 +257,13 @@ class MainWindow(QMainWindow):
 
             for i in range(len(predicted)):  # If predicted is a vector of probabilities
                 if i == value:
-                    text += f"<b>{i}: {predicted[i]:.5f}</b>\n"
+                    text += f"<b>{i}: {predicted[i]:.4f}</b>"
                 else:
-                    text += f"{i}: {predicted[i]:.5f}\n"
+                    text += f"{i}: {predicted[i]:.4f}"
+                if i % 2 == 1:
+                    text += "<br>"
+                else:
+                    text += " "
 
             text += "</body></html>"
             self.predicted_value.setText(text)
@@ -301,7 +305,7 @@ class MainWindow(QMainWindow):
                     self.X = self.mnist.data
                     self.y = self.mnist.target
                     self.input_size = self.X.shape[1]
-                    self.output_size = len(np.unique(self.y))
+                    self.output_size = max(self.y) + 1
 
                     self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y,
                                                                                             train_size=train_size,
@@ -361,7 +365,7 @@ class MainWindow(QMainWindow):
 
         if ok:
             # Find all images from selected class
-            images = np.where(self.y == class_number)[0]
+            images = np.where(self.y_test == class_number)[0]
 
             if len(images) == 0:
                 self.komunikat("Nie znaleziono obrazów", color="red")
@@ -369,9 +373,9 @@ class MainWindow(QMainWindow):
 
             # Select a random image from selected class
             random_idx = np.random.choice(images)
-            self.canvas.setImage(self.X[random_idx])
+            self.canvas.setImage(self.X_test[random_idx])
 
-            self.komunikat(f"Wybrano obraz #{random_idx}. Klasa {self.y[random_idx]}", color="green")
+            self.komunikat(f"Wybrano obraz #{random_idx}. Klasa {self.y_test[random_idx]}", color="green")
 
         else:
             self.komunikat("Anulowano", color="red")
@@ -391,18 +395,19 @@ class MainWindow(QMainWindow):
                 confusion_matrix.add(predicted, actual)
 
             print("Confusion matrix:")
+            print("Precision: TP/(TP+FP) Stosunek poprawnie wybranych do wszystkich wybranych tej klasy")
+            print("Recall:  TP/(TP+FN) Stosunek poprawnie wybranych do ilości wystąpień tej klasy")
+            print("F1: 2*Precision*Recall/(Precision+Recall) Wskaźnik wiążący precision i recall")
+            print("Accuracy:  (TP+TN)/(TP+FP+FN+TN) Stosunek poprawnie wybranych lub poprawnie odrzuconych do liczby danych")
+            print()
+
             for i in range(len(confusion_matrix.matrix)):
                 conf = confusion_matrix.matrix[i]
                 print("Class ", i, "TP: ", conf.tp, "FP: ", conf.fp, "FN: ", conf.fn, "TN: ", conf.tn)
-                print("\tPrecision: ", conf.precision(),
-                      " TP/(TP+FP) Stosunek poprawnie wybranych do wszystkich wybranych tej klasy")
-                print("\tRecall: ", conf.recall(),
-                      " TP/(TP+FN) Stosunek poprawnie wybranych do ilości wystąpień tej klasy")
-                print("\tF1: ", conf.fb(1),
-                      " 2*Precision*Recall/(Precision+Recall) Wskaźnik wiążący precision i recall")
-                print("\tAccuracy: ", conf.accuracy(),
-                      " (TP+TN)/(TP+FP+FN+TN) Stosunek poprawnie wybranych lub poprawnie odrzuconych do liczby danych",
-                      end="\n\n")
+                print("\tPrecision: ", conf.precision())
+                print("\tRecall: ", conf.recall())
+                print("\tF1: ", conf.fb(1))
+                print("\tAccuracy: ", conf.accuracy(), end="\n\n")
 
                 self.komunikat("Wygenerowano macierz konfuzji", color="green")
 

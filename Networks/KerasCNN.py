@@ -43,7 +43,7 @@ class KerasCNN(Model):
 
     # train the network
     def fit(self, x_train, y_train):
-        self.epochs = 5
+        self.epochs = 2
         self.batch_size = 128
 
         y_train = self.prepare_y(y_train)
@@ -69,7 +69,14 @@ class KerasCNN(Model):
         return x_train
 
     def init_layers_64(self):
-        raise NotImplementedError()
+        self.model.add(keras.layers.Input(shape=(self.image_dimension, self.image_dimension, 1)))
+        self.model.add(keras.layers.Conv2D(32, kernel_size=(3, 3), activation="relu", padding="same"))
+        self.model.add(keras.layers.MaxPooling2D(pool_size=(2, 2), padding="same"))
+        self.model.add(keras.layers.Conv2D(64, kernel_size=(3, 3), activation="relu", padding="same"))
+        self.model.add(keras.layers.MaxPooling2D(pool_size=(2, 2), padding="same"))
+        self.model.add(keras.layers.Flatten())
+        self.model.add(keras.layers.Dropout(0.5))
+        self.model.add(keras.layers.Dense(self.output_size, activation="softmax"))
 
     def init_layers_784(self):
         self.model.add(keras.layers.Input(shape=(self.image_dimension, self.image_dimension, 1)))
