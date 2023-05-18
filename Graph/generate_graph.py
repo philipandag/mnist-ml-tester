@@ -1,4 +1,5 @@
 
+from math import sqrt
 from joblib import load as joblib_load
 from sklearn.datasets import fetch_openml, load_digits
 import numpy as np
@@ -24,9 +25,11 @@ for h in range(8):
         row.append(img[h*8+w])
     tempImg.append(row)
 img = np.asarray(tempImg)
-  
-print(tempImg)
 
+'''plt.figure()
+plt.imshow(tempImg)
+print(tempImg)
+'''
 
 import scipy.ndimage
 from skimage.segmentation import slic
@@ -78,12 +81,42 @@ for ind in sp_indices:
 #edges = np.unique(edges)
 #print(edges)
 
+'''
+#visualise sliced
+vis = []
+for x in range(len(sp)):
+    row = []
+    for y in range(len(sp[0])):
+        pixId = sp[x][y]
+        row.append(sp_intensity[pixId-1])
+    vis.append(row)
+plt.figure()
+plt.imshow(vis)
+'''
+    
+
 
 edges = list(set(edges))
 edges = np.asarray(edges)
 edges = edges-1
 print(edges)
 
+edgeWeights = []
+for E in edges:
+    p1x = sp_coord[E[0]][0]
+    p2x = sp_coord[E[1]][0]
+    p1y = sp_coord[E[0]][1]
+    p2y = sp_coord[E[1]][1]
+    dist = sqrt(pow(p1x - p2x, 2) + pow(p1y - p2y, 2))
+    edgeWeights.append(dist)
+
+distances = []
+for E in edges:
+    p1 = sp_coord[E[0]]
+    p2 = sp_coord[E[1]]
+    xdist2 = pow((p1[0] - p2[0]),2)
+    ydist2 = pow((p1[1] - p2[1]),2)
+    dist = sqrt(xdist2+ydist2)
 
 
 G = nx.Graph()
@@ -91,13 +124,14 @@ G = nx.Graph()
 for x in sp_intensity:
     G.add_node(x[0])
     
-for E in edges:
-    N1 = sp_intensity[E[0]][0]
-    N2 = sp_intensity[E[1]][0]
+for E in range(len(edges)):
+    N1 = sp_intensity[(edges[E])[0]][0]
+    N2 = sp_intensity[(edges[E])[1]][0]
     if N1 != N2:
-        G.add_edge(N1, N2)
+        G.add_edge(N1, N2, weight=edgeWeights[E])
 
-#G.add_edges_from(edges)
+plt.figure()
+G = G.to_undirected()
 nx.draw_networkx(G)
 plt.show()
                 
