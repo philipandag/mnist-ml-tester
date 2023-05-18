@@ -1,3 +1,4 @@
+import sys
 from os.path import exists as path_exists, basename as path_basename, splitext as path_splitext
 from pickle import dump as pickle_dump, load as pickle_load
 from sys import exit as sys_exit, argv as sys_argv
@@ -179,6 +180,7 @@ class MainWindow(QMainWindow):
                 self.model = globals()[model_type](self.input_size, self.output_size)
             except NotImplementedError:
                 self.komunikat("Model niezaimplementowany dla tych danych", color="red")
+                print("Unexpected error:", sys.exc_info())
                 return
 
             if self.model is not None:
@@ -232,7 +234,12 @@ class MainWindow(QMainWindow):
 
             start = time()
 
-            self.model.fit(self.X_train, self.y_train)
+            try:
+                self.model.fit(self.X_train, self.y_train)
+            except:
+                self.komunikat("Błąd trenowania", color="red")
+                print("Unexpected error:", sys.exc_info())
+                return
 
             end = time()
 
@@ -245,7 +252,12 @@ class MainWindow(QMainWindow):
         else:
             self.komunikat("Klasyfikowanie...", color="green")
 
-            predicted = self.model.predict(self.canvas.getConvertedImage())
+            try:
+                predicted = self.model.predict(self.canvas.getConvertedImage())
+            except:
+                self.komunikat("Błąd klasyfikacji", color="red")
+                print("Unexpected error:", sys.exc_info())
+                return
 
             print(f"Predicted: {predicted}")
 
@@ -387,7 +399,12 @@ class MainWindow(QMainWindow):
             confusion_matrix = ConfusionMatrix(self.output_size)
 
             for i in range(len(self.X_test)):
-                predicted = np.argmax(self.model.predict([self.X_test[i]]))
+                try:
+                    predicted = np.argmax(self.model.predict([self.X_test[i]]))
+                except:
+                    self.komunikat("Błąd podczas predykcji", color="red")
+                    print("Unexpected error:", sys.exc_info())
+                    return
                 actual = self.y_test[i]
                 confusion_matrix.add(predicted, actual)
 
@@ -431,7 +448,12 @@ class MainWindow(QMainWindow):
             idx = np.random.choice(len(self.y_test), int(len(self.y_test) * (train_size / 100)), replace=False)
             y = self.y_test[idx]
             x = self.X_test[idx]
-            score = self.model.score(x, y)
+            try:
+                score = self.model.score(x, y)
+            except:
+                self.komunikat("Błąd podczas walidacji", color="red")
+                print("Unexpected error:", sys.exc_info())
+                return
             self.komunikat(f"Wynik: {score}", color="green")
 
     # trenujemy model n razy, za każdym razem inny z pośród n równomiernych części zbioru
