@@ -15,10 +15,12 @@ from ConfusionMatrix import ConfusionMatrix
 from Networks.KerasCNN import KerasCNN
 from Networks.KerasMLP import KerasMLP
 from Networks.MyNetwork.network import MyNetwork
+from Networks.Transfer import Transfer
 from OtherModels.KNN import KNN
 from Trees.DecisionTree import DecisionTree
 from Trees.RandomForest import RandomForest
 from downloadDatabase import downloadBase
+
 
 # Tutaj wstaw swoje modele
 models = [
@@ -27,7 +29,8 @@ models = [
     RandomForest,
     DecisionTree,
     KNN,
-    MyNetwork
+    MyNetwork,
+    Transfer
 ]
 
 
