@@ -94,19 +94,69 @@ wyjściowej gradientem funkcji straty dla macierzy wyjściowej tej warstwy\\
 
 
 
-\paragraph{Własna implementacja}
-Z wykorzystaniem biblioteki numpy zaimplementowano model sieci neuronowej typu wielowarstwowy perceptron zgodny z powyższą teorią do bazy MNIST_784 zawierającej 
-obrazy cyfr z przedziału 0-9. 
+\subsubsection{Wielowarstwowy perceptron, własna implementacja}
+
+Z wykorzystaniem biblioteki numpy zaimplementowano model sieci neuronowej typu wielowarstwowy perceptron zgodny z powyższą teorią do bazy MNIST-784 zawierającej 70000
+obrazów cyfr z przedziału 0-9. 
 Architektura warstw stworzonej sieci wyglądała następująco:
 
-$$ 784 -> 512, sigmoid -> 256, sigmoid -> 128, sigmoid ->10, softmax$$
+$$ 784 -> 512, sigmoid -> 256, sigmoid -> 128, sigmoid ->10, softmax $$
 
-Za funkcję straty przyjęto funkcję Categorical Crossentropy 
+Za funkcję straty przyjęto funkcję Categorical Crossentropy, learning rate wynosił 0.01.
+W trakcie trenowania nie korzystano żadnych mechanizmów nieomówionych 
+w częsci teoretycznej w tym: batchingu czy przetwarzania danych wejściowych poza skalowaniem do zakresu $[0, 1]$.
+
+Ze zbioru MNIST-784 jako zbiór treningowy obrano 80\% danych a jako zbiór testowy pozostałe 20\%. Wartość accuracy predykcji tego modelu na zbiorze testowym osiągnęła
+pik w pobliżu 0.92 po sześciu epochach treningu.
+
+\begin{table}[]
+\begin{tabular}{llll}
+Klasa & Precyzja & Zwrot & F1   \\
+1     & 0.95     & 0.97  & 0.96 \\
+2     & 0.93     & 0.97  & 0.95 \\
+3     & 0.90     & 0.91  & 0.92 \\
+4     & 0.95     & 0.89  & 0.92 \\
+5     & 0.87     & 0.92  & 0.9  \\
+6     & 0.92     & 0.96  & 0.94 \\
+7     & 0.91     & 0.87  & 0.89 \\
+8     & 0.9      & 0.87  & 0.88 \\
+9     & 0.9      & 0.92  & 0.9  \\
+0     & 0.95     & 0.97  & 0.96  
+\end{tabular}
+\end{table}
 
 
+
+\subsubsection{Wielowarstwowy perceptron, tensorflow keras}
+
+Z wykorzystaniem pakietu tensorflow.keras utworzono sieć neuronową o architekturze analogicznej do tej zaimplementowanej ręcznie. Zastosowano kilka zmian w postaci:
+
+\begin{itemize}
+\item Do propagacji wstecz zamiast stochastycznego schodzenia po gradiencie użyto algorytmu Adam będącego jego udoskonaleniem uwzględniającym momenty gradientu.
+
+\item Zastosowano mechanizm batchingu, ~$batch-size = 128$
+
+\end{itemize}
+
+\begin{table}[]
+\begin{tabular}{lllll}
+Klasa & Precyzja & Zwrot & F1   & Celność \\
+1     & 0.91     & 0.99  & 0.95 & 0.98    \\
+2     & 0.92     & 0.97  & 0.94 & 0.99    \\
+3     & 0.85     & 0.96  & 0.90 & 0.98    \\
+4     & 0.97     & 0.92  & 0.94 & 0.99    \\
+5     & 0.98     & 0.85  & 0.91 & 0.98    \\
+6     & 0.97     & 0.94  & 0.95 & 0.99    \\
+7     & 0.95     & 0.94  & 0.95 & 0.98    \\
+8     & 0.97     & 0.9   & 0.93 & 0.98    \\
+9     & 0.93     & 0.92  & 0.93 & 0.98    \\
+0     & 0.97     & 0.97  & 0.97 & 0.99   
+\end{tabular}
+\end{table}
 
 
 \subsubsection{Sieć konwolucyjna}
+Sieć konwolucyjna jest odmianą sieci neuronowej, w której stosuje się warstwy konwolucyjne. W takich warstwach każdy neuron zamiast nakładać na zbiór parametrów funkcję, nakłada na nie filtr, którego wagi są współczynnikami neuronu. 
 \subsubsection{Sieć grafowa}
 \subsubsection{Sieć transferowa}
 
