@@ -5,26 +5,113 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{hyperref}
+\usepackage{amsfonts} 
 
 \usepackage[a4paper, margin=2.54cm]{geometry}
 
-\title{Sprawozdanie z projektu ze Sztucznej Inteligencji}
-\author{Filip Gołaś s188597 \\ Damian Jankowski s188597 \\ Mikołaj Storoniak s188806}
+\title{Sprawozdanie z projektu ze Sztucznej Inteligencji \\ Porównanie metod uczenia maszynowego w problemie MNIST i jego pochodnych}
+\author{Filip Gołaś s188776 \\ Damian Jankowski s188597 \\ Mikołaj Storoniak s188806}
 
 \begin{document}
 
 \maketitle
 
-\section{Wstęp}
-Tutaj będzie bardzo ładny wstęp.
+\rule{\textwidth}{0.4pt}
 
 \section{Opis problemu}
 
 Tutaj będzie bardzo ładny opis problemu.
 
-\section{Opis modeli}
+\section{Opis porównanych modeli}
 
-Tutaj z kolei będzie bardzo ładny opis modeli.
+\subsection{Drzewa}
+\subsubsection{Drzewo decyzyjne}
+\subsubsection{Las losowy}
+
+\subsection{Sieci neuronowe}
+Sieć neuronowa jest modelem statystycznym czerpiącym inspirację z natury i działania układów nerwowych żywych organizmów.
+Modele te są stosowane zarówno do problemów regresji (aproksymacji) jak i klasyfikacji poprzez nauczanie nadzorowane.
+
+Podstawową składową każdej sieci neuronowej jest neuron, który może być reprezentowany jako funkcja wielu parametrów zwracająca dyskretną wartość
+prawda lub fałsz. Choć jeden neuron nie jest w stanie opisać złożonych modeli, dużo większe możliwości mają sieci neuronowe zbudowane z wielu neuronów
+połączonych w warstwy w taki sposób, że wynik jednej warstwy służy jako parametry kolejnej.
+
+% TU WSTAWIĆ ILUSTRACJĘ WARSTW PRZEKAZUJĄCYCH SOBIE PARAMETRY
+
+Poprzez odpowiednie ustawienie współczynników funkcji w neuronach jesteśmy w stanie zamodelować zależności dużo bardziej złożone niż te możliwe do opisania jedną
+prostą funkcją wielu parametrów.
+
+\subsubsection{Wielowarstwowy perceptron}
+
+W praktyce w sieciach neuronowych neurony są zastąpione perceptronami, które od neuronów różnią się tym, że są funkcjami w dziedzinie rzeczywistej.
+Same warstwy neuronów również nie są reprezentowane jako zbiory obiektów typu neuron. Operacja przechodzenia danych wejściowych przez kolejne warstwy sieci
+zwana propagacją w przód może być zrealizowana w każdej warstwie poprzez proste mnożenie macierzy
+
+$$ X \times W=S $$
+
+Gdzie:
+ ~$X$ jest macierzą ~$(n, 1)$ parametrów będących danymi wejściowymi sieci w przypadku warstwy pierwszej (wejściowej), lub wartości zwróconych przez
+poprzednią warstwę w sieci\\
+~$W$ jest macierzą ~$(m, n)$ współczynników funkcji opisujących perceptrony, w której każdy wiersz opisuje jeden perceptron, a każda kolumna odpowiada wartości 
+współczynnika tego perceptronu dla danego parametru z wektora wejściowego warstwy\\
+~$S$ jest macierzą wynikową warstwy ~$(1, m)$ zawierającą wartości zwrócone przez funkcje opisujące perceptrony tworzące tę warstwę.\\
+
+Następnie należy zdecydować kiedy uznamy dany neuron za pobudzony. Do tego zadania stosuje się funkcje aktywacji, których dobór jest niezwykle ważny
+i może łatwo zadecydować o użyteczności sieci.
+
+$$ f(S) = Z $$
+
+Gdzie:\\
+~$f(\cdot)$ jest wybraną funkcją aktywacji, która powinna być różniczkowalna by możliwe było użycie jej w propagacji wstecz,\\
+~$S$ jest macierzą wynikową ~$(1, m)$ warstwy,\\
+~$Z$ jest macierzą ~$(1, m)$, w której każdy element jest intensywnością pobudzenia danego neuronu.\\
+
+Aby korzystać z sieci neuronowych do opisywania skomplikowanych modeli statystycznych nie możemy ręcznie decydować o wartościach parametrów w warstwach. 
+Byłoby to niezwykle ciężkie o ile nie niemożliwe w sposób analityczny. Zamiast tego sieci neuronowe poddaje się trenowaniu.
+
+Proces trenowania sieci neuronowej nazywany jest propagacją wstecz. Gdy przeprowadzimy proces propagacji w przód dla sieci z wartościami współczynników
+o wartościach losowych o dowolnym rozkładzie jesteśmy w stanie poprawić je stosując wybraną różniczkowalną funkcję straty i znając wartości pożądane. Dzieje się to 
+w najprostrzym przypadku poprzez metodę spadku po gradiencie, którą można opisać macierzowo dla całej warstwy neuronów jako:
+
+
+$$ W_1 = W_0 - \eta \frac{\partial E}{\partial S} $$
+
+
+Gdzie: \\
+~$W_0$ jest macierzą ~$(m, n)$ współczynników perceptronów warstwy, a ~$W_1$ jest jej nową postacią\\
+~$\eta$ jest współczynnikiem ~$learning rate$ kontrolującym tempo uczenia\\
+~$\frac{\partial E}{\partial Z}$ jest pochodną z sygnału błędu po macierzy wynikowej ~$S$ danej warstwy. Sygnał błędu w przypadku ostatniej warstwy (wyjściowej) jest
+gradientem funkcji błędu macierzy wynikowej, w przypadku reszty warstw jest on sygnałem błedu pochodzącym z poprzednio aktualizowanej w procesie propagacji wstecz warstwy
+wyznacznym poprzez:
+
+
+$$ E_1 = -\frac{\partial E_0}{\partial S} $$
+
+Gdzie:\\
+~$E_1$ jest sygnałem błędu zwracanym przez daną warstwę,\\
+~$\frac{\partial E}{\partial S}$ jest pochodną cząstkową z sygnału błedu, który otrzymała ta warstwa od warstwy poprzedniej w procesie propagacji wstecz, lub w przypadku warstwy
+wyjściowej gradientem funkcji straty dla macierzy wyjściowej tej warstwy\\
+
+
+
+\paragraph{Własna implementacja}
+Z wykorzystaniem biblioteki numpy zaimplementowano model sieci neuronowej typu wielowarstwowy perceptron zgodny z powyższą teorią do bazy MNIST_784 zawierającej 
+obrazy cyfr z przedziału 0-9. 
+Architektura warstw stworzonej sieci wyglądała następująco:
+
+$$ 784 -> 512, sigmoid -> 256, sigmoid -> 128, sigmoid ->10, softmax$$
+
+Za funkcję straty przyjęto funkcję Categorical Crossentropy 
+
+
+
+
+\subsubsection{Sieć konwolucyjna}
+\subsubsection{Sieć grafowa}
+\subsubsection{Sieć transferowa}
+
+\subsection{Inne modele}
+\subsubsection{KNN - K Nearest Neighbours}
 
 \section{Wyniki}
 
