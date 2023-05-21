@@ -93,20 +93,20 @@ class KerasMLP(Model):
     def init_layers_784(self):
         self.model.add(keras.layers.Dense(
             512,
-            activation='relu',
+            activation='sigmoid',
             input_shape=(self.input_size,),
             kernel_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5),
             bias_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5)
         ))
         self.model.add(keras.layers.Dense(
             256,
-            activation='relu',
+            activation='sigmoid',
             kernel_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5),
             bias_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5)
         ))
         self.model.add(keras.layers.Dense(
             128,
-            activation='relu',
+            activation='sigmoid',
             kernel_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5),
             bias_initializer=keras.initializers.RandomUniform(minval=-0.5, maxval=0.5)
         ))
