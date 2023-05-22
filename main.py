@@ -13,6 +13,7 @@ from sklearn.model_selection import train_test_split
 from Canvas import Canvas
 from ConfusionMatrix import ConfusionMatrix
 from Networks.KerasCNN import KerasCNN
+from Networks.KerasCNNV2 import KerasCNNV2
 from Networks.KerasMLP import KerasMLP
 from Networks.MyNetwork.network import MyNetwork
 from Networks.Transfer import Transfer
@@ -30,7 +31,8 @@ models = [
     DecisionTree,
     KNN,
     MyNetwork,
-    Transfer
+    Transfer,
+    KerasCNNV2
 ]
 
 
