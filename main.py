@@ -9,7 +9,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushBut
 from joblib import load as joblib_load
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
-
+from scipy import ndimage
+from math import ceil, floor
 from Canvas import Canvas
 from ConfusionMatrix import ConfusionMatrix
 from Networks.KerasCNN import KerasCNN
@@ -22,6 +23,7 @@ from Trees.DecisionTree import DecisionTree
 from Trees.RandomForest import RandomForest
 from downloadDatabase import downloadBase
 
+from cv2 import resize as cv2_resize, warpAffine as cv2_warpAffine
 
 # Tutaj wstaw swoje modele
 models = [
@@ -258,7 +260,9 @@ class MainWindow(QMainWindow):
             self.komunikat("Klasyfikowanie...", color="green")
 
             try:
-                predicted = self.model.predict(self.canvas.getConvertedImage())
+                image = self.canvas.getConvertedImage()
+                image = self.mnistify(image)
+                predicted = self.model.predict(image)
             except:
                 self.komunikat("Błąd klasyfikacji", color="red")
                 print("Unexpected error:", sys.exc_info())
@@ -285,6 +289,57 @@ class MainWindow(QMainWindow):
             if self.plot_checkbox.isChecked():
                 self.canvas.showResult(value)
             self.komunikat(f"Klasyfikacja zakończona, wynik: {value}", color="green")
+
+    def mnistify(self, image):
+        image = np.resize(image, (28, 28))
+        while(np.sum(image[0]) == 255 * image.shape[1]): # usuwanie pustych wierszy nad cyfra
+            image = image[1:]
+        while(np.sum(image[:, 0]) == 255 * image.shape[0]): # usuwanie pustych kolumn po lewej stronie cyfry
+            image = np.delete(image, 0, 1)
+        while(np.sum(image[-1]) == 255 * image.shape[1]): # usuwanie pustych wierszy pod cyfra
+            image = image[:-1]
+        while(np.sum(image[:, -1]) == 255 * image.shape[0]): # usuwanie pustych kolumn po prawej stronie cyfry
+            image = np.delete(image, -1, 1)
+
+        rows, cols = image.shape
+
+        # skalowanie najwiekszego wymiaru cyfry do 20px,
+        # drugi wymiar proporcjonalnie, cyfra w MNIST powinna miescic sie w 20x20px
+        if rows > cols:
+            factor = 20.0 / rows
+            rows = 20
+            cols = int(round(cols * factor))
+            image = cv2_resize(image, (cols, rows))
+        else:
+            factor = 20.0 / cols
+            cols = 20
+            rows = int(round(rows * factor))
+            image = cv2_resize(image, (cols, rows))
+
+
+        #Uzupełnianie obrazu do 28x28px
+        colsPadding = (int(ceil((28 - cols) / 2.0)), int(floor((28 - cols) / 2.0)))
+        rowsPadding = (int(ceil((28 - rows) / 2.0)), int(floor((28 - rows) / 2.0)))
+        image = np.lib.pad(image, (rowsPadding, colsPadding), 'constant', constant_values=(255, 255))
+
+        # Wyznaczanie środka ciężkości i o ile przesunąc by środek ciężkości był w środku geometrycznym
+        cy, cx = ndimage.measurements.center_of_mass(255-image)
+        rows, cols = image.shape
+        shiftx = np.round(cols / 2.0 - cx).astype(int)
+        shifty = np.round(rows / 2.0 - cy).astype(int)
+
+        # Przesuwanie obrazu tak by środek ciężkości był w środku geometrycznym
+        M = np.float32([[1, 0, shiftx], [0, 1, shifty]])
+        image = cv2_warpAffine(image, M, (cols, rows), borderValue=255)
+
+        #test wyniku
+        #plt.imshow(image, cmap='gray')
+        #plt.show()
+        #pass
+
+        image = np.resize(image, (1, 784))
+        return image
+
 
     def pobierz_baze(self):
         self.komunikat("Wybrano opcję Pobierz")
