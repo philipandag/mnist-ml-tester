@@ -6,17 +6,19 @@
 \usepackage{float}
 \usepackage{hyperref}
 \usepackage{amsfonts} 
+\usepackage{tikz} % pgf package
+\usetikzlibrary{shapes.multipart}
 
 \usepackage[a4paper, margin=2.54cm]{geometry}
 
-\title{Sprawozdanie z projektu ze Sztucznej Inteligencji \\ Porównanie metod uczenia maszynowego w problemie MNIST i jego pochodnych}
+\title{Sprawozdanie z projektu ze Sztucznej Inteligencji \\ 
+Porównanie metod uczenia maszynowego \\ 
+w problemie MNIST i jego pochodnych}
 \author{Filip Gołaś s188776 \\ Damian Jankowski s188597 \\ Mikołaj Storoniak s188806}
 
 \begin{document}
 
 \maketitle
-
-\rule{\textwidth}{0.4pt}
 
 \section{Opis problemu}
 
@@ -29,182 +31,323 @@ Tutaj będzie bardzo ładny opis problemu.
 \subsubsection{Las losowy}
 
 \subsection{Sieci neuronowe}
-Sieć neuronowa jest modelem statystycznym czerpiącym inspirację z natury i działania układów nerwowych żywych organizmów.
+Sieć neuronowa jest modelem statystycznym czerpiącym inspirację z natury i 
+działania układów nerwowych żywych organizmów.
 Modele te są stosowane zarówno do problemów regresji (aproksymacji) jak i klasyfikacji poprzez nauczanie nadzorowane.
 
-Podstawową składową każdej sieci neuronowej jest neuron, który może być reprezentowany jako funkcja wielu parametrów zwracająca dyskretną wartość
-prawda lub fałsz. Choć jeden neuron nie jest w stanie opisać złożonych modeli, dużo większe możliwości mają sieci neuronowe zbudowane z wielu neuronów
+Podstawową składową każdej sieci neuronowej jest neuron, który może być reprezentowany 
+jako funkcja wielu parametrów zwracająca dyskretną wartość
+prawda lub fałsz. Choć jeden neuron nie jest w stanie opisać złożonych modeli, 
+dużo większe możliwości mają sieci neuronowe zbudowane z wielu neuronów
 połączonych w warstwy w taki sposób, że wynik jednej warstwy służy jako parametry kolejnej.
 
 % TU WSTAWIĆ ILUSTRACJĘ WARSTW PRZEKAZUJĄCYCH SOBIE PARAMETRY
 
-Poprzez odpowiednie ustawienie współczynników funkcji w neuronach jesteśmy w stanie zamodelować zależności dużo bardziej złożone niż te możliwe do opisania jedną
+Poprzez odpowiednie ustawienie współczynników funkcji w neuronach jesteśmy w 
+stanie zamodelować zależności dużo bardziej złożone niż te możliwe do opisania jedną
 prostą funkcją wielu parametrów.
 
 \subsubsection{Wielowarstwowy perceptron}
 
-W praktyce w sieciach neuronowych neurony są zastąpione perceptronami, które od neuronów różnią się tym, że są funkcjami w dziedzinie rzeczywistej.
-Same warstwy neuronów również nie są reprezentowane jako zbiory obiektów typu neuron. Operacja przechodzenia danych wejściowych przez kolejne warstwy sieci
+W praktyce w sieciach neuronowych neurony są zastąpione perceptronami, które od neuronów 
+różnią się tym, że są funkcjami w dziedzinie rzeczywistej.
+Same warstwy neuronów również nie są reprezentowane jako zbiory obiektów typu neuron. 
+Operacja przechodzenia danych wejściowych przez kolejne warstwy sieci
 zwana propagacją w przód może być zrealizowana w każdej warstwie poprzez proste mnożenie macierzy
 
-$$ X \times W=S $$
+\begin {equation}
+    S = X \times W
+\end{equation}
+gdzie:
+\begin{itemize}
+    \item $X$ jest macierzą ~$(n, 1)$ parametrów będących danymi 
+    wejściowymi sieci w przypadku warstwy pierwszej (wejściowej), 
+    lub wartości zwróconych przez poprzednią warstwę w sieci
+    \item $W$ jest macierzą ~$(m, n)$ współczynników funkcji opisujących perceptrony, 
+    w której każdy wiersz opisuje jeden perceptron, 
+    a każda kolumna odpowiada wartości współczynnika tego perceptronu dla danego parametru 
+    z wektora wejściowego warstwy
+    \item $S$ jest macierzą wynikową warstwy ~$(1, m)$ zawierającą wartości zwrócone przez 
+    funkcje opisujące perceptrony tworzące tę warstwę
+\end{itemize}
 
-Gdzie:
- ~$X$ jest macierzą ~$(n, 1)$ parametrów będących danymi wejściowymi sieci w przypadku warstwy pierwszej (wejściowej), lub wartości zwróconych przez
-poprzednią warstwę w sieci\\
-~$W$ jest macierzą ~$(m, n)$ współczynników funkcji opisujących perceptrony, w której każdy wiersz opisuje jeden perceptron, a każda kolumna odpowiada wartości 
-współczynnika tego perceptronu dla danego parametru z wektora wejściowego warstwy\\
-~$S$ jest macierzą wynikową warstwy ~$(1, m)$ zawierającą wartości zwrócone przez funkcje opisujące perceptrony tworzące tę warstwę.\\
-
-Następnie należy zdecydować kiedy uznamy dany neuron za pobudzony. Do tego zadania stosuje się funkcje aktywacji, których dobór jest niezwykle ważny
+Następnie należy zdecydować kiedy uznamy dany neuron za pobudzony. Do tego zadania 
+stosuje się funkcje aktywacji, których dobór jest niezwykle ważny
 i może łatwo zadecydować o użyteczności sieci.
 
-$$ f(S) = Z $$
+\begin{equation}
+    f(S) = Z
+\end{equation}
 
-Gdzie:\\
-~$f(\cdot)$ jest wybraną funkcją aktywacji, która powinna być różniczkowalna by możliwe było użycie jej w propagacji wstecz,\\
-~$S$ jest macierzą wynikową ~$(1, m)$ warstwy,\\
-~$Z$ jest macierzą ~$(1, m)$, w której każdy element jest intensywnością pobudzenia danego neuronu.\\
+\begin{itemize}
+    \item $f(\cdot)$ jest wybraną funkcją aktywacji, która powinna być 
+    różniczkowalna by możliwe było użycie jej w propagacji wstecz
+    \item $S$ jest macierzą wynikową ~$(1, m)$ warstwy
+    \item $Z$ jest macierzą ~$(1, m)$, w której każdy element jest intensywnością pobudzenia danego neuronu
+\end{itemize}
 
-Aby korzystać z sieci neuronowych do opisywania skomplikowanych modeli statystycznych nie możemy ręcznie decydować o wartościach parametrów w warstwach. 
-Byłoby to niezwykle ciężkie o ile nie niemożliwe w sposób analityczny. Zamiast tego sieci neuronowe poddaje się trenowaniu.
+Aby korzystać z sieci neuronowych do opisywania skomplikowanych modeli 
+statystycznych nie możemy ręcznie decydować o wartościach parametrów w warstwach. 
+Byłoby to niezwykle ciężkie o ile nie niemożliwe w sposób analityczny. 
+Zamiast tego sieci neuronowe poddaje się trenowaniu.
 
-Proces trenowania sieci neuronowej nazywany jest propagacją wstecz. Gdy przeprowadzimy proces propagacji w przód dla sieci z wartościami współczynników
-o wartościach losowych o dowolnym rozkładzie jesteśmy w stanie poprawić je stosując wybraną różniczkowalną funkcję straty i znając wartości pożądane. Dzieje się to 
-w najprostrzym przypadku poprzez metodę spadku po gradiencie, którą można opisać macierzowo dla całej warstwy neuronów jako:
+Proces trenowania sieci neuronowej nazywany jest propagacją wstecz. Gdy 
+przeprowadzimy proces propagacji w przód dla sieci z wartościami współczynników
+o wartościach losowych o dowolnym rozkładzie jesteśmy w stanie poprawić 
+je stosując wybraną różniczkowalną funkcję straty i znając wartości pożądane. Dzieje się to 
+w najprostrzym przypadku poprzez metodę spadku po gradiencie, którą można 
+opisać macierzowo dla całej warstwy neuronów jako:
 
-
-$$ W_1 = W_0 - \eta \frac{\partial E}{\partial S} $$
-
-
-Gdzie: \\
-~$W_0$ jest macierzą ~$(m, n)$ współczynników perceptronów warstwy, a ~$W_1$ jest jej nową postacią\\
-~$\eta$ jest współczynnikiem ~$learning rate$ kontrolującym tempo uczenia\\
-~$\frac{\partial E}{\partial Z}$ jest pochodną z sygnału błędu po macierzy wynikowej ~$S$ danej warstwy. Sygnał błędu w przypadku ostatniej warstwy (wyjściowej) jest
-gradientem funkcji błędu macierzy wynikowej, w przypadku reszty warstw jest on sygnałem błedu pochodzącym z poprzednio aktualizowanej w procesie propagacji wstecz warstwy
-wyznacznym poprzez:
-
-
-$$ E_1 = -\frac{\partial E_0}{\partial S} $$
-
-Gdzie:\\
-~$E_1$ jest sygnałem błędu zwracanym przez daną warstwę,\\
-~$\frac{\partial E}{\partial S}$ jest pochodną cząstkową z sygnału błedu, który otrzymała ta warstwa od warstwy poprzedniej w procesie propagacji wstecz, lub w przypadku warstwy
-wyjściowej gradientem funkcji straty dla macierzy wyjściowej tej warstwy\\
-
+\begin{equation}
+    W_1 = W_0 - \eta \times \frac{\partial E}{\partial Z}
+\end{equation}
+gdzie:
+\begin{itemize}
+    \item $W_0$ jest macierzą ~$(m, n)$ współczynników perceptronów warstwy, a $W_1$ jest jej nową postacią
+    \item $\eta$ jest współczynnikiem $learning rate$ kontrolującym tempo uczenia
+    \item $\frac{\partial E}{\partial Z}$ jest pochodną z sygnału błędu po 
+    macierzy wynikowej $S$ danej warstwy. Sygnał błędu w przypadku ostatniej warstwy (wyjściowej) jest
+    gradientem funkcji błędu macierzy wynikowej, w przypadku reszty warstw 
+    jest on sygnałem błedu pochodzącym z poprzednio aktualizowanej w procesie propagacji wstecz warstwy
+    wyznacznym poprzez:
+    \begin{equation}
+        E_1 = -\frac{\partial E_0}{\partial S}
+    \end{equation}
+    gdzie:
+    \begin{itemize}
+        \item $E_0$ jest sygnałem błędu zwracanym przez daną warstwę
+        \item $\frac{\partial E}{\partial S}$ jest pochodną cząstkową z sygnału błedu, 
+        który otrzymała ta warstwa od warstwy poprzedniej w procesie propagacji wstecz, lub w przypadku warstwy
+        wyjściowej gradientem funkcji straty dla macierzy wyjściowej tej warstwy
+    \end{itemize}
+\end{itemize}
 
 
 \subsubsection{Wielowarstwowy perceptron, własna implementacja}
 
-Z wykorzystaniem biblioteki numpy zaimplementowano model sieci neuronowej typu wielowarstwowy perceptron zgodny z powyższą teorią do bazy MNIST-784 zawierającej 70000
-obrazów cyfr z przedziału 0-9. 
+Z wykorzystaniem biblioteki numpy zaimplementowano model sieci neuronowej 
+typu wielowarstwowy perceptron zgodny z powyższą teorią do bazy MNIST-784 zawierającej 70000 obrazów cyfr z przedziału 0-9.
+
+
 Architektura warstw stworzonej sieci wyglądała następująco:
 
-$$ 784 -> 512, sigmoid -> 256, sigmoid -> 128, sigmoid ->10, softmax $$
+% $$ 784 -> 512, sigmoid -> 256, sigmoid -> 128, sigmoid ->10, softmax $$
+
+\begin{center}
+    \begin{tikzpicture}[node distance=3cm, every node/.style={minimum height=0.8cm, minimum width=1.5cm}]
+        \matrix[draw=none, column sep=0.5cm, row sep=0.6cm]{
+            \node[rectangle, draw] (input) {784}; \\
+            \node[rectangle, draw] (hidden1) {512}; \\
+            \node[rectangle, draw] (hidden2) {256}; \\
+            \node[rectangle, draw] (hidden3) {128}; \\
+            \node[rectangle, draw] (output) {10}; \\
+        };
+
+        % Opisy kwadratów
+        \node[above=0.3cm] at (input.north) {\textbf{Wejście}};
+        \node[right=0.0cm] at (hidden1.east) {\tiny \textbf{Ukryta 1}};
+        \node[right=0.0cm] at (hidden2.east) {\tiny \textbf{Ukryta 2}};
+        \node[right=0.0cm] at (hidden3.east) {\tiny \textbf{Ukryta 3}};
+        \node[below=0.3cm] at (output.south) {\textbf{Wyjście}};
+
+        % Opisy etapów
+        \node[below=0.3cm, right=0.0cm] at (input.south) {\tiny \textbf{sigmoid}};
+        \node[below=0.3cm, right=0.0cm] at (hidden1.south) {\tiny \textbf{sigmoid}};
+        \node[below=0.3cm, right=0.0cm] at (hidden2.south) {\tiny \textbf{sigmoid}};
+        \node[below=0.3cm, right=0.0cm] at (hidden3.south) {\tiny \textbf{softmax}};
+
+        \draw[->] (input) -- (hidden1);
+        \draw[->] (hidden1) -- (hidden2);
+        \draw[->] (hidden2) -- (hidden3);
+        \draw[->] (hidden3) -- (output);
+    \end{tikzpicture}
+\end{center}
 
 Za funkcję straty przyjęto funkcję Categorical Crossentropy, learning rate wynosił 0.01.
 W trakcie trenowania nie korzystano żadnych mechanizmów nieomówionych 
 w częsci teoretycznej w tym: batchingu czy przetwarzania danych wejściowych poza skalowaniem do zakresu $[0, 1]$.
 
-Ze zbioru MNIST-784 jako zbiór treningowy obrano 80\% danych a jako zbiór testowy pozostałe 20\%. Wartość accuracy predykcji tego modelu na zbiorze testowym osiągnęła
+Ze zbioru MNIST-784 jako zbiór treningowy obrano 80\% danych a 
+jako zbiór testowy pozostałe 20\%. Wartość accuracy predykcji tego modelu na zbiorze testowym osiągnęła
 pik w pobliżu 0.92 po sześciu epochach treningu.
 
-\begin{table}[]
-\begin{tabular}{llll}
-Klasa & Precyzja & Zwrot & F1   \\
-1     & 0.95     & 0.97  & 0.96 \\
-2     & 0.93     & 0.97  & 0.95 \\
-3     & 0.90     & 0.91  & 0.92 \\
-4     & 0.95     & 0.89  & 0.92 \\
-5     & 0.87     & 0.92  & 0.9  \\
-6     & 0.92     & 0.96  & 0.94 \\
-7     & 0.91     & 0.87  & 0.89 \\
-8     & 0.9      & 0.87  & 0.88 \\
-9     & 0.9      & 0.92  & 0.9  \\
-0     & 0.95     & 0.97  & 0.96  
-\end{tabular}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|l|l|}
+    \hline
+    Klasa & Precyzja & Zwrot & F1   \\
+    \hline
+    1     & 0.95     & 0.97  & 0.96 \\
+    2     & 0.93     & 0.97  & 0.95 \\
+    3     & 0.90     & 0.91  & 0.92 \\
+    4     & 0.95     & 0.89  & 0.92 \\
+    5     & 0.87     & 0.92  & 0.9  \\
+    6     & 0.92     & 0.96  & 0.94 \\
+    7     & 0.91     & 0.87  & 0.89 \\
+    8     & 0.9      & 0.87  & 0.88 \\
+    9     & 0.9      & 0.92  & 0.9  \\
+    0     & 0.95     & 0.97  & 0.96 \\
+    \hline
+    \end{tabular}
+    \caption{Macierz konfuzji}
 \end{table}
-
-
+    
 
 \subsubsection{Wielowarstwowy perceptron, tensorflow keras}
 
-Z wykorzystaniem pakietu tensorflow.keras utworzono sieć neuronową o architekturze analogicznej do tej zaimplementowanej ręcznie. Zastosowano kilka zmian w postaci:
+Z wykorzystaniem pakietu tensorflow.keras utworzono sieć neuronową o architekturze 
+analogicznej do tej zaimplementowanej ręcznie. Zastosowano kilka zmian w postaci:
 
 \begin{itemize}
-\item Do propagacji wstecz zamiast stochastycznego schodzenia po gradiencie użyto algorytmu Adam będącego jego udoskonaleniem uwzględniającym momenty gradientu.
-
+\item Do propagacji wstecz zamiast stochastycznego schodzenia po gradiencie użyto algorytmu 
+Adam będącego jego udoskonaleniem uwzględniającym momenty gradientu.
 \item Zastosowano mechanizm batchingu, ~$batch-size = 128$
-
 \end{itemize}
 
-\begin{table}[]
-\begin{tabular}{lllll}
-Klasa & Precyzja & Zwrot & F1   & Celność \\
-1     & 0.91     & 0.99  & 0.95 & 0.98    \\
-2     & 0.92     & 0.97  & 0.94 & 0.99    \\
-3     & 0.85     & 0.96  & 0.90 & 0.98    \\
-4     & 0.97     & 0.92  & 0.94 & 0.99    \\
-5     & 0.98     & 0.85  & 0.91 & 0.98    \\
-6     & 0.97     & 0.94  & 0.95 & 0.99    \\
-7     & 0.95     & 0.94  & 0.95 & 0.98    \\
-8     & 0.97     & 0.9   & 0.93 & 0.98    \\
-9     & 0.93     & 0.92  & 0.93 & 0.98    \\
-0     & 0.97     & 0.97  & 0.97 & 0.99   
-\end{tabular}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|l|l|l|}
+    \hline
+    Klasa & Precyzja & Zwrot & F1 & Celność \\
+    \hline
+    1     & 0.91     & 0.99  & 0.95 & 0.98    \\
+    2     & 0.92     & 0.97  & 0.94 & 0.99    \\
+    3     & 0.85     & 0.96  & 0.90 & 0.98    \\
+    4     & 0.97     & 0.92  & 0.94 & 0.99    \\
+    5     & 0.98     & 0.85  & 0.91 & 0.98    \\
+    6     & 0.97     & 0.94  & 0.95 & 0.99    \\
+    7     & 0.95     & 0.94  & 0.95 & 0.98    \\
+    8     & 0.97     & 0.9   & 0.93 & 0.98    \\
+    9     & 0.93     & 0.92  & 0.93 & 0.98    \\
+    0     & 0.97     & 0.97  & 0.97 & 0.99   \\
+    \hline
+    \end{tabular}
+    \caption{Macierz konfuzji}
 \end{table}
-
 
 \subsubsection{Sieć konwolucyjna}
-Sieć konwolucyjna jest odmianą sieci neuronowej, w której stosuje się warstwy konwolucyjne. W takich warstwach każdy neuron zamiast nakładać na zbiór parametrów funkcję, nakłada na nie filtr, którego wagi są współczynnikami neuronu. Filtr może być w postaci wektora, małej macierzy kwadratowej, lub kilku macierzy w zależności od tego czy interpretujemy dane wejściowe jako wektor, powierzchnię czy przestrzeń punktów. Odpowiednio wytrenowana sieć konwolicyjna jest w stanie skutecznie wykrywać i wzmacniać poprzez nakładanie filtrów istotne cechy danych, które następnie mogą posłużyć jako wejście dla warstwy zwykłych perceptronów, które dzięki temu wyszczególnieniu kluczowych cech dużo skuteczniej poradzą sobie w rozwiązaniu zadania.
+Sieć konwolucyjna jest odmianą sieci neuronowej, 
+w której stosuje się warstwy konwolucyjne. W takich 
+warstwach każdy neuron zamiast nakładać na zbiór parametrów 
+funkcję, nakłada na nie filtr, którego wagi są współczynnikami 
+neuronu. Filtr może być w postaci wektora, małej macierzy kwadratowej, 
+lub kilku macierzy w zależności od tego czy interpretujemy dane wejściowe 
+jako wektor, powierzchnię czy przestrzeń punktów. Odpowiednio wytrenowana 
+sieć konwolicyjna jest w stanie skutecznie wykrywać i wzmacniać poprzez 
+nakładanie filtrów istotne cechy danych, które następnie mogą posłużyć 
+jako wejście dla warstwy zwykłych perceptronów, które dzięki temu wyszczególnieniu 
+kluczowych cech dużo skuteczniej poradzą sobie w rozwiązaniu zadania.
 
-Poza warstwami konwolucyjnymi w sieciach konwolucyjnych stosuje się często Max Pooling. Nie jest to warstwa neuronowa, lecz procedura przetwarzająca obrazy utworzone przez warstwy konwolucyjne zmniejszająca rozmiar tworzonych przez sieć obrazów poprzez wstawianie w miejsce każdego okna $n \times n$ wartość maksymalną z tego okna.
+Poza warstwami konwolucyjnymi w sieciach konwolucyjnych stosuje się 
+często Max Pooling. Nie jest to warstwa neuronowa, lecz procedura 
+przetwarzająca obrazy utworzone przez warstwy konwolucyjne zmniejszająca 
+rozmiar tworzonych przez sieć obrazów poprzez wstawianie w miejsce każdego 
+okna $n \times n$ wartość maksymalną z tego okna.
 
-Kolejne udoskonalenie modelu polegało na dodaniu procedury Dropout jako jednej z warstw sieci. Dropout ustawia z pewnym prawdopodobieństwem pojedyncze wartości mu przekazane na 0 w ten sposób wykluczając pewne obserwacje sieci z rezultatu i zmniejszając szansę na przeuczenie sieci, co skutkowałoby doskonałym klasyfikowaniem danych, na których model był uczony, lecz nie radzeniem sobie zupełnie z nowymi nie widzianymi przez niego danymi.
+Kolejne udoskonalenie modelu polegało na dodaniu procedury Dropout jako 
+jednej z warstw sieci. Dropout ustawia z pewnym prawdopodobieństwem pojedyncze 
+wartości mu przekazane na 0 w ten sposób wykluczając pewne obserwacje sieci z 
+rezultatu i zmniejszając szansę na przeuczenie sieci, co skutkowałoby doskonałym 
+klasyfikowaniem danych, na których model był uczony, lecz nie radzeniem sobie 
+zupełnie z nowymi nie widzianymi przez niego danymi.
 
-Sieć konwolucyjną zaimplementowano przy użyciu pakietu tensorflow keras. Wszystkie hiperparametry pozostały identyczne z wielowarstwowym perceptronem zaimplementowanym z użyciem tych samych bibliotek. Struktura sieci wyglądała następująco:
+Sieć konwolucyjną zaimplementowano przy użyciu pakietu tensorflow keras. Wszystkie hiperparametry pozostały 
+identyczne z wielowarstwowym perceptronem zaimplementowanym z użyciem tych samych bibliotek. 
+Struktura sieci wyglądała następująco:
 
+% $28x28-> 32x(3,3), relu -> maxPooling(2,2) 64x(3,3), relu -> maxPooling(2,2)->Flatten->Dropout(0.5) -> 10, softmax$
 
+\begin{center}
+    \begin{tikzpicture}[every node/.style={minimum height=0.8cm, minimum width=1cm}]
+        \matrix[draw=none, column sep=0.5cm, row sep=0.6cm]{
+            \node[rectangle, draw] (input) {$28 \times 28$}; \\
+            \node[rectangle, draw] (hidden1) {$32 \times (3, 3)$}; \\
+            \node[rectangle, draw] (hidden2) {$64 \times (3, 3)$}; \\
+            \node[rectangle, draw] (hidden3) {maxPooling(2,2)}; \\
+            \node[rectangle, draw] (hidden4) {Flatten}; \\
+            \node[rectangle, draw] (hidden5) {Dropout(0.5)}; \\
+            \node[rectangle, draw] (output) {10}; \\
+        };
 
-%To nie jest dobry sposób na pokazanie struktury sieci, trzeba to jakoś zwizualizować
+        % Opisy kwadratów
+        \node[above=0.3cm] at (input.north) {\textbf{Wejście}};
+        \node[below=0.3cm] at (output.south) {\textbf{Wyjście}};
 
-$28x28-> 32x(3,3), relu -> maxPooling(2,2) 64x(3,3), relu -> maxPooling(2,2)->Flatten->Dropout(0.5) -> 10, softmax$
+        % Opisy etapów
+        \node[below=0.3cm, right=0.0cm] at (input.south) {\tiny \textbf{relu}};
+        \node[below=0.3cm, right=0.0cm] at (hidden1.south) {\tiny \textbf{maxPooling(2,2)}};
+        \node[below=0.3cm, right=0.0cm] at (hidden2.south) {\tiny \textbf{relu}};
+        \node[below=0.3cm, right=0.0cm] at (hidden5.south) {\tiny \textbf{softmax}};
+        
+        % Strzałki między węzłami
+        \draw[->] (input) -- (hidden1);
+        \draw[->] (hidden1) -- (hidden2);
+        \draw[->] (hidden2) -- (hidden3);
+        \draw[->] (hidden3) -- (hidden4);
+        \draw[->] (hidden4) -- (hidden5);
+        \draw[->] (hidden5) -- (output);
+    \end{tikzpicture}
+\end{center}
 
-\begin{table}[]
-\begin{tabular}{llll}
-Klasa & Precyzja & Zwrot & F1    \\
-1     & 0.99     & 0.998 & 0.994 \\
-2     & 0.984    & 0.987 & 0.986 \\
-3     & 0.99     & 0.988 & 0.988 \\
-4     & 0.992    & 0.99  & 0.99  \\
-5     & 0.99     & 0.99  & 0.99  \\
-6     & 0.99     & 0.994 & 0.99  \\
-7     & 0.993    & 0.985 & 0.988 \\
-8     & 0.987    & 0.982 & 0.984 \\
-9     & 0.984    & 0.985 & 0.984 \\
-0     & 0.992    & 0.995 & 0.993
-\end{tabular}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|l|l|l|}
+    \hline
+    Klasa & Precyzja & Zwrot & F1 \\
+    \hline
+    1     & 0.99     & 0.998 & 0.994 \\
+    2     & 0.984    & 0.987 & 0.986 \\
+    3     & 0.99     & 0.988 & 0.988 \\
+    4     & 0.992    & 0.99  & 0.99  \\
+    5     & 0.99     & 0.99  & 0.99  \\
+    6     & 0.99     & 0.994 & 0.99  \\
+    7     & 0.993    & 0.985 & 0.988 \\
+    8     & 0.987    & 0.982 & 0.984 \\
+    9     & 0.984    & 0.985 & 0.984 \\
+    0     & 0.992    & 0.995 & 0.993 \\
+    \hline
+    \end{tabular}
+    \caption{Macierz konfuzji}
 \end{table}
 
-Sieć konwolucyjna osiągnęła najwyższą celność na zbiorze testowym równą 0.989 po sześciu epochach nie wykazując dużych zmian przy dalszym trenowaniu. Jest to wynik dużo lepszy niż w przypadku zwykłego wielowarstwowego perceptronu. Dodatkowo proces uczenia tej sieci przebiegał o wiele szybciej niż wielowarstwowego perceptronu dzięki warstwom konwolucyjnym, które ograniczyły ilość potrzebnych warstw gęstych do jednej.
-
-
+Sieć konwolucyjna osiągnęła najwyższą celność na zbiorze testowym równą 0.989 po 
+sześciu epochach nie wykazując dużych zmian przy dalszym 
+trenowaniu. Jest to wynik dużo lepszy niż w przypadku zwykłego wielowarstwowego 
+perceptronu. Dodatkowo proces uczenia tej sieci przebiegał o wiele szybciej niż 
+wielowarstwowego perceptronu dzięki warstwom konwolucyjnym, które ograniczyły ilość 
+potrzebnych warstw gęstych do jednej.
 
 \subsubsection{Sieć grafowa}
 
 \subsubsection{Konwolucyjna sieć transferowa}
-Z racji, że różne zadania klasyfikacji obrazów nie różnią się od siebie tak drastycznie jak mogłoby się wydawać, popularnym sposobem na tworzenie bardzo dokładnych klasyfikatorów jest korzystanie z sieci transferowych. Są to sieci konwolucyjne korzystające z wytrenowanej już wcześniej na innych problemach klasyfikacji warstw konwolucyjnych. Proces nauczania takiej sieci neuronowej jest o wiele prostszy, gdyż wytrenowania wymaga jedynie mała ilość nowych warstw, które zinterpretują wyniki juz gotowych i wytrenowanych w klasyfikacji obrazów warstw konwolucyjnych. W pierwszych etapach nauczania należy pominąć już wytrenowane warstwy konwolucyjne aby usprawnić ten proces. Gdy model jest już dostatecznie dobrze wytrenowany można odblokować trenowanie warstw konwolucyjnych, by przeprowadzić tzw. fine tuning, który pozwoli wyspecjalizować warstwy konwolucyjne w detekcji cech charakterystycznych dla danego problemu. 
+Z racji, że różne zadania klasyfikacji obrazów nie różnią się od siebie tak drastycznie jak 
+mogłoby się wydawać, popularnym sposobem na tworzenie bardzo dokładnych 
+klasyfikatorów jest korzystanie z sieci transferowych. Są to sieci konwolucyjne korzystające 
+z wytrenowanej już wcześniej na innych problemach klasyfikacji warstw konwolucyjnych. 
+Proces nauczania takiej sieci neuronowej jest o wiele prostszy, gdyż wytrenowania wymaga 
+jedynie mała ilość nowych warstw, które zinterpretują wyniki juz gotowych i wytrenowanych 
+w klasyfikacji obrazów warstw konwolucyjnych. W pierwszych etapach nauczania należy pominąć 
+już wytrenowane warstwy konwolucyjne aby usprawnić ten proces. Gdy model jest już dostatecznie 
+dobrze wytrenowany można odblokować trenowanie warstw konwolucyjnych, by przeprowadzić tzw. 
+fine tuning, który pozwoli wyspecjalizować warstwy konwolucyjne w detekcji cech charakterystycznych dla danego problemu. 
 
-Sieć konwolucyjną transferową zbudowano z użyciem biblioteki tensorflow keras oraz modelu transferowego ResNet50 klasyfikującego obrazy w przestrzeni RGB o rozmiarze przynajmniej $75\times75$px.
+Sieć konwolucyjną transferową zbudowano z użyciem biblioteki tensorflow 
+keras oraz modelu transferowego ResNet50 klasyfikującego obrazy w 
+przestrzeni RGB o rozmiarze przynajmniej $75\times75$px.
 
-Z powodu rozbieżności rozmiarów obrazów, które wymaga sieć ResNet50 i obrazów należących do baz danych MNIST i podobnych konieczny był preprocessing danych wejściowych. Do zastosowanych metod należały:
+Z powodu rozbieżności rozmiarów obrazów, które wymaga sieć ResNet50 
+i obrazów należących do baz danych MNIST i podobnych konieczny był 
+preprocessing danych wejściowych. Do zastosowanych metod należały:
 
 \begin{itemize}
 \item skalowanie obrazów $28\times28$px do rozmiaru $75\times75$px
 \item zklonowanie skali szarości na kanały RGB 
 \end{itemize}
 
-Dodatkowo by uzyskać jak najlepsze rezultaty na danych nie tylko należących do bazy danych, ale stworzyć model, który spełni zadanie klasyfikacji możliwie tak dobrze jak człowiek zastosowano generowanie nowych danych treningowych w oparciu o dane z bazy z wykorzystaniem:
+Dodatkowo by uzyskać jak najlepsze rezultaty na danych nie tylko 
+należących do bazy danych, ale stworzyć model, który spełni zadanie 
+klasyfikacji możliwie tak dobrze jak człowiek zastosowano 
+generowanie nowych danych treningowych w oparciu o dane z bazy z wykorzystaniem:
 
 \begin{itemize}
 \item skalowania zawartości obrazu
@@ -213,35 +356,58 @@ Dodatkowo by uzyskać jak najlepsze rezultaty na danych nie tylko należących d
 \end{itemize}
 
 
-
 \subsection{KNN - K Nearest Neighbours}
-KNN jest modelem bezparametrycznego uczenia nadzorowanego. Jest to niezwykle prosty model, który nie wymaga procesu uczenia, jednak przypłaca to bardzo kosztowną predykcją.
-Algorytm K Nearest Neighbours polega na obliczeniu odległości wektora danych wejściowych długości n traktowanego jako punkt w przestrzeni n wymiarowej i porównaniu go z każdym z pośród wektorów danych wejściowych dostarczonych modelowi w ramach danych treningowych, które to model zapamiętał. Punkty z pośród danych treningowych wraz z ich etykietami następnie są sortowane rosnąco wedle ich odległości od danej wejściowej, której klasyfikację przeprowadza model. Następnie dopierane jest K pierwszych z pośród punktów, których to odległość od klasyfikowanego punktu jest najniższa i zliczane są wystąpienia różnych typów etykiet pośród wybranych K punktów. Ta etykieta, która pośród nich powtarza się najczęściej jest odpowiedzią modelu na zadanie klasyfikacji.
+KNN jest modelem bezparametrycznego uczenia nadzorowanego. Jest to niezwykle prosty model,
+ który nie wymaga procesu uczenia, jednak przypłaca to bardzo kosztowną predykcją.
+Algorytm K Nearest Neighbours polega na obliczeniu odległości wektora danych wejściowych 
+długości n traktowanego jako punkt w przestrzeni n wymiarowej i porównaniu go z każdym z 
+pośród wektorów danych wejściowych dostarczonych modelowi w ramach danych treningowych, 
+które to model zapamiętał. Punkty z pośród danych treningowych wraz z ich etykietami 
+następnie są sortowane rosnąco wedle ich odległości od danej wejściowej, której 
+klasyfikację przeprowadza model. Następnie dopierane jest K pierwszych z pośród 
+punktów, których to odległość od klasyfikowanego punktu jest najniższa i zliczane 
+są wystąpienia różnych typów etykiet pośród wybranych K punktów. Ta etykieta, 
+która pośród nich powtarza się najczęściej jest odpowiedzią modelu na zadanie klasyfikacji.
 
-Model KNN został zaimplementowany z użyciem biblioteki numpy. Za parametr K wybrano wielokrotność liczności zbioru etykiet, 20.
+Model KNN został zaimplementowany z użyciem biblioteki numpy. Za parametr K 
+wybrano wielokrotność liczności zbioru etykiet, 20.
 
 Z powodu długiego czasu predykcji modelu KNN testy wykonano na 10\% zbioru testowego, co odpowiada 1400 danych testowych.
 W tej sytuacji model KNN cechował się accuracy na poziomie $0.96$
 
-Macierz konfuzji 
-
-\begin{table}[]
-\begin{tabular}{llll}
-Klasa & Precyzja & Zwrot & F1   \\
-1     & 0.92     & 1.0   & 0.96 \\
-2     & 0.97     & 0.91  & 0.94 \\
-3     & 0.98     & 0.95  & 0.96 \\
-4     & 0.96     & 0.96  & 0.96 \\
-5     & 0.96     & 0.98  & 0.97 \\
-6     & 0.97     & 0.99  & 0.98 \\
-7     & 0.93     & 0.94  & 0.93 \\
-8     & 0.98     & 0.90  & 0.94 \\
-9     & 0.96     & 0.95  & 0.96 \\
-0     & 0.98     & 0.99  & 0.99
-\end{tabular}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|l|l|l|}
+    \hline
+    Klasa & Precyzja & Zwrot & F1 \\
+    \hline
+    1     & 0.92     & 1.0   & 0.96 \\
+    2     & 0.97     & 0.91  & 0.94 \\
+    3     & 0.98     & 0.95  & 0.96 \\
+    4     & 0.96     & 0.96  & 0.96 \\
+    5     & 0.96     & 0.98  & 0.97 \\
+    6     & 0.97     & 0.99  & 0.98 \\
+    7     & 0.93     & 0.94  & 0.93 \\
+    8     & 0.98     & 0.90  & 0.94 \\
+    9     & 0.96     & 0.95  & 0.96 \\
+    0     & 0.98     & 0.99  & 0.99 \\
+    \hline
+    \end{tabular}
+    \caption{Macierz konfuzji dla modelu KNN}
 \end{table}
 
-Z powodu swojej konstrukcji model KNN sprawował się niemal perfekcyjnie dla zbioru danych testowych, które przypominały w znacznym stopniu dane treningowe. Niestety dla ręcznych rysunków nienależących do bazy MNIST-784 model działał dużo gorzej od sieci konwolucyjnej, która nie tylko porównuje punkt z danymi treningowymi, lecz wynajduje schematy i cechy obrazów, które decydują o przynależności do danej klasy. Należy również wspomnieć, że z powodu nieporównywalnie większej ilości obliczeń koniecznych do wykonania przez model KNN w porównaniu do dowolnego innego modelu, podczas gdy proces weryfikacji na 14000 danych testowych sieci neuronowych trwał zaledwie kilka sekund, weryfikacja modelu KNN zajęła ponad 10 minut dla 1400 danych.
+Z powodu swojej konstrukcji model KNN sprawował się niemal perfekcyjnie 
+dla zbioru danych testowych, które przypominały w znacznym stopniu 
+dane treningowe. Niestety dla ręcznych rysunków nienależących do 
+bazy MNIST-784 model działał dużo gorzej od sieci konwolucyjnej, 
+która nie tylko porównuje punkt z danymi treningowymi, lecz 
+wynajduje schematy i cechy obrazów, które decydują o 
+przynależności do danej klasy. Należy również wspomnieć, 
+że z powodu nieporównywalnie większej ilości obliczeń 
+koniecznych do wykonania przez model KNN w porównaniu 
+do dowolnego innego modelu, podczas gdy proces weryfikacji 
+na 14000 danych testowych sieci neuronowych trwał zaledwie 
+kilka sekund, weryfikacja modelu KNN zajęła ponad 10 minut dla 1400 danych.
 
 
 \section{Wyniki}
