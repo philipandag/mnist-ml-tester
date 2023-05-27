@@ -63,7 +63,11 @@ class Transfer(Model):
         self.epochs = epochs
         self.batch_size = 128
 
-        return self.model.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_size, validation_split=0.2)
+        self.model.fit(train_generator.x, train_generator.y, epochs=self.epochs, batch_size=self.batch_size)
+        self.trans.trainable = True
+        self.batch_size = 128
+        return self.model.fit(train_generator.x, train_generator.y, epochs=self.epochs, batch_size=self.batch_size)
+
 
     # return the mean accuracy on the given test data and labels
     def score(self, x_test: np.ndarray, y_test: np.ndarray) -> float:
@@ -92,13 +96,13 @@ class Transfer(Model):
         raise NotImplementedError()
 
     def init_layers_784(self):
-        trans = keras.applications.ResNet50(
+        self.trans = keras.applications.ResNet50(
             include_top=False,
             weights='imagenet',
             input_shape=(75, 75, 3)
         )
-        trans.trainable = False
-        self.model.add(trans)
+        self.trans.trainable = False
+        self.model.add(self.trans)
         self.model.add(keras.layers.Flatten())
         self.model.add(keras.layers.Dense(512, activation='relu'))
         self.model.add(keras.layers.Dense(10, activation='softmax'))
