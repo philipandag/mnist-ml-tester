@@ -592,7 +592,7 @@ class MainWindow(QMainWindow):
                 y_test = y_splitted[n]
                 y_train = np.concatenate(np.delete(y_splitted, n, axis=0))
 
-                cv_model.fit(X_train, y_train)
+                cv_model.fit(X_train, y_train, 2)
                 acc = cv_model.score(X_test, y_test)
                 accuracy.append(acc)
             mean_accuracy = np.mean(accuracy)
