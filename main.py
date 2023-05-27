@@ -95,6 +95,11 @@ class MainWindow(QMainWindow):
         other_menu.addAction(self.crossvalidation_button)
         self.crossvalidation_button.triggered.connect(self.crossvalidation)
 
+        # Add button to Inne menu to create confusion matrix
+        self.confusion_matrix_button = QAction("Macierz konfuzji", self)
+        other_menu.addAction(self.confusion_matrix_button)
+        self.confusion_matrix_button.triggered.connect(self.macierz_konfuzji)
+
         # Add checkbox for showing plots
         # Create a checkable QAction
         self.plot_checkbox = QAction('Pokazuj wykresy', self, checkable=True)
@@ -106,11 +111,6 @@ class MainWindow(QMainWindow):
         self.mnistify_checkbox = QAction('Przetwarzaj wejście', self, checkable=True)
         self.mnistify_checkbox.setChecked(True)
         other_menu.addAction(self.mnistify_checkbox)
-
-        # Add button to Inne menu to create confusion matrix
-        self.confusion_matrix_button = QAction("Macierz konfuzji", self)
-        other_menu.addAction(self.confusion_matrix_button)
-        self.confusion_matrix_button.triggered.connect(self.macierz_konfuzji)
 
         # Connect the actions to their respective methods
         nowy_action.triggered.connect(self.nowy_model)
