@@ -28,13 +28,13 @@ from cv2 import resize as cv2_resize, warpAffine as cv2_warpAffine
 # Tutaj wstaw swoje modele
 models = [
     KerasCNN,
+    KerasCNNV2,
     KerasMLP,
+    Transfer,
     RandomForest,
     DecisionTree,
     KNN,
-    MyNetwork,
-    Transfer,
-    KerasCNNV2
+    MyNetwork
 ]
 
 
@@ -98,8 +98,14 @@ class MainWindow(QMainWindow):
         # Add checkbox for showing plots
         # Create a checkable QAction
         self.plot_checkbox = QAction('Pokazuj wykresy', self, checkable=True)
-        self.plot_checkbox.setChecked(False)
+        self.plot_checkbox.setChecked(True)
         other_menu.addAction(self.plot_checkbox)
+
+        # Add checkbox for mnistification
+        # Create a checkable QAction
+        self.mnistify_checkbox = QAction('Przetwarzaj wejście', self, checkable=True)
+        self.mnistify_checkbox.setChecked(True)
+        other_menu.addAction(self.mnistify_checkbox)
 
         # Add button to Inne menu to create confusion matrix
         self.confusion_matrix_button = QAction("Macierz konfuzji", self)
@@ -237,20 +243,48 @@ class MainWindow(QMainWindow):
             self.komunikat("Nie wybrano bazy", color="red")
         else:
             self.komunikat("Trenowanie modelu...", color="green")
-            self.fitted = True
 
             start = time()
 
-            try:
-                self.model.fit(self.X_train, self.y_train)
-            except:
-                self.komunikat("Błąd trenowania", color="red")
-                print("Unexpected error:", sys.exc_info())
-                return
+            # Dialog window for epochs
+            epochs, ok_pressed = QInputDialog.getInt(self, "Liczba epok", "Podaj liczbę epok:", 2, 2, 9999, 1)
+            if ok_pressed:
 
-            end = time()
+                try:
+                    history = self.model.fit(self.X_train, self.y_train, epochs)
+                    if self.plot_checkbox.isChecked() and history is not None:
+                        try:
+                            self.model.summary()
 
-            self.komunikat(f"Model wyćwiczony, czas {(end - start):.3f}s", color="green")
+                            history = history.history
+
+                            plt.plot(history['accuracy'])
+                            plt.plot(history['val_accuracy'])
+                            plt.title(f'model {self.selected_model} accuracy')
+                            plt.ylabel('accuracy')
+                            plt.xlabel('epoch')
+                            plt.legend(['train', 'val'], loc='upper left')
+                            plt.show()
+
+                            plt.plot(history['loss'])
+                            plt.plot(history['val_loss'])
+                            plt.title(f'model {self.selected_model} loss')
+                            plt.ylabel('loss')
+                            plt.xlabel('epoch')
+                            plt.legend(['train', 'val'], loc='upper left')
+                            plt.show()
+                        except:
+                            self.komunikat("Błąd wyświetlania historii", color="red")
+                            print("Unexpected error:", sys.exc_info())
+                except:
+                    self.komunikat("Błąd trenowania", color="red")
+                    print("Unexpected error:", sys.exc_info())
+                    return
+
+                end = time()
+
+                self.komunikat(f"Model wyćwiczony, czas {(end - start):.3f}s", color="green")
+                self.fitted = True
 
     def klasyfikuj(self):
         self.komunikat("Wybrano opcję Klasyfikuj")
@@ -261,7 +295,13 @@ class MainWindow(QMainWindow):
 
             try:
                 image = self.canvas.getConvertedImage()
-                image = self.mnistify(image)
+                if self.mnistify_checkbox.isChecked():
+                    try:
+                        image = self.mnistify(image)
+                    except:
+                        self.komunikat("Błąd przetwarzania", color="red")
+                        print("Unexpected error:", sys.exc_info())
+                        return
                 predicted = self.model.predict(image)
             except:
                 self.komunikat("Błąd klasyfikacji", color="red")
@@ -287,18 +327,19 @@ class MainWindow(QMainWindow):
             self.predicted_value.setText(text)
 
             if self.plot_checkbox.isChecked():
-                self.canvas.showResult(value)
+                self.canvas.showResult(image, value)
             self.komunikat(f"Klasyfikacja zakończona, wynik: {value}", color="green")
 
     def mnistify(self, image):
-        image = np.resize(image, (28, 28))
-        while(np.sum(image[0]) == 255 * image.shape[1]): # usuwanie pustych wierszy nad cyfra
+        res = self.canvas.resolution
+        image = np.resize(image, (res, res))
+        while np.sum(image[0]) == 255 * image.shape[1]:  # usuwanie pustych wierszy nad cyfra
             image = image[1:]
-        while(np.sum(image[:, 0]) == 255 * image.shape[0]): # usuwanie pustych kolumn po lewej stronie cyfry
+        while np.sum(image[:, 0]) == 255 * image.shape[0]:  # usuwanie pustych kolumn po lewej stronie cyfry
             image = np.delete(image, 0, 1)
-        while(np.sum(image[-1]) == 255 * image.shape[1]): # usuwanie pustych wierszy pod cyfra
+        while np.sum(image[-1]) == 255 * image.shape[1]:  # usuwanie pustych wierszy pod cyfra
             image = image[:-1]
-        while(np.sum(image[:, -1]) == 255 * image.shape[0]): # usuwanie pustych kolumn po prawej stronie cyfry
+        while np.sum(image[:, -1]) == 255 * image.shape[0]:  # usuwanie pustych kolumn po prawej stronie cyfry
             image = np.delete(image, -1, 1)
 
         rows, cols = image.shape
@@ -316,14 +357,13 @@ class MainWindow(QMainWindow):
             rows = int(round(rows * factor))
             image = cv2_resize(image, (cols, rows))
 
-
-        #Uzupełnianie obrazu do 28x28px
-        colsPadding = (int(ceil((28 - cols) / 2.0)), int(floor((28 - cols) / 2.0)))
-        rowsPadding = (int(ceil((28 - rows) / 2.0)), int(floor((28 - rows) / 2.0)))
+        # Uzupełnianie obrazu do 28x28px
+        colsPadding = (int(ceil((res - cols) / 2.0)), int(floor((res - cols) / 2.0)))
+        rowsPadding = (int(ceil((res - rows) / 2.0)), int(floor((res - rows) / 2.0)))
         image = np.lib.pad(image, (rowsPadding, colsPadding), 'constant', constant_values=(255, 255))
 
         # Wyznaczanie środka ciężkości i o ile przesunąc by środek ciężkości był w środku geometrycznym
-        cy, cx = ndimage.measurements.center_of_mass(255-image)
+        cy, cx = ndimage.center_of_mass(255 - image)
         rows, cols = image.shape
         shiftx = np.round(cols / 2.0 - cx).astype(int)
         shifty = np.round(rows / 2.0 - cy).astype(int)
@@ -332,14 +372,12 @@ class MainWindow(QMainWindow):
         M = np.float32([[1, 0, shiftx], [0, 1, shifty]])
         image = cv2_warpAffine(image, M, (cols, rows), borderValue=255)
 
-        #test wyniku
-        #plt.imshow(image, cmap='gray')
-        #plt.show()
-        #pass
+        # test wyniku
+        # plt.imshow(image, cmap='gray')
+        # plt.show()
 
-        image = np.resize(image, (1, 784))
+        image = np.resize(image, (1, res ** 2))
         return image
-
 
     def pobierz_baze(self):
         self.komunikat("Wybrano opcję Pobierz")
@@ -396,6 +434,7 @@ class MainWindow(QMainWindow):
                                        cmap='gray',
                                        vmin=0, vmax=255)
                             plt.axis('off')
+                        plt.suptitle(f"Przykładowe obrazy z bazy {self.selected_base}")
                         plt.show()
 
                     print("Wczytano dane:")
@@ -472,8 +511,8 @@ class MainWindow(QMainWindow):
             print("Precision: TP/(TP+FP) Stosunek poprawnie wybranych do wszystkich wybranych tej klasy")
             print("Recall:  TP/(TP+FN) Stosunek poprawnie wybranych do ilości wystąpień tej klasy")
             print("F1: 2*Precision*Recall/(Precision+Recall) Wskaźnik wiążący precision i recall")
-            print(
-                "Accuracy:  (TP+TN)/(TP+FP+FN+TN) Stosunek poprawnie wybranych lub poprawnie odrzuconych do liczby danych")
+            print("Accuracy:  (TP+TN)/(TP+FP+FN+TN) Stosunek poprawnie wybranych "
+                  "lub poprawnie odrzuconych do liczby danych")
             print()
 
             for i in range(len(confusion_matrix.matrix)):

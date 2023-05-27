@@ -4,6 +4,8 @@ from AbstractModel import Model
 from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import img_to_array, array_to_img
 import keras.applications
+
+
 class Transfer(Model):
     def __init__(self, input_size=784, output_size=10):
         self.model = None
@@ -35,7 +37,6 @@ class Transfer(Model):
             jit_compile=None
         )
 
-
     # predict the output for a given input
     def predict(self, input_data):
         input_data = self.prepare_x(np.array([input_data]))
@@ -43,7 +44,7 @@ class Transfer(Model):
         # return self.model.predict(input_data, verbose=0, use_multiprocessing=True)
 
     # train the network
-    def fit(self, x_train, y_train):
+    def fit(self, x_train, y_train, epochs):
 
         x_train = self.prepare_x(x_train)
         y_train = self.prepare_y(y_train)
@@ -59,10 +60,10 @@ class Transfer(Model):
             y_train,
         )
 
-        self.epochs = 2
+        self.epochs = epochs
         self.batch_size = 128
 
-        self.model.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_size)
+        return self.model.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_size, validation_split=0.2)
 
     # return the mean accuracy on the given test data and labels
     def score(self, x_test: np.ndarray, y_test: np.ndarray) -> float:
@@ -70,6 +71,9 @@ class Transfer(Model):
         x_test = self.prepare_x(x_test)
         result = self.model.evaluate(x_test, y_test)
         return result[1]
+
+    def summary(self):
+        self.model.summary()
 
     def prepare_y(self, y):
         y = keras.utils.to_categorical(y, self.output_size)

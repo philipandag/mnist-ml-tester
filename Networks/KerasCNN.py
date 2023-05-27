@@ -41,14 +41,14 @@ class KerasCNN(Model):
         # return self.model.predict(input_data, verbose=0, use_multiprocessing=True)
 
     # train the network
-    def fit(self, x_train, y_train):
-        self.epochs = 2
+    def fit(self, x_train, y_train, epochs):
+        self.epochs = epochs
         self.batch_size = 128
 
         y_train = self.prepare_y(y_train)
         x_train = self.prepare_x(x_train)
 
-        self.model.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_size)
+        return self.model.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_size, validation_split=0.2)
 
     # return the mean accuracy on the given test data and labels
     def score(self, x_test: np.ndarray, y_test: np.ndarray) -> float:
@@ -56,6 +56,9 @@ class KerasCNN(Model):
         x_test = self.prepare_x(x_test)
         result = self.model.evaluate(x_test, y_test)
         return result[1]
+
+    def summary(self):
+        self.model.summary()
 
     def prepare_y(self, y):
         y = keras.utils.to_categorical(y, self.output_size)

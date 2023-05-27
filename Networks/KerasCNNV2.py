@@ -4,6 +4,8 @@ from AbstractModel import Model
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization, Input, Activation
 from keras.regularizers import l2
 from keras.callbacks import ReduceLROnPlateau, EarlyStopping
+
+
 class KerasCNNV2(Model):
     def __init__(self, input_size=784, output_size=10):
         self.model = None
@@ -34,6 +36,7 @@ class KerasCNNV2(Model):
             steps_per_execution=None,
             jit_compile=None,
         )
+
     # predict the output for a given input
     def predict(self, input_data):
         input_data = self.prepare_x(np.array([input_data]))
@@ -41,8 +44,8 @@ class KerasCNNV2(Model):
         # return self.model.predict(input_data, verbose=0, use_multiprocessing=True)
 
     # train the network
-    def fit(self, x_train, y_train):
-        self.epochs = 100
+    def fit(self, x_train, y_train, epochs):
+        self.epochs = epochs
         self.batch_size = 128
 
         y_train = self.prepare_y(y_train)
@@ -51,8 +54,8 @@ class KerasCNNV2(Model):
         slow_down_learning_rate = ReduceLROnPlateau(monitor="loss", factor=0.2, patience=1)
         end_training_early = EarlyStopping(monitor="accuracy", baseline=0.99, patience=3)
 
-        self.model.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_size
-                       , callbacks=[slow_down_learning_rate, end_training_early])
+        return self.model.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_size
+                              , callbacks=[slow_down_learning_rate, end_training_early], validation_split=0.2)
 
     # return the mean accuracy on the given test data and labels
     def score(self, x_test: np.ndarray, y_test: np.ndarray) -> float:
@@ -60,6 +63,9 @@ class KerasCNNV2(Model):
         x_test = self.prepare_x(x_test)
         result = self.model.evaluate(x_test, y_test)
         return result[1]
+
+    def summary(self):
+        self.model.summary()
 
     def prepare_y(self, y):
         y = keras.utils.to_categorical(y, self.output_size)
@@ -128,8 +134,6 @@ class KerasCNNV2(Model):
 
         # Out
         self.model.add(Dense(self.output_size, activation="softmax"))
-
-
 
     def init_layers_proportionally(self):
         raise NotImplementedError()

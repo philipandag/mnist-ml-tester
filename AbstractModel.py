@@ -8,7 +8,8 @@ class Model(object):
         raise NotImplementedError("__init__ not implemented")
 
     # fit the model to the training data
-    def fit(self, X_train: np.ndarray, y_train: np.ndarray) -> None:
+    # return history of training in a dictionary [loss, accuracy, val_loss, val_accuracy]
+    def fit(self, X_train: np.ndarray, y_train: np.ndarray, epochs: int) -> np.ndarray:
         raise NotImplementedError("fit not implemented")
 
     # return an array of n floats where each float represents the probability of the corresponding digit
@@ -19,6 +20,10 @@ class Model(object):
     # return the mean accuracy on the given test data and labels
     def score(self, X_test: np.ndarray, y_test: np.ndarray) -> float:
         raise NotImplementedError("score not implemented")
+
+    # prints a summary of the model
+    def summary(self) -> None:
+        raise NotImplementedError("summary not implemented")
 
 
 class DummyModel(Model):
@@ -45,3 +50,6 @@ class DummyModel(Model):
             if np.argmax(self.predict(X_test[i])) == y_test[i]:
                 sum_of_correct += 1
         return sum_of_correct / len(X_test)
+
+    def summary(self):
+        print("Dummy model - summary")

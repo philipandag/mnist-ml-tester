@@ -99,9 +99,9 @@ class Canvas(QWidget):
         self.image = QImage(_image, self.resolution, self.resolution, QImage.Format.Format_Grayscale8)
         self.update()
 
-    def showResult(self, result):
+    def showResult(self, image, result):
         try:
-            plt.imshow(self.getConvertedImage().reshape(self.resolution, self.resolution), cmap='gray', vmin=0,
+            plt.imshow(image.reshape(self.resolution, self.resolution), cmap='gray', vmin=0,
                        vmax=255)
             plt.title(f"Rozpoznano: {result}")
             plt.show()
