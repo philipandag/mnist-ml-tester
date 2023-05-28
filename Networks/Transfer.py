@@ -4,7 +4,7 @@ from AbstractModel import Model
 from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import img_to_array, array_to_img
 import keras.applications
-
+from keras import backend as K
 
 class Transfer(Model):
     def __init__(self, input_size=784, output_size=10):
@@ -27,7 +27,7 @@ class Transfer(Model):
         # SGD - stochastic gradient descent
         # MSE - mean squared error
         self.model.compile(
-            optimizer=keras.optimizers.Adam(learning_rate=0.0001),
+            optimizer='adam',
             loss='categorical_crossentropy',
             metrics=['accuracy'],
             loss_weights=None,
@@ -36,6 +36,7 @@ class Transfer(Model):
             steps_per_execution=None,
             jit_compile=None
         )
+        K.set_value(self.model.optimizer.learning_rate, 0.0001)
 
     # predict the output for a given input
     def predict(self, input_data):
@@ -63,9 +64,6 @@ class Transfer(Model):
         self.epochs = epochs
         self.batch_size = 128
 
-        self.model.fit(train_generator.x, train_generator.y, epochs=self.epochs, batch_size=self.batch_size)
-        self.trans.trainable = True
-        self.batch_size = 128
         return self.model.fit(train_generator.x, train_generator.y, epochs=self.epochs, batch_size=self.batch_size)
 
 

@@ -3,6 +3,7 @@ from os.path import exists as path_exists, basename as path_basename, splitext a
 from pickle import dump as pickle_dump, load as pickle_load
 from sys import exit as sys_exit, argv as sys_argv
 from time import time
+from tensorflow.debugging import set_log_device_placement
 
 import numpy as np
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushButton, QInputDialog, QFileDialog
@@ -217,7 +218,7 @@ class MainWindow(QMainWindow):
         if self.fitted is False:
             self.komunikat("Model nie jest wytrenowany", color="red")
         else:
-            pickle_dump(self.model, open(f"{self.selected_model}_{self.selected_base}.pkl", "wb"))
+            pickle_dump(self.model, open(f"{self.selected_model}_{self.selected_base}_{time()}.pkl", "wb"))
             self.komunikat("Zapisano model", color="green")
 
     def wczytaj_model(self):
@@ -604,6 +605,7 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == "__main__":
+    # set_log_device_placement(True)
     app = QApplication(sys_argv)
     window = MainWindow()
     window.show()

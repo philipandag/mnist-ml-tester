@@ -1,10 +1,12 @@
 import keras
 import numpy as np
+from keras.preprocessing.image import ImageDataGenerator
+
 from AbstractModel import Model
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization, Input, Activation
 from keras.regularizers import l2
 from keras.callbacks import ReduceLROnPlateau, EarlyStopping
-
+import keras.backend as K
 
 class KerasCNNV2(Model):
     def __init__(self, input_size=784, output_size=10):
@@ -36,6 +38,7 @@ class KerasCNNV2(Model):
             steps_per_execution=None,
             jit_compile=None,
         )
+        K.set_value(self.model.optimizer.learning_rate, 0.0001)
 
     # predict the output for a given input
     def predict(self, input_data):
@@ -51,10 +54,21 @@ class KerasCNNV2(Model):
         y_train = self.prepare_y(y_train)
         x_train = self.prepare_x(x_train)
 
+        image_generator = ImageDataGenerator(
+            rotation_range=10,
+            width_shift_range=0.1,
+            height_shift_range=0.1,
+            zoom_range=[0.8, 1.0]
+        )
+        train_generator = image_generator.flow(
+            x_train,
+            y_train,
+        )
+
         slow_down_learning_rate = ReduceLROnPlateau(monitor="loss", factor=0.2, patience=1)
         end_training_early = EarlyStopping(monitor="accuracy", baseline=0.99, patience=3)
 
-        return self.model.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_size
+        return self.model.fit(train_generator.x, train_generator.y, epochs=self.epochs, batch_size=self.batch_size
                               , callbacks=[slow_down_learning_rate, end_training_early], validation_split=0.2)
 
     # return the mean accuracy on the given test data and labels

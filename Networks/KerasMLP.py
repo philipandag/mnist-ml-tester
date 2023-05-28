@@ -2,7 +2,7 @@ import keras
 import numpy as np
 
 from AbstractModel import Model
-
+import keras.backend as K
 
 class KerasMLP(Model):
     def __init__(self, input_size=784, output_size=10):
@@ -42,6 +42,7 @@ class KerasMLP(Model):
             steps_per_execution=None,
             jit_compile=None
         )
+        K.set_value(self.model.optimizer.learning_rate, 0.001)
 
         self.epochs = epochs
         self.batch_size = 128
