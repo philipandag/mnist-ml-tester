@@ -168,8 +168,64 @@ gdzie:
     \end{itemize}
 \end{itemize}
 
+\subsubsection{Sieć konwolucyjna}
+Sieć konwolucyjna jest odmianą sieci neuronowej, 
+w której stosuje się warstwy konwolucyjne. W takich 
+warstwach każdy neuron zamiast nakładać na zbiór parametrów 
+funkcję, nakłada na nie filtr, którego wagi są współczynnikami 
+neuronu. Filtr może być w postaci wektora, małej macierzy kwadratowej, 
+lub kilku macierzy w zależności od tego czy interpretujemy dane wejściowe 
+jako wektor, powierzchnię czy przestrzeń punktów. Odpowiednio wytrenowana 
+sieć konwolicyjna jest w stanie skutecznie wykrywać i wzmacniać poprzez 
+nakładanie filtrów istotne cechy danych, które następnie mogą posłużyć 
+jako wejście dla warstwy zwykłych perceptronów, które dzięki temu wyszczególnieniu 
+kluczowych cech dużo skuteczniej poradzą sobie w rozwiązaniu zadania.
 
-\subsubsection{Wielowarstwowy perceptron, własna implementacja}
+Poza warstwami konwolucyjnymi w sieciach konwolucyjnych stosuje się 
+często Max Pooling. Nie jest to warstwa neuronowa, lecz procedura 
+przetwarzająca obrazy utworzone przez warstwy konwolucyjne zmniejszająca 
+rozmiar tworzonych przez sieć obrazów poprzez wstawianie w miejsce każdego 
+okna $n \times n$ wartość maksymalną z tego okna.
+
+Kolejne udoskonalenie modelu polegało na dodaniu procedury Dropout jako 
+jednej z warstw sieci. Dropout ustawia z pewnym prawdopodobieństwem pojedyncze 
+wartości mu przekazane na 0 w ten sposób wykluczając pewne obserwacje sieci z 
+rezultatu i zmniejszając szansę na przeuczenie sieci, co skutkowałoby doskonałym 
+klasyfikowaniem danych, na których model był uczony, lecz nie radzeniem sobie 
+zupełnie z nowymi nie widzianymi przez niego danymi.
+\subsubsection{Sieć grafowa}
+
+\subsubsection{Konwolucyjna sieć transferowa}
+Z racji, że różne zadania klasyfikacji obrazów nie różnią się od siebie tak drastycznie jak 
+mogłoby się wydawać, popularnym sposobem na tworzenie bardzo dokładnych 
+klasyfikatorów jest korzystanie z sieci transferowych. Są to sieci konwolucyjne korzystające 
+z wytrenowanej już wcześniej na innych problemach klasyfikacji warstw konwolucyjnych. 
+Proces nauczania takiej sieci neuronowej jest o wiele prostszy, gdyż wytrenowania wymaga 
+jedynie mała ilość nowych warstw, które zinterpretują wyniki juz gotowych i wytrenowanych 
+w klasyfikacji obrazów warstw konwolucyjnych. W pierwszych etapach nauczania należy pominąć 
+już wytrenowane warstwy konwolucyjne aby usprawnić ten proces. Gdy model jest już dostatecznie 
+dobrze wytrenowany można odblokować trenowanie warstw konwolucyjnych, by przeprowadzić tzw. 
+fine tuning, który pozwoli wyspecjalizować warstwy konwolucyjne w detekcji cech charakterystycznych dla danego problemu. 
+
+
+\subsection{KNN - K Nearest Neighbours}
+KNN jest modelem bezparametrycznego uczenia nadzorowanego. Jest to niezwykle prosty model,
+ który nie wymaga procesu uczenia, jednak przypłaca to bardzo kosztowną predykcją.
+Algorytm K Nearest Neighbours polega na obliczeniu odległości wektora danych wejściowych 
+długości n traktowanego jako punkt w przestrzeni n wymiarowej i porównaniu go z każdym z 
+pośród wektorów danych wejściowych dostarczonych modelowi w ramach danych treningowych, 
+które to model zapamiętał. Punkty z pośród danych treningowych wraz z ich etykietami 
+następnie są sortowane rosnąco wedle ich odległości od danej wejściowej, której 
+klasyfikację przeprowadza model. Następnie dopierane jest K pierwszych z pośród 
+punktów, których to odległość od klasyfikowanego punktu jest najniższa i zliczane 
+są wystąpienia różnych typów etykiet pośród wybranych K punktów. Ta etykieta, 
+która pośród nich powtarza się najczęściej jest odpowiedzią modelu na zadanie klasyfikacji.
+
+\section{Opis realizacji zadania}
+
+\subsection{Drzewo losowe}
+\subsection{Las losowy}
+\subsection{Własna implementacja Wielowarstwowego perceptronu}
 
 Z wykorzystaniem biblioteki numpy zaimplementowano model sieci neuronowej 
 typu wielowarstwowy perceptron zgodny z powyższą teorią do bazy MNIST-784 zawierającej 70000 obrazów cyfr z przedziału 0-9.
@@ -212,34 +268,7 @@ Architektura warstw stworzonej sieci wyglądała następująco:
 Za funkcję straty przyjęto funkcję Categorical Crossentropy, learning rate wynosił 0.01.
 W trakcie trenowania nie korzystano żadnych mechanizmów nieomówionych 
 w częsci teoretycznej w tym: batchingu czy przetwarzania danych wejściowych poza skalowaniem do zakresu $[0, 1]$.
-
-Ze zbioru MNIST-784 jako zbiór treningowy obrano 80\% danych a 
-jako zbiór testowy pozostałe 20\%. Wartość accuracy predykcji tego modelu na zbiorze testowym osiągnęła
-pik w pobliżu 0.92 po sześciu epochach treningu.
-
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|l|l|l|l|}
-    \hline
-    Klasa & Precyzja & Zwrot & F1   \\
-    \hline
-    1     & 0.95     & 0.97  & 0.96 \\
-    2     & 0.93     & 0.97  & 0.95 \\
-    3     & 0.90     & 0.91  & 0.92 \\
-    4     & 0.95     & 0.89  & 0.92 \\
-    5     & 0.87     & 0.92  & 0.9  \\
-    6     & 0.92     & 0.96  & 0.94 \\
-    7     & 0.91     & 0.87  & 0.89 \\
-    8     & 0.9      & 0.87  & 0.88 \\
-    9     & 0.9      & 0.92  & 0.9  \\
-    0     & 0.95     & 0.97  & 0.96 \\
-    \hline
-    \end{tabular}
-    \caption{Macierz konfuzji}
-\end{table}
-    
-
-\subsubsection{Wielowarstwowy perceptron, tensorflow keras}
+\subsection{Wielowarstwowy perceptron Tensorflow Keras}
 
 Z wykorzystaniem pakietu tensorflow.keras utworzono sieć neuronową o architekturze 
 analogicznej do tej zaimplementowanej ręcznie. Zastosowano kilka zmian w postaci:
@@ -249,54 +278,7 @@ analogicznej do tej zaimplementowanej ręcznie. Zastosowano kilka zmian w postac
 Adam będącego jego udoskonaleniem uwzględniającym momenty gradientu.
 \item Zastosowano mechanizm batchingu, ~$batch-size = 128$
 \end{itemize}
-
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|l|l|l|l|l|}
-    \hline
-    Klasa & Precyzja & Zwrot & F1 & Celność \\
-    \hline
-    1     & 0.91     & 0.99  & 0.95 & 0.98    \\
-    2     & 0.92     & 0.97  & 0.94 & 0.99    \\
-    3     & 0.85     & 0.96  & 0.90 & 0.98    \\
-    4     & 0.97     & 0.92  & 0.94 & 0.99    \\
-    5     & 0.98     & 0.85  & 0.91 & 0.98    \\
-    6     & 0.97     & 0.94  & 0.95 & 0.99    \\
-    7     & 0.95     & 0.94  & 0.95 & 0.98    \\
-    8     & 0.97     & 0.9   & 0.93 & 0.98    \\
-    9     & 0.93     & 0.92  & 0.93 & 0.98    \\
-    0     & 0.97     & 0.97  & 0.97 & 0.99   \\
-    \hline
-    \end{tabular}
-    \caption{Macierz konfuzji}
-\end{table}
-
-\subsubsection{Sieć konwolucyjna}
-Sieć konwolucyjna jest odmianą sieci neuronowej, 
-w której stosuje się warstwy konwolucyjne. W takich 
-warstwach każdy neuron zamiast nakładać na zbiór parametrów 
-funkcję, nakłada na nie filtr, którego wagi są współczynnikami 
-neuronu. Filtr może być w postaci wektora, małej macierzy kwadratowej, 
-lub kilku macierzy w zależności od tego czy interpretujemy dane wejściowe 
-jako wektor, powierzchnię czy przestrzeń punktów. Odpowiednio wytrenowana 
-sieć konwolicyjna jest w stanie skutecznie wykrywać i wzmacniać poprzez 
-nakładanie filtrów istotne cechy danych, które następnie mogą posłużyć 
-jako wejście dla warstwy zwykłych perceptronów, które dzięki temu wyszczególnieniu 
-kluczowych cech dużo skuteczniej poradzą sobie w rozwiązaniu zadania.
-
-Poza warstwami konwolucyjnymi w sieciach konwolucyjnych stosuje się 
-często Max Pooling. Nie jest to warstwa neuronowa, lecz procedura 
-przetwarzająca obrazy utworzone przez warstwy konwolucyjne zmniejszająca 
-rozmiar tworzonych przez sieć obrazów poprzez wstawianie w miejsce każdego 
-okna $n \times n$ wartość maksymalną z tego okna.
-
-Kolejne udoskonalenie modelu polegało na dodaniu procedury Dropout jako 
-jednej z warstw sieci. Dropout ustawia z pewnym prawdopodobieństwem pojedyncze 
-wartości mu przekazane na 0 w ten sposób wykluczając pewne obserwacje sieci z 
-rezultatu i zmniejszając szansę na przeuczenie sieci, co skutkowałoby doskonałym 
-klasyfikowaniem danych, na których model był uczony, lecz nie radzeniem sobie 
-zupełnie z nowymi nie widzianymi przez niego danymi.
-
+\subsection{Sieć konwolucyjna Tensorflow Keras}
 Sieć konwolucyjną zaimplementowano przy użyciu pakietu tensorflow keras. Wszystkie hiperparametry pozostały 
 identyczne z wielowarstwowym perceptronem zaimplementowanym z użyciem tych samych bibliotek. 
 Struktura sieci wyglądała następująco:
@@ -335,6 +317,97 @@ Struktura sieci wyglądała następująco:
     \end{tikzpicture}
 \end{center}
 
+\subsection{Sieć transferowa Tensorflow Keras}
+
+Sieć konwolucyjną transferową zbudowano z użyciem biblioteki tensorflow 
+keras oraz modelu transferowego ResNet50 klasyfikującego obrazy w 
+przestrzeni RGB o rozmiarze przynajmniej $75\times75$px.
+
+Z powodu rozbieżności rozmiarów obrazów, które wymaga sieć ResNet50 
+i obrazów należących do baz danych MNIST i podobnych konieczny był 
+preprocessing danych wejściowych. Do zastosowanych metod należały:
+
+\begin{itemize}
+\item skalowanie obrazów $28\times28$px do rozmiaru $75\times75$px
+\item zklonowanie skali szarości na kanały RGB 
+\end{itemize}
+
+Dodatkowo by uzyskać jak najlepsze rezultaty na danych nie tylko 
+należących do bazy danych, ale stworzyć model, który spełni zadanie 
+klasyfikacji możliwie tak dobrze jak człowiek zastosowano 
+generowanie nowych danych treningowych w oparciu o dane z bazy z wykorzystaniem:
+
+\begin{itemize}
+\item skalowania zawartości obrazu
+\item obracania obrazów
+\item przesuwania obrazów w osiach X i Y
+\end{itemize}
+
+
+\subsection{Sieć grafowa}
+\subsection{K Nearest Neighbours}
+Model KNN został zaimplementowany z użyciem biblioteki numpy. Za parametr K 
+wybrano wielokrotność liczności zbioru etykiet, 20.
+
+
+
+\section{Wyniki}
+\subsection{Drzewo losowe}
+\subsection{Las losowy}
+\subsection{Własna implementacja Wielowarstwowego perceptronu}
+
+Ze zbioru MNIST-784 jako zbiór treningowy obrano 80\% danych a 
+jako zbiór testowy pozostałe 20\%. Wartość accuracy predykcji tego modelu na zbiorze testowym osiągnęła
+pik w pobliżu 0.92 po sześciu epochach treningu.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|l|l|}
+    \hline
+    Klasa & Precyzja & Zwrot & F1   \\
+    \hline
+    1     & 0.95     & 0.97  & 0.96 \\
+    2     & 0.93     & 0.97  & 0.95 \\
+    3     & 0.90     & 0.91  & 0.92 \\
+    4     & 0.95     & 0.89  & 0.92 \\
+    5     & 0.87     & 0.92  & 0.9  \\
+    6     & 0.92     & 0.96  & 0.94 \\
+    7     & 0.91     & 0.87  & 0.89 \\
+    8     & 0.9      & 0.87  & 0.88 \\
+    9     & 0.9      & 0.92  & 0.9  \\
+    0     & 0.95     & 0.97  & 0.96 \\
+    \hline
+    \end{tabular}
+    \caption{Macierz konfuzji}
+\end{table}
+    
+\subsection{Wielowarstwowy perceptron Tensorflow Keras}
+
+\begin{table}[H]
+Ze zbioru MNIST-784 jako zbiór treningowy obrano 80\% danych a 
+jako zbiór testowy pozostałe 20\%. Wartość accuracy predykcji tego modelu na zbiorze testowym osiągnęła %TODO %
+    \centering
+    \begin{tabular}{|l|l|l|l|l|}
+    \hline
+    Klasa & Precyzja & Zwrot & F1 & Celność \\
+    \hline
+    1     & 0.91     & 0.99  & 0.95 & 0.98    \\
+    2     & 0.92     & 0.97  & 0.94 & 0.99    \\
+    3     & 0.85     & 0.96  & 0.90 & 0.98    \\
+    4     & 0.97     & 0.92  & 0.94 & 0.99    \\
+    5     & 0.98     & 0.85  & 0.91 & 0.98    \\
+    6     & 0.97     & 0.94  & 0.95 & 0.99    \\
+    7     & 0.95     & 0.94  & 0.95 & 0.98    \\
+    8     & 0.97     & 0.9   & 0.93 & 0.98    \\
+    9     & 0.93     & 0.92  & 0.93 & 0.98    \\
+    0     & 0.97     & 0.97  & 0.97 & 0.99   \\
+    \hline
+    \end{tabular}
+    \caption{Macierz konfuzji}
+\end{table}
+
+\subsection{Sieć konwolucyjna Tensorflow Keras}
+
 \begin{table}[H]
     \centering
     \begin{tabular}{|l|l|l|l|l|}
@@ -363,60 +436,11 @@ perceptronu. Dodatkowo proces uczenia tej sieci przebiegał o wiele szybciej ni�
 wielowarstwowego perceptronu dzięki warstwom konwolucyjnym, które ograniczyły ilość 
 potrzebnych warstw gęstych do jednej.
 
-\subsubsection{Sieć grafowa}
-
-\subsubsection{Konwolucyjna sieć transferowa}
-Z racji, że różne zadania klasyfikacji obrazów nie różnią się od siebie tak drastycznie jak 
-mogłoby się wydawać, popularnym sposobem na tworzenie bardzo dokładnych 
-klasyfikatorów jest korzystanie z sieci transferowych. Są to sieci konwolucyjne korzystające 
-z wytrenowanej już wcześniej na innych problemach klasyfikacji warstw konwolucyjnych. 
-Proces nauczania takiej sieci neuronowej jest o wiele prostszy, gdyż wytrenowania wymaga 
-jedynie mała ilość nowych warstw, które zinterpretują wyniki juz gotowych i wytrenowanych 
-w klasyfikacji obrazów warstw konwolucyjnych. W pierwszych etapach nauczania należy pominąć 
-już wytrenowane warstwy konwolucyjne aby usprawnić ten proces. Gdy model jest już dostatecznie 
-dobrze wytrenowany można odblokować trenowanie warstw konwolucyjnych, by przeprowadzić tzw. 
-fine tuning, który pozwoli wyspecjalizować warstwy konwolucyjne w detekcji cech charakterystycznych dla danego problemu. 
-
-Sieć konwolucyjną transferową zbudowano z użyciem biblioteki tensorflow 
-keras oraz modelu transferowego ResNet50 klasyfikującego obrazy w 
-przestrzeni RGB o rozmiarze przynajmniej $75\times75$px.
-
-Z powodu rozbieżności rozmiarów obrazów, które wymaga sieć ResNet50 
-i obrazów należących do baz danych MNIST i podobnych konieczny był 
-preprocessing danych wejściowych. Do zastosowanych metod należały:
-
-\begin{itemize}
-\item skalowanie obrazów $28\times28$px do rozmiaru $75\times75$px
-\item zklonowanie skali szarości na kanały RGB 
-\end{itemize}
-
-Dodatkowo by uzyskać jak najlepsze rezultaty na danych nie tylko 
-należących do bazy danych, ale stworzyć model, który spełni zadanie 
-klasyfikacji możliwie tak dobrze jak człowiek zastosowano 
-generowanie nowych danych treningowych w oparciu o dane z bazy z wykorzystaniem:
-
-\begin{itemize}
-\item skalowania zawartości obrazu
-\item obracania obrazów
-\item przesuwania obrazów w osiach X i Y
-\end{itemize}
-
-
-\subsection{KNN - K Nearest Neighbours}
-KNN jest modelem bezparametrycznego uczenia nadzorowanego. Jest to niezwykle prosty model,
- który nie wymaga procesu uczenia, jednak przypłaca to bardzo kosztowną predykcją.
-Algorytm K Nearest Neighbours polega na obliczeniu odległości wektora danych wejściowych 
-długości n traktowanego jako punkt w przestrzeni n wymiarowej i porównaniu go z każdym z 
-pośród wektorów danych wejściowych dostarczonych modelowi w ramach danych treningowych, 
-które to model zapamiętał. Punkty z pośród danych treningowych wraz z ich etykietami 
-następnie są sortowane rosnąco wedle ich odległości od danej wejściowej, której 
-klasyfikację przeprowadza model. Następnie dopierane jest K pierwszych z pośród 
-punktów, których to odległość od klasyfikowanego punktu jest najniższa i zliczane 
-są wystąpienia różnych typów etykiet pośród wybranych K punktów. Ta etykieta, 
-która pośród nich powtarza się najczęściej jest odpowiedzią modelu na zadanie klasyfikacji.
-
-Model KNN został zaimplementowany z użyciem biblioteki numpy. Za parametr K 
-wybrano wielokrotność liczności zbioru etykiet, 20.
+\subsection{Konwolucyjna sieć transferowa Tensorflow Keras}
+%TODO Wytrenowac porzadna i przetestowac%
+\subsection{Sieć grafowa}
+Wyniki.
+\subsection{K Nearest Neighbours}
 
 Z powodu długiego czasu predykcji modelu KNN testy wykonano na 10\% zbioru testowego, co odpowiada 1400 danych testowych.
 W tej sytuacji model KNN cechował się accuracy na poziomie $0.96$
@@ -454,15 +478,6 @@ koniecznych do wykonania przez model KNN w porównaniu
 do dowolnego innego modelu, podczas gdy proces weryfikacji 
 na 14000 danych testowych sieci neuronowych trwał zaledwie 
 kilka sekund, weryfikacja modelu KNN zajęła ponad 10 minut dla 1400 danych.
-
-
-\section{Opis realizacji zadania}
-
-Opis realizacji.
-
-\section{Wyniki}
-
-Wyniki.
 
 \section{Dyskusja}
 
