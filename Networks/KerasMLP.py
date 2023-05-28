@@ -4,6 +4,7 @@ import numpy as np
 from AbstractModel import Model
 import keras.backend as K
 
+
 class KerasMLP(Model):
     def __init__(self, input_size=784, output_size=10):
         self.model = None

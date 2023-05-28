@@ -8,6 +8,7 @@ from keras.regularizers import l2
 from keras.callbacks import ReduceLROnPlateau, EarlyStopping
 import keras.backend as K
 
+
 class KerasCNNv2(Model):
     def __init__(self, input_size=784, output_size=10):
         self.model = None

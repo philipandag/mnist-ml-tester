@@ -3,6 +3,7 @@ import numpy as np
 from AbstractModel import Model
 import keras.backend as K
 
+
 class KerasCNN(Model):
     def __init__(self, input_size=784, output_size=10):
         self.model = None
@@ -29,7 +30,6 @@ class KerasCNN(Model):
             metrics=['accuracy'],
         )
         K.set_value(self.model.optimizer.learning_rate, 0.0001)
-
 
     # predict the output for a given input
     def predict(self, input_data):

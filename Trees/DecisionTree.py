@@ -12,11 +12,9 @@ class DecisionTree(Model):
         self.model = DecisionTreeClassifier(max_depth=5, min_samples_split=5, min_samples_leaf=5)
 
     def fit(self, X_train, y_train, epochs):
-        print("Decision Tree - fitting started", end="")
         for i in range(epochs):
-            print(f"\rDecision Tree - fitting {i/epochs * 100}%", end="")
+            print(f"\rDecision Tree - fitting {i / epochs * 100}%", end="")
             self.model.fit(X_train, y_train)
-        print("\rDecision Tree - fitting finished")
 
     def predict(self, X_test):
         return to_categorical(self.model.predict(X_test), self.output_size)[0]

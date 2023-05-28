@@ -1,13 +1,13 @@
 import keras
+import keras.applications
 import numpy as np
-from AbstractModel import Model
+from keras import backend as K
+from keras.callbacks import ReduceLROnPlateau, EarlyStopping
+from keras.layers import Dense, Flatten, Dropout
 from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import img_to_array, array_to_img
-import keras.applications
-from keras import backend as K
-from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Dropout, BatchNormalization, Activation, Input
-from keras.callbacks import ReduceLROnPlateau, EarlyStopping
-import multiprocessing
+
+from AbstractModel import Model
 
 
 class Transfer(Model):
@@ -80,7 +80,8 @@ class Transfer(Model):
         end_training_early = EarlyStopping(monitor="accuracy", baseline=0.995, patience=3)
 
         return self.model.fit(train_generator.x, train_generator.y, epochs=self.epochs, batch_size=self.batch_size,
-                       callbacks=[slow_down_learning_rate, end_training_early], validation_split=0.2)
+                              callbacks=[slow_down_learning_rate, end_training_early], validation_split=0.2)
+
     def fine_tune(self, train_generator):
         self.trans.trainable = True
         self.model.compile(
@@ -91,8 +92,7 @@ class Transfer(Model):
         K.set_value(self.model.optimizer.learning_rate, 0.0001)
 
         return self.model.fit(train_generator.x, train_generator.y, epochs=self.epochs, batch_size=self.batch_size,
-                             validation_split=0.2)
-
+                              validation_split=0.2)
 
     # return the mean accuracy on the given test data and labels
     def score(self, x_test: np.ndarray, y_test: np.ndarray) -> float:

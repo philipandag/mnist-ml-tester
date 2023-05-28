@@ -24,8 +24,6 @@ from Trees.RandomForest import RandomForest
 from downloadDatabase import downloadBase
 
 from cv2 import resize as cv2_resize, warpAffine as cv2_warpAffine
-import tensorflow as tf
-
 
 # Tutaj wstaw swoje modele
 models = [
@@ -502,6 +500,7 @@ class MainWindow(QMainWindow):
             confusion_matrix = ConfusionMatrix(self.output_size)
 
             for i in range(len(self.X_test)):
+                print(f"\rTworzę macierz konfuzji: {i / len(self.X_test) * 100:.3f}%", end="")
                 try:
                     predicted = np.argmax(self.model.predict([self.X_test[i]]))
                 except:
@@ -511,7 +510,7 @@ class MainWindow(QMainWindow):
                 actual = self.y_test[i]
                 confusion_matrix.add(predicted, actual)
 
-            print("Confusion matrix:")
+            print("\nConfusion matrix:")
             print("Precision: TP/(TP+FP) Stosunek poprawnie wybranych do wszystkich wybranych tej klasy")
             print("Recall:  TP/(TP+FN) Stosunek poprawnie wybranych do ilości wystąpień tej klasy")
             print("F1: 2*Precision*Recall/(Precision+Recall) Wskaźnik wiążący precision i recall")
@@ -552,7 +551,9 @@ class MainWindow(QMainWindow):
             y = self.y_test[idx]
             x = self.X_test[idx]
             try:
+                print("Walidacja...")
                 score = self.model.score(x, y)
+                print("Wynik: ", score)
             except:
                 self.komunikat("Błąd podczas walidacji", color="red")
                 print("Unexpected error:", sys.exc_info())
@@ -589,7 +590,7 @@ class MainWindow(QMainWindow):
             # Disable warning VisibleDeprecationWarning
             np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
             for n in range(n_splits):
-                self.komunikat(f"Fold {n + 1}/{n_splits}", color="green")
+                print(f"Cross Validation: {n / n_splits * 100}%")
 
                 X_test = x_splitted[n]
                 X_train = np.concatenate(np.delete(x_splitted, n, axis=0))  # = X - X_test
@@ -600,6 +601,7 @@ class MainWindow(QMainWindow):
                 acc = cv_model.score(X_test, y_test)
                 accuracy.append(acc)
             mean_accuracy = np.mean(accuracy)
+            print("\nAccuracy: ", mean_accuracy)
 
             self.komunikat(f"Accuracy: {mean_accuracy}", color="green")
 
