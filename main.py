@@ -3,7 +3,6 @@ from os.path import exists as path_exists, basename as path_basename, splitext a
 from pickle import dump as pickle_dump, load as pickle_load
 from sys import exit as sys_exit, argv as sys_argv
 from time import time
-from tensorflow.debugging import set_log_device_placement
 
 import numpy as np
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushButton, QInputDialog, QFileDialog
@@ -15,7 +14,7 @@ from math import ceil, floor
 from Canvas import Canvas
 from ConfusionMatrix import ConfusionMatrix
 from Networks.KerasCNN import KerasCNN
-from Networks.KerasCNNV2 import KerasCNNV2
+from Networks.KerasCNNv2 import KerasCNNv2
 from Networks.KerasMLP import KerasMLP
 from Networks.MyNetwork.network import MyNetwork
 from Networks.Transfer import Transfer
@@ -29,7 +28,7 @@ from cv2 import resize as cv2_resize, warpAffine as cv2_warpAffine
 # Tutaj wstaw swoje modele
 models = [
     KerasCNN,
-    KerasCNNV2,
+    KerasCNNv2,
     KerasMLP,
     Transfer,
     RandomForest,
@@ -267,6 +266,8 @@ class MainWindow(QMainWindow):
                             plt.legend(['train', 'val'], loc='upper left')
                             plt.show()
 
+                            plt.figure()
+
                             plt.plot(history['loss'])
                             plt.plot(history['val_loss'])
                             plt.title(f'model {self.selected_model} loss')
@@ -309,7 +310,7 @@ class MainWindow(QMainWindow):
                 print("Unexpected error:", sys.exc_info())
                 return
 
-            print(f"Predicted: {predicted}")
+            # print(f"Predicted: {predicted}")
 
             text = "<html><body>"
             value = np.argmax(predicted)
@@ -605,7 +606,6 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == "__main__":
-    # set_log_device_placement(True)
     app = QApplication(sys_argv)
     window = MainWindow()
     window.show()

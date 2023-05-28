@@ -30,7 +30,51 @@ Tutaj będzie bardzo ładny opis problemu.
 
 \subsection{Drzewa}
 \subsubsection{Drzewo decyzyjne}
+Drzewo decyzyjne jest modelem predykcyjnym wykorzystywanym w 
+dziedzinie uczenia maszynowego i analizy danych. Jest to 
+struktura drzewiasta, w której każdy węzeł reprezentuje 
+test na jednej z cech, gałęzie reprezentują możliwe wyniki 
+tego testu, a liście reprezentują etykiety lub wartości 
+predykcyjne. Drzewo decyzyjne może być wykorzystane 
+zarówno do klasyfikacji, jak i do regresji.
+
+Podczas konstrukcji drzewa decyzyjnego, 
+algorytm dokonuje podziału zbioru danych 
+na podzbiory na podstawie wybranych cech. 
+Celem jest jak najlepsze rozdzielenie danych, 
+aby w każdym podzbiorze dominowała jedna klasa 
+lub aby zminimalizować błąd predykcji dla zmiennych 
+ciągłych w przypadku regresji.
+
+Drzewa decyzyjne posiadają wiele zalet, takich jak 
+prostota interpretacji, zdolność do obsługi zarówno 
+danych kategorycznych, jak i numerycznych, oraz efektywność 
+obliczeniowa w przypadku dużych zbiorów danych. Jednakże, 
+mogą być podatne na przetrenowanie, co oznacza, że mogą zbyt 
+dobrze dopasować się do danych treningowych i słabo generalizować na nowe dane.
+
 \subsubsection{Las losowy}
+Las losowy (ang. Random Forest) jest złożonym modelem 
+predykcyjnym, który opiera się na kombinacji wielu drzew decyzyjnych. 
+Polega na budowie wielu drzew decyzyjnych na podstawie 
+różnych losowych podzbiorów danych treningowych, a 
+następnie łączeniu ich wyników w celu uzyskania ostatecznej 
+predykcji. Każde drzewo w lesie losowym jest budowane 
+niezależnie od pozostałych, a wyniki są łączone w procesie 
+głosowania lub uśredniania.
+
+Las losowy ma wiele zalet, w tym wysoką dokładność 
+predykcji, zdolność do obsługi zarówno danych 
+kategorycznych, jak i numerycznych, oraz odporność 
+na przetrenowanie. Dodatkowo, las losowy może dostarczać 
+ważność cech, co oznacza, że można ocenić, które cechy 
+mają największy wpływ na predykcje.
+
+Las losowy znajduje zastosowanie w wielu dziedzinach, 
+takich jak klasyfikacja obrazów, przetwarzanie 
+języka naturalnego, analiza danych medycznych itp. 
+Jest to popularny model ze względu na swoją elastyczność 
+i dobrą wydajność nawet w przypadku dużych zbiorów danych.
 
 \subsection{Sieci neuronowe}
 Sieć neuronowa jest modelem statystycznym czerpiącym inspirację z natury i 

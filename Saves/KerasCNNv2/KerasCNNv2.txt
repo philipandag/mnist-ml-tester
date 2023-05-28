@@ -1,0 +1,64 @@
+Model: "sequential"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ conv2d (Conv2D)             (None, 24, 24, 32)        832       
+                                                                 
+ conv2d_1 (Conv2D)           (None, 20, 20, 32)        25600     
+                                                                 
+ batch_normalization (BatchN  (None, 20, 20, 32)       128       
+ ormalization)                                                   
+                                                                 
+ activation (Activation)     (None, 20, 20, 32)        0         
+                                                                 
+ max_pooling2d (MaxPooling2D  (None, 10, 10, 32)       0         
+ )                                                               
+                                                                 
+ dropout (Dropout)           (None, 10, 10, 32)        0         
+                                                                 
+ conv2d_2 (Conv2D)           (None, 8, 8, 64)          18496     
+                                                                 
+ conv2d_3 (Conv2D)           (None, 6, 6, 64)          36864     
+                                                                 
+ batch_normalization_1 (Batc  (None, 6, 6, 64)         256       
+ hNormalization)                                                 
+                                                                 
+ activation_1 (Activation)   (None, 6, 6, 64)          0         
+                                                                 
+ max_pooling2d_1 (MaxPooling  (None, 3, 3, 64)         0         
+ 2D)                                                             
+                                                                 
+ dropout_1 (Dropout)         (None, 3, 3, 64)          0         
+                                                                 
+ flatten (Flatten)           (None, 576)               0         
+                                                                 
+ dense (Dense)               (None, 256)               147456    
+                                                                 
+ batch_normalization_2 (Batc  (None, 256)              1024      
+ hNormalization)                                                 
+                                                                 
+ activation_2 (Activation)   (None, 256)               0         
+                                                                 
+ dense_1 (Dense)             (None, 128)               32768     
+                                                                 
+ batch_normalization_3 (Batc  (None, 128)              512       
+ hNormalization)                                                 
+                                                                 
+ activation_3 (Activation)   (None, 128)               0         
+                                                                 
+ dense_2 (Dense)             (None, 84)                10752     
+                                                                 
+ batch_normalization_4 (Batc  (None, 84)               336       
+ hNormalization)                                                 
+                                                                 
+ activation_4 (Activation)   (None, 84)                0         
+                                                                 
+ dropout_2 (Dropout)         (None, 84)                0         
+                                                                 
+ dense_3 (Dense)             (None, 10)                850       
+                                                                 
+=================================================================
+Total params: 275,874
+Trainable params: 274,746
+Non-trainable params: 1,128
+_________________________________________________________________
