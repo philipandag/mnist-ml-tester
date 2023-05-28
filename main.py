@@ -24,6 +24,8 @@ from Trees.RandomForest import RandomForest
 from downloadDatabase import downloadBase
 
 from cv2 import resize as cv2_resize, warpAffine as cv2_warpAffine
+import tensorflow as tf
+
 
 # Tutaj wstaw swoje modele
 models = [

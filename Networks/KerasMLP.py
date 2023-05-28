@@ -36,11 +36,6 @@ class KerasMLP(Model):
             optimizer='adam',
             loss='categorical_crossentropy',
             metrics=['accuracy'],
-            loss_weights=None,
-            weighted_metrics=None,
-            run_eagerly=None,
-            steps_per_execution=None,
-            jit_compile=None
         )
         K.set_value(self.model.optimizer.learning_rate, 0.001)
 

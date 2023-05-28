@@ -13,7 +13,7 @@ class MyNetwork(Model):
         self.layers = []
         self.loss = None
         self.epochs = None
-        self.learning_rate = 0.01
+        self.learning_rate = 0.001
         self.input_size = input_size
         self.output_size = output_size
 
@@ -38,7 +38,9 @@ class MyNetwork(Model):
         return output[0]
 
     # train the network
-    def fit(self, x_train, y_train):
+    def fit(self, x_train, y_train, epochs):
+
+        self.epochs = epochs
 
         samples = len(x_train)
         y_train = self.prepare_y(y_train)

@@ -32,11 +32,6 @@ class KerasCNNv2(Model):
             optimizer='adam',
             loss='categorical_crossentropy',
             metrics=['accuracy'],
-            loss_weights=None,
-            weighted_metrics=None,
-            run_eagerly=None,
-            steps_per_execution=None,
-            jit_compile=None,
         )
         K.set_value(self.model.optimizer.learning_rate, 0.0001)
 
@@ -66,7 +61,7 @@ class KerasCNNv2(Model):
         )
 
         slow_down_learning_rate = ReduceLROnPlateau(monitor="loss", factor=0.2, patience=1)
-        end_training_early = EarlyStopping(monitor="accuracy", baseline=0.99, patience=3)
+        end_training_early = EarlyStopping(monitor="accuracy", baseline=0.999, patience=3)
 
         return self.model.fit(train_generator.x, train_generator.y, epochs=self.epochs, batch_size=self.batch_size
                               , callbacks=[slow_down_learning_rate, end_training_early], validation_split=0.2)

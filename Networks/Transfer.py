@@ -5,6 +5,10 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import img_to_array, array_to_img
 import keras.applications
 from keras import backend as K
+from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Dropout, BatchNormalization, Activation, Input
+from keras.callbacks import ReduceLROnPlateau, EarlyStopping
+import multiprocessing
+
 
 class Transfer(Model):
     def __init__(self, input_size=784, output_size=10):
@@ -16,6 +20,7 @@ class Transfer(Model):
         self.image_dimension = int(np.sqrt(self.input_size))
 
         self.model = keras.Sequential()
+        self.fitted = False
 
         if self.input_size == 784:
             self.init_layers_784()
@@ -45,10 +50,14 @@ class Transfer(Model):
         # return self.model.predict(input_data, verbose=0, use_multiprocessing=True)
 
     # train the network
+
     def fit(self, x_train, y_train, epochs):
 
         x_train = self.prepare_x(x_train)
         y_train = self.prepare_y(y_train)
+
+        self.epochs = epochs
+        self.batch_size = 128
 
         image_generator = ImageDataGenerator(
             rotation_range=10,
@@ -60,11 +69,29 @@ class Transfer(Model):
             x_train,
             y_train,
         )
+        if not self.fitted:
+            self.fitted = True
+            return self.fit_initial(train_generator)
+        else:
+            return self.fine_tune(train_generator)
 
-        self.epochs = epochs
-        self.batch_size = 128
+    def fit_initial(self, train_generator):
+        slow_down_learning_rate = ReduceLROnPlateau(monitor="loss", factor=0.2, patience=1)
+        end_training_early = EarlyStopping(monitor="accuracy", baseline=0.995, patience=3)
 
-        return self.model.fit(train_generator.x, train_generator.y, epochs=self.epochs, batch_size=self.batch_size)
+        return self.model.fit(train_generator.x, train_generator.y, epochs=self.epochs, batch_size=self.batch_size,
+                       callbacks=[slow_down_learning_rate, end_training_early], validation_split=0.2)
+    def fine_tune(self, train_generator):
+        self.trans.trainable = True
+        self.model.compile(
+            optimizer='adam',
+            loss='categorical_crossentropy',
+            metrics=['accuracy'],
+        )
+        K.set_value(self.model.optimizer.learning_rate, 0.0001)
+
+        return self.model.fit(train_generator.x, train_generator.y, epochs=self.epochs, batch_size=self.batch_size,
+                             validation_split=0.2)
 
 
     # return the mean accuracy on the given test data and labels
@@ -94,16 +121,17 @@ class Transfer(Model):
         raise NotImplementedError()
 
     def init_layers_784(self):
-        self.trans = keras.applications.ResNet50(
+        self.trans = keras.applications.MobileNet(
             include_top=False,
             weights='imagenet',
             input_shape=(75, 75, 3)
         )
         self.trans.trainable = False
         self.model.add(self.trans)
-        self.model.add(keras.layers.Flatten())
-        self.model.add(keras.layers.Dense(512, activation='relu'))
-        self.model.add(keras.layers.Dense(10, activation='softmax'))
+        self.model.add(Flatten())
+        self.model.add(Dropout(0.25))
+        self.model.add(Dense(512, activation='relu'))
+        self.model.add(Dense(10, activation='softmax'))
 
     def init_layers_proportionally(self):
         raise NotImplementedError()
