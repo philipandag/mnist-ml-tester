@@ -264,6 +264,7 @@ class MainWindow(QMainWindow):
                     print("y:")
                     print(self.y)
 
+                    print("Wczytano dane")
                     self.komunikat("Wczytano dane", color="green")
 
                 else:
@@ -349,6 +350,7 @@ class MainWindow(QMainWindow):
             self.selected_model_label.setText(f"Wybrany model: {self.selected_model}")
             self.selected_model_label.setEnabled(True)
             self.fitted = True
+            print(f"Wczytano model {self.selected_model}")
             self.komunikat(f"Wczytano model {self.selected_model}", color="green")
         else:
             self.komunikat("Nie wybrano modelu", color="red")
