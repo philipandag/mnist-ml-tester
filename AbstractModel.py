@@ -4,7 +4,7 @@ import numpy as np
 class Model(object):
 
     # initialize the object
-    def __init__(self):
+    def __init__(self, input_size: int, output_size: int) -> None:
         raise NotImplementedError("__init__ not implemented")
 
     # fit the model to the training data

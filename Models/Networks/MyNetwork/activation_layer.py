@@ -1,4 +1,4 @@
-from Networks.MyNetwork.layer import Layer
+from Models.Networks.MyNetwork.layer import Layer
 
 
 class ActivationLayer(Layer):

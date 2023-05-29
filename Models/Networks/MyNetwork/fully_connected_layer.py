@@ -1,5 +1,6 @@
-from Networks.MyNetwork.layer import Layer
 import numpy as np
+
+from Models.Networks.MyNetwork.layer import Layer
 
 
 class FullyConnectedLayer(Layer):

@@ -1,5 +1,6 @@
 numpy~=1.23.5
 networkx~=3.1
+spektral==1.2.0
 matplotlib~=3.7.1
 scipy~=1.10.1
 joblib~=1.2.0

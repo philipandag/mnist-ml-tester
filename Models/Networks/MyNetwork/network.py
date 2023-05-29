@@ -2,10 +2,10 @@ import numpy as np
 from keras.utils import to_categorical
 
 from AbstractModel import Model
-from Networks.MyNetwork.activation_functions import sigmoid, softmax
-from Networks.MyNetwork.activation_layer import ActivationLayer
-from Networks.MyNetwork.error_functions import categorical_crossentropy
-from Networks.MyNetwork.fully_connected_layer import FullyConnectedLayer
+from Models.Networks.MyNetwork.activation_functions import sigmoid, softmax
+from Models.Networks.MyNetwork.activation_layer import ActivationLayer
+from Models.Networks.MyNetwork.error_functions import categorical_crossentropy
+from Models.Networks.MyNetwork.fully_connected_layer import FullyConnectedLayer
 
 
 class MyNetwork(Model):

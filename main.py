@@ -19,14 +19,15 @@ from sklearn.model_selection import train_test_split
 
 from Canvas import Canvas
 from ConfusionMatrix import ConfusionMatrix
-from Networks.KerasCNN import KerasCNN
-from Networks.KerasCNNv2 import KerasCNNv2
-from Networks.KerasMLP import KerasMLP
-from Networks.MyNetwork.network import MyNetwork
-from Networks.Transfer import Transfer
-from OtherModels.KNN import KNN
-from Trees.DecisionTree import DecisionTree
-from Trees.RandomForest import RandomForest
+from Models.Networks.KerasCNN import KerasCNN
+from Models.Networks.KerasCNNv2 import KerasCNNv2
+from Models.Networks.KerasMLP import KerasMLP
+from Models.Networks.MyNetwork.network import MyNetwork
+from Models.Networks.Transfer import Transfer
+from Models.OtherModels.KNN import KNN
+from Models.Trees.DecisionTree import DecisionTree
+from Models.Trees.RandomForest import RandomForest
+from Models.Graph.graphModel import GraphModel
 from downloadDatabase import downloadBase
 
 # Tutaj wstaw swoje modele
@@ -37,6 +38,7 @@ models = [
     Transfer,
     RandomForest,
     DecisionTree,
+    GraphModel,
     KNN,
     MyNetwork
 ]
