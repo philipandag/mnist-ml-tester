@@ -1,4 +1,8 @@
+import os
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import sys
+from math import ceil, floor
 from os.path import exists as path_exists, basename as path_basename, splitext as path_splitext
 from pickle import dump as pickle_dump, load as pickle_load
 from sys import exit as sys_exit, argv as sys_argv
@@ -6,11 +10,13 @@ from time import time
 
 import numpy as np
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLabel, QPushButton, QInputDialog, QFileDialog
+from cv2 import resize as cv2_resize, warpAffine as cv2_warpAffine
 from joblib import load as joblib_load
+from keras.models import load_model
 from matplotlib import pyplot as plt
-from sklearn.model_selection import train_test_split
 from scipy import ndimage
-from math import ceil, floor
+from sklearn.model_selection import train_test_split
+
 from Canvas import Canvas
 from ConfusionMatrix import ConfusionMatrix
 from Networks.KerasCNN import KerasCNN
@@ -22,8 +28,6 @@ from OtherModels.KNN import KNN
 from Trees.DecisionTree import DecisionTree
 from Trees.RandomForest import RandomForest
 from downloadDatabase import downloadBase
-
-from cv2 import resize as cv2_resize, warpAffine as cv2_warpAffine
 
 # Tutaj wstaw swoje modele
 models = [
@@ -177,6 +181,96 @@ class MainWindow(QMainWindow):
         self.label.setText(text)
         self.label.setStyleSheet(f"color: {color};")
 
+    def warunki_spelnione(self):
+        if self.selected_model is None or self.model is None:
+            self.komunikat("Nie wybrano modelu", color="red")
+            return False
+        if self.selected_base is None or self.mnist is None:
+            self.komunikat("Nie wczytano bazy", color="red")
+            return False
+        if self.fitted is False:
+            self.komunikat("Model niewyćwiczony", color="red")
+            return False
+        return True
+
+    def pobierz_baze(self):
+        self.komunikat("Wybrano opcję Pobierz")
+
+        self.selected_base, ok = QInputDialog.getText(self, "Pobieranie bazy", "Podaj nazwę bazy:")
+
+        if ok:
+            self.komunikat(f"Pobieranie bazy {self.selected_base}...")
+            downloadBase(self.selected_base)
+            self.wczytaj_baze()
+        else:
+            self.komunikat("Nie podano nazwy bazy", color="red")
+
+    def wczytaj_baze(self):
+        self.komunikat("Wybrano opcję Wczytaj Baze")
+
+        # Show file selection dialog
+        file_name, ok = QFileDialog.getOpenFileName(self, "Wybierz plik", ".", "Pliki joblib (*.joblib)",
+                                                    options=QFileDialog.DontUseNativeDialog)
+        if ok:
+            if path_exists(f"{file_name}"):
+                train_size, ok = QInputDialog.getInt(self, "Wybierz",
+                                                     "Podaj rozmiar treningowy (w %):",
+                                                     min=1, max=99, step=1, value=80)
+
+                if ok:
+                    # From absolute path get only file name without extension
+                    self.selected_base = path_splitext(path_basename(file_name))[0]
+                    self.komunikat(f"Wybrano bazę {self.selected_base}", color="green")
+
+                    train_size /= 100
+                    self.mnist = joblib_load(f'{self.selected_base}.joblib')
+                    self.X = self.mnist.data
+                    self.y = self.mnist.target
+                    self.input_size = self.X.shape[1]
+                    self.output_size = max(self.y) + 1
+
+                    self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y,
+                                                                                            train_size=train_size,
+                                                                                            random_state=42)
+                    self.fitted = False
+
+                    self.canvas.set_resolution(int(np.sqrt(self.X.shape[1])))
+                    self.canvas.clear()
+
+                    self.selected_base_label.setText(f"Wybrana baza: {self.selected_base}")
+                    self.selected_base_label.setEnabled(True)
+
+                    if self.plot_checkbox.isChecked():
+                        for i in range(10):
+                            plt.subplot(2, 5, i + 1)
+                            random = np.random.randint(0, len(self.X))
+                            plt.imshow(self.X[random].reshape(self.canvas.resolution, self.canvas.resolution),
+                                       cmap='gray',
+                                       vmin=0, vmax=255)
+                            plt.axis('off')
+                        plt.suptitle(f"Przykładowe obrazy z bazy {self.selected_base}")
+                        plt.show()
+
+                    print("Wczytano dane:")
+                    print(f"X_train: {self.X_train.shape}")
+                    print(f"X_test: {self.X_test.shape}")
+                    print(f"y_train: {self.y_train.shape}")
+                    print(f"y_test: {self.y_test.shape}")
+
+                    print("X:")
+                    print(self.X)
+                    print("y:")
+                    print(self.y)
+
+                    self.komunikat("Wczytano dane", color="green")
+
+                else:
+                    self.komunikat("Anulowano", color="red")
+            else:
+                self.komunikat("Nie znaleziono pliku", color="red")
+        else:
+            self.komunikat("Anulowano", color="red")
+
     def nowy_model(self):
         self.komunikat("Wybrano opcję Nowy")
 
@@ -195,6 +289,10 @@ class MainWindow(QMainWindow):
                 self.komunikat("Model niezaimplementowany dla tych danych", color="red")
                 print("Unexpected error:", sys.exc_info())
                 return
+            except:
+                self.komunikat("Nieznany błąd", color="red")
+                print("Unexpected error:", sys.exc_info())
+                return
 
             if self.model is not None:
                 self.selected_model = model_type
@@ -210,23 +308,42 @@ class MainWindow(QMainWindow):
     def zapisz_model(self):
         self.komunikat("Wybrano opcję Zapisz")
 
-        if self.selected_model is None:
-            self.komunikat("Nie wybrano modelu", color="red")
-        elif self.model is None:
-            self.komunikat("Model pusty", color="red")
-        if self.fitted is False:
-            self.komunikat("Model nie jest wytrenowany", color="red")
-        else:
-            pickle_dump(self.model, open(f"{self.selected_model}_{self.selected_base}_{time()}.pkl", "wb"))
-            self.komunikat("Zapisano model", color="green")
+        if self.warunki_spelnione():
+            try:
+                # save model with keras save_model function
+                self.model.save(f"{self.selected_model}_{self.selected_base}_{time()}.h5")
+                self.komunikat("Zapisano model", color="green")
+                print("Model zapisano za pomocą keras save_model")
+            except:
+                print("Model nie ma zaimplementowanej funkcji save")
+                print("Próba zapisu za pomocą pickle")
+                try:
+                    pickle_dump(self.model, open(f"{self.selected_model}_{self.selected_base}_{time()}.pkl", "wb"))
+                    self.komunikat("Zapisano model", color="green")
+                    print("Model zapisano za pomocą pickle")
+                except:
+                    self.komunikat("Nie udało się zapisać modelu", color="red")
+                    print("Unexpected error:", sys.exc_info())
 
     def wczytaj_model(self):
         self.komunikat("Wybrano opcję Wczytaj")
 
-        file_name, ok = QFileDialog.getOpenFileName(self, "Wczytaj model", "", "Plik modelu (*.pkl)")
+        file_name, ok = QFileDialog.getOpenFileName(self, "Wczytaj model", ".", "Plik modelu (*.pkl *.h5)",
+                                                    options=QFileDialog.DontUseNativeDialog)
         if ok:
-            self.model = pickle_load(open(file_name, "rb"))
-            self.selected_model = file_name.split("/")[-1].split(".")[0]
+            try:
+                if file_name.endswith(".h5"):
+                    className = file_name.split("/")[-1].split("_")[0]
+                    self.model = globals()[className](self.input_size, self.output_size)
+                    self.model.model = load_model(file_name)
+                    self.model.fitted = True
+                else:
+                    self.model = pickle_load(open(file_name, "rb"))
+            except:
+                self.komunikat("Nie udało się wczytać modelu", color="red")
+                print("Unexpected error:", sys.exc_info())
+                return
+            self.selected_model = file_name.split("/")[-1].split("_")[0]
             self.selected_model_label.setText(f"Wybrany model: {self.selected_model}")
             self.selected_model_label.setEnabled(True)
             self.fitted = True
@@ -247,7 +364,7 @@ class MainWindow(QMainWindow):
             start = time()
 
             # Dialog window for epochs
-            epochs, ok_pressed = QInputDialog.getInt(self, "Liczba epok", "Podaj liczbę epok:", 2, 2, 9999, 1)
+            epochs, ok_pressed = QInputDialog.getInt(self, "Liczba epok", "Podaj liczbę epok:", 2, 1, 9999, 1)
             if ok_pressed:
 
                 try:
@@ -381,84 +498,6 @@ class MainWindow(QMainWindow):
         image = np.resize(image, (1, res ** 2))
         return image
 
-    def pobierz_baze(self):
-        self.komunikat("Wybrano opcję Pobierz")
-
-        self.selected_base, ok = QInputDialog.getText(self, "Pobieranie bazy", "Podaj nazwę bazy:")
-
-        if ok:
-            self.komunikat(f"Pobieranie bazy {self.selected_base}...")
-            downloadBase(self.selected_base)
-            self.wczytaj_baze()
-        else:
-            self.komunikat("Nie podano nazwy bazy", color="red")
-
-    def wczytaj_baze(self):
-        self.komunikat("Wybrano opcję Wczytaj Baze")
-
-        # Show file selection dialog
-        file_name, ok = QFileDialog.getOpenFileName(self, "Wybierz plik", "", "Pliki joblib (*.joblib)")
-        if ok:
-            if path_exists(f"{file_name}"):
-                train_size, ok = QInputDialog.getInt(self, "Wybierz",
-                                                     "Podaj rozmiar treningowy (w %):",
-                                                     min=1, max=99, step=1, value=80)
-
-                if ok:
-                    # From absolute path get only file name without extension
-                    self.selected_base = path_splitext(path_basename(file_name))[0]
-                    self.komunikat(f"Wybrano bazę {self.selected_base}", color="green")
-
-                    train_size /= 100
-                    self.mnist = joblib_load(f'{self.selected_base}.joblib')
-                    self.X = self.mnist.data
-                    self.y = self.mnist.target
-                    self.input_size = self.X.shape[1]
-                    self.output_size = max(self.y) + 1
-
-                    self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y,
-                                                                                            train_size=train_size,
-                                                                                            random_state=42)
-                    self.fitted = False
-
-                    self.canvas.set_resolution(int(np.sqrt(self.X.shape[1])))
-                    self.canvas.clear()
-
-                    self.selected_base_label.setText(
-                        f"Wybrana baza: {self.selected_base} {self.canvas.resolution}x{self.canvas.resolution}")
-                    self.selected_base_label.setEnabled(True)
-
-                    if self.plot_checkbox.isChecked():
-                        for i in range(10):
-                            plt.subplot(2, 5, i + 1)
-                            random = np.random.randint(0, len(self.X))
-                            plt.imshow(self.X[random].reshape(self.canvas.resolution, self.canvas.resolution),
-                                       cmap='gray',
-                                       vmin=0, vmax=255)
-                            plt.axis('off')
-                        plt.suptitle(f"Przykładowe obrazy z bazy {self.selected_base}")
-                        plt.show()
-
-                    print("Wczytano dane:")
-                    print(f"X_train: {self.X_train.shape}")
-                    print(f"X_test: {self.X_test.shape}")
-                    print(f"y_train: {self.y_train.shape}")
-                    print(f"y_test: {self.y_test.shape}")
-
-                    print("X:")
-                    print(self.X)
-                    print("y:")
-                    print(self.y)
-
-                    self.komunikat("Wczytano dane", color="green")
-
-                else:
-                    self.komunikat("Anulowano", color="red")
-            else:
-                self.komunikat("Nie znaleziono pliku", color="red")
-        else:
-            self.komunikat("Anulowano", color="red")
-
     def clear(self):
         self.komunikat("Wyczyszczono", color="green")
         self.canvas.clear()
@@ -529,84 +568,65 @@ class MainWindow(QMainWindow):
                 self.komunikat("Wygenerowano macierz konfuzji", color="green")
 
     def validation(self):
-        if self.selected_model is None:
-            self.komunikat("Nie wybrano modelu", color="red")
-            return
-        if self.selected_base is None:
-            self.komunikat("Nie wczytano bazy", color="red")
-            return
-        if self.fitted is False:
-            self.komunikat("Model niewyćwiczony", color="red")
-            return
+        if self.warunki_spelnione():
 
-        self.komunikat("Wybrano opcję Walidacja")
+            self.komunikat("Wybrano opcję Walidacja")
 
-        # A window with a slider to choose train size and checkbox to choose crossvalidation
-        train_size, ok = QInputDialog.getInt(self, "Wybierz",
-                                             "Podaj rozmiar zbioru testowego w %",
-                                             min=1, max=100, step=1, value=100)
+            # A window with a slider to choose train size and checkbox to choose crossvalidation
+            train_size, ok = QInputDialog.getInt(self, "Wybierz",
+                                                 "Podaj rozmiar zbioru testowego w %",
+                                                 min=1, max=100, step=1, value=100)
 
-        if ok:
-            idx = np.random.choice(len(self.y_test), int(len(self.y_test) * (train_size / 100)), replace=False)
-            y = self.y_test[idx]
-            x = self.X_test[idx]
-            try:
-                print("Walidacja...")
-                score = self.model.score(x, y)
-                print("Wynik: ", score)
-            except:
-                self.komunikat("Błąd podczas walidacji", color="red")
-                print("Unexpected error:", sys.exc_info())
-                return
-            self.komunikat(f"Wynik: {score}", color="green")
+            if ok:
+                idx = np.random.choice(len(self.y_test), int(len(self.y_test) * (train_size / 100)), replace=False)
+                y = self.y_test[idx]
+                x = self.X_test[idx]
+                try:
+                    print("Walidacja...")
+                    score = self.model.score(x, y)
+                    print("Wynik: ", score)
+                except:
+                    self.komunikat("Błąd podczas walidacji", color="red")
+                    print("Unexpected error:", sys.exc_info())
+                    return
+                self.komunikat(f"Wynik: {score}", color="green")
 
     # trenujemy model n razy, za każdym razem inny z pośród n równomiernych części zbioru
     # służy do testów, a reszta do treningu, wyniki uśredniamy
     def crossvalidation(self):
-        if self.selected_model is None:
-            self.komunikat("Nie wybrano modelu", color="red")
-            return
-        if self.selected_base is None:
-            self.komunikat("Nie wczytano bazy", color="red")
-            return
-        if self.fitted is False:
-            self.komunikat("Model niewyćwiczony", color="red")
-            return
+        if self.warunki_spelnione():
 
-        self.komunikat("Wybrano opcję Cross Validation")
+            self.komunikat("Wybrano opcję Cross Validation")
 
-        n_splits, ok = QInputDialog.getInt(self, "Wybierz",
-                                           "Podaj ilość podziałów:",
-                                           min=2, max=10, step=1, value=5)
+            n_splits, ok = QInputDialog.getInt(self, "Wybierz",
+                                               "Podaj ilość podziałów:",
+                                               min=2, max=10, step=1, value=5)
 
-        if ok:
-            cv_model = self.model.__class__(self.input_size,
-                                            self.output_size)  # nowy model tej samej klasy zeby nie stracic starego
+            if ok:
+                cv_model = self.model.__class__(self.input_size,
+                                                self.output_size)  # nowy model tej samej klasy zeby nie stracic starego
 
-            x_splitted = np.array_split(self.X, n_splits)
-            y_splitted = np.array_split(self.y, n_splits)
+                x_splitted = np.array_split(self.X, n_splits)
+                y_splitted = np.array_split(self.y, n_splits)
 
-            accuracy = []
-            # Disable warning VisibleDeprecationWarning
-            np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
-            for n in range(n_splits):
-                print(f"Cross Validation: {n / n_splits * 100}%")
+                accuracy = []
+                # Disable warning VisibleDeprecationWarning
+                np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
+                for n in range(n_splits):
+                    print(f"Cross Validation: {n / n_splits * 100}%")
 
-                X_test = x_splitted[n]
-                X_train = np.concatenate(np.delete(x_splitted, n, axis=0))  # = X - X_test
-                y_test = y_splitted[n]
-                y_train = np.concatenate(np.delete(y_splitted, n, axis=0))
+                    X_test = x_splitted[n]
+                    X_train = np.concatenate(np.delete(x_splitted, n, axis=0))  # = X - X_test
+                    y_test = y_splitted[n]
+                    y_train = np.concatenate(np.delete(y_splitted, n, axis=0))
 
-                cv_model.fit(X_train, y_train, 2)
-                acc = cv_model.score(X_test, y_test)
-                accuracy.append(acc)
-            mean_accuracy = np.mean(accuracy)
-            print("\nAccuracy: ", mean_accuracy)
+                    cv_model.fit(X_train, y_train, 2)
+                    acc = cv_model.score(X_test, y_test)
+                    accuracy.append(acc)
+                mean_accuracy = np.mean(accuracy)
+                print("\nAccuracy: ", mean_accuracy)
 
-            self.komunikat(f"Accuracy: {mean_accuracy}", color="green")
-
-    def exit(self):
-        QApplication.quit()
+                self.komunikat(f"Accuracy: {mean_accuracy}", color="green")
 
 
 if __name__ == "__main__":

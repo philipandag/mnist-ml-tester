@@ -1,87 +1,53 @@
-Model: "sequential"
-_________________________________________________________________
- Layer (type)                Output Shape              Param #   
-=================================================================
- mobilenet_1.00_224 (Functio  (None, 2, 2, 1024)       3228864   
- nal)                                                            
-                                                                 
- flatten (Flatten)           (None, 4096)              0         
-                                                                 
- dropout (Dropout)           (None, 4096)              0         
-                                                                 
- dense (Dense)               (None, 512)               2097664   
-                                                                 
- dense_1 (Dense)             (None, 10)                5130      
-                                                                 
-=================================================================
-Total params: 5,331,658
-Trainable params: 2,102,794
-Non-trainable params: 3,228,864
-_________________________________________________________________
+Przed fine tuningiem:
 
+    Model: "sequential"
+    _________________________________________________________________
+     Layer (type)                Output Shape              Param #
+    =================================================================
+     mobilenet_1.00_224 (Functio  (None, 1, 1, 1024)       3228864
+     nal)
 
-Confusion matrix:
-Precision: TP/(TP+FP) Stosunek poprawnie wybranych do wszystkich wybranych tej klasy
-Recall:  TP/(TP+FN) Stosunek poprawnie wybranych do ilości wystąpień tej klasy
-F1: 2*Precision*Recall/(Precision+Recall) Wskaźnik wiążący precision i recall
-Accuracy:  (TP+TN)/(TP+FP+FN+TN) Stosunek poprawnie wybranych lub poprawnie odrzuconych do liczby danych
+     flatten (Flatten)           (None, 1024)              0
 
-Class  0 TP:  1324 FP:  14 FN:  19 TN:  12643
-        Precision:  0.9895366218236173
-        Recall:  0.9858525688756515
-        F1:  0.9876911600149199
-        Accuracy:  0.9976428571428572
+     dropout (Dropout)           (None, 1024)              0
 
-Class  1 TP:  1585 FP:  5 FN:  15 TN:  12395
-        Precision:  0.9968553459119497
-        Recall:  0.990625
-        F1:  0.9937304075235109
-        Accuracy:  0.9985714285714286
+     dense (Dense)               (None, 512)               524800
 
-Class  2 TP:  1318 FP:  39 FN:  62 TN:  12581
-        Precision:  0.9712601326455417
-        Recall:  0.9550724637681159
-        F1:  0.9630982827913774
-        Accuracy:  0.9927857142857143
+     dense_1 (Dense)             (None, 10)                5130
 
-Class  3 TP:  1377 FP:  28 FN:  56 TN:  12539
-        Precision:  0.9800711743772242
-        Recall:  0.9609211444521982
-        F1:  0.9704016913319239
-        Accuracy:  0.994
+    =================================================================
+    Total params: 3,758,794
+    Trainable params: 529,930
+    Non-trainable params: 3,228,864
+    _________________________________________________________________
 
-Class  4 TP:  1267 FP:  37 FN:  28 TN:  12668
-        Precision:  0.9716257668711656
-        Recall:  0.9783783783783784
-        F1:  0.9749903809157369
-        Accuracy:  0.9953571428571428
+    Walidacja...
+    438/438 [==============================] - 2s 5ms/step - loss: 1.7920 - accuracy: 0.3571
+    Wynik:  0.3570714294910431
 
-Class  5 TP:  1231 FP:  38 FN:  42 TN:  12689
-        Precision:  0.9700551615445232
-        Recall:  0.96700706991359
-        F1:  0.96852871754524
-        Accuracy:  0.9942857142857143
+Po fine tuningu:
 
-Class  6 TP:  1377 FP:  43 FN:  19 TN:  12561
-        Precision:  0.969718309859155
-        Recall:  0.9863896848137536
-        F1:  0.9779829545454546
-        Accuracy:  0.9955714285714286
+    Model: "sequential"
+    _________________________________________________________________
+     Layer (type)                Output Shape              Param #
+    =================================================================
+     mobilenet_1.00_224 (Functio  (None, 1, 1, 1024)       3228864
+     nal)
 
-Class  7 TP:  1476 FP:  51 FN:  27 TN:  12446
-        Precision:  0.9666011787819253
-        Recall:  0.9820359281437125
-        F1:  0.9742574257425742
-        Accuracy:  0.9944285714285714
+     flatten (Flatten)           (None, 1024)              0
 
-Class  8 TP:  1322 FP:  42 FN:  35 TN:  12601
-        Precision:  0.969208211143695
-        Recall:  0.974207811348563
-        F1:  0.9717015803013599
-        Accuracy:  0.9945
+     dropout (Dropout)           (None, 1024)              0
 
-Class  9 TP:  1379 FP:  47 FN:  41 TN:  12533
-        Precision:  0.9670406732117812
-        Recall:  0.9711267605633803
-        F1:  0.9690794096978215
-        Accuracy:  0.9937142857142857
+     dense (Dense)               (None, 512)               524800
+
+     dense_1 (Dense)             (None, 10)                5130
+
+    =================================================================
+    Total params: 3,758,794
+    Trainable params: 3,736,906
+    Non-trainable params: 21,888
+    _________________________________________________________________
+
+    Walidacja...
+    438/438 [==============================] - 2s 4ms/step - loss: 0.0339 - accuracy: 0.9934
+    Wynik:  0.9934285879135132

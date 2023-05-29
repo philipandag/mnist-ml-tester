@@ -39,7 +39,7 @@ class Transfer(Model):
             weighted_metrics=None,
             run_eagerly=None,
             steps_per_execution=None,
-            jit_compile=None
+            jit_compile=None,
         )
         K.set_value(self.model.optimizer.learning_rate, 0.0001)
 
@@ -104,6 +104,9 @@ class Transfer(Model):
     def summary(self):
         self.model.summary()
 
+    def save(self, path):
+        self.model.save(path)
+
     def prepare_y(self, y):
         y = keras.utils.to_categorical(y, self.output_size)
         return y
@@ -112,7 +115,7 @@ class Transfer(Model):
         x_train = [np.resize(x_train[i], (28, 28, 1)) for i in range(len(x_train))]
 
         x = [array_to_img(x_train[i], scale=False) for i in range(len(x_train))]
-        x = [x[i].resize((75, 75)) for i in range(len(x))]
+        x = [x[i].resize((32, 32)) for i in range(len(x))]
         x = [x[i].convert(mode='RGB') for i in range(len(x))]
         x = [img_to_array(x[i]) for i in range(len(x))]
         return np.array(np.array(x).astype('float32') / 255)
@@ -124,7 +127,7 @@ class Transfer(Model):
         self.trans = keras.applications.MobileNet(
             include_top=False,
             weights='imagenet',
-            input_shape=(75, 75, 3)
+            input_shape=(32, 32, 3)
         )
         self.trans.trainable = False
         self.model.add(self.trans)

@@ -10,7 +10,7 @@ def downloadBase(nazwa_bazy):
     else:
         try:
             print(f"Pobieranie bazy danych {nazwa_bazy}")
-            mnist = fetch_openml(nazwa_bazy, as_frame=False, parser='auto')
+            mnist = fetch_openml(nazwa_bazy, as_frame=False, parser='liac-arff')
         except:
             print(f"Baza danych {nazwa_bazy} nie istnieje")
             return
