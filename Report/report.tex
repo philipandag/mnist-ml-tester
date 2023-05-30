@@ -6,6 +6,7 @@
 \usepackage{float}
 \usepackage{hyperref}
 \usepackage{amsmath} 
+\usepackage{multicol}
 \usepackage{listings}
 \usepackage{tikz} % pgf package
 \usetikzlibrary{shapes.multipart}
@@ -17,7 +18,6 @@
     frame = tb,
     title={Struktura sieci},
     backgroundcolor=\color{gray!10},
-    float,
 }
 
 \title{Sprawozdanie z projektu ze Sztucznej Inteligencji \\ 
@@ -32,6 +32,51 @@ w problemie MNIST i jego pochodnych}
 \tableofcontents
 
 \section{Opis problemu}
+
+Celem projektu było zbudowanie i porównanie różnych
+modeli uczenia maszynowego w problemie klasyfikacji
+obrazów z bazy MNIST. Korzystaliśmy głównie z bazy
+danych \textbf{MNIST-784}, która zawiera 70 tysięcy obrazów
+cyfr napisanych ręcznie. Każdy obraz jest w skali
+szarości i ma rozmiar 28x28 pikseli. Każdy piksel
+jest reprezentowany przez liczbę całkowitą z zakresu
+od 0 do 255, która określa jasność piksela. Dodatkowo
+każdy obraz ma przypisaną etykietę, która określa
+jaką cyfrę przedstawia obraz.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{baza_mnist_784.png}
+\end{figure}
+
+Zdecydowaliśmy się również na wykorzystanie bazy
+danych \textbf{Fashion-MNIST}, która podobnie jak poprzednia, zawiera
+70 tysięcy obrazów o rozmiarze 28x28 pikseli, natomiast
+każdy obraz przedstawia wybrane ubranie lub akcesorium.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{baza_fashion_mnist.png}
+\end{figure}
+
+Opis klas w bazie danych Fashion-MNIST:
+
+\begin{enumerate}
+    \begin{multicols}{2}
+        \centering
+        \setcounter{enumi}{-1}
+        \item T-shirt/top
+        \item Trouser
+        \item Pullover
+        \item Dress
+        \item Coat
+        \item Sandal
+        \item Shirt
+        \item Sneaker
+        \item Bag
+        \item Ankle boot
+    \end{multicols}
+\end{enumerate}
 
 
 \section{Opis porównanych modeli}
@@ -236,37 +281,92 @@ która pośród nich powtarza się najczęściej jest odpowiedzią modelu na zad
 Wykorzystując bibliotekę scikit-learn zaimplementowano model drzewa
 decyzyjnego. W celu znalezienia najlepszych parametrów modelu losowo
 wybierano wartości z pewnego przedziału i sprawdzano, dla których wartości
-model osiąga najlepsze wyniki. Przykładowo dla następujących parametrów:
+model osiąga najlepsze wyniki. Hiperparametry, które były brane pod uwagę to:
 
 \begin{itemize}
-    \item max\_depth: 19
-    \item min\_samples\_split: 5
-    \item min\_samples\_leaf: 7
-    \item criterion: entropy
-    \item splitter: random
+    \item \textbf{max\_depth}: Określa maksymalną 
+    głębokość drzewa decyzyjnego. 
+    Głębokość drzewa to liczba poziomów w 
+    drzewie, które składają się z węzłów 
+    decyzyjnych i liści. Im większa wartość 
+    max\_depth, tym bardziej skomplikowane 
+    drzewo może zostać utworzone, co może 
+    prowadzić do bardziej dopasowanego modelu. 
+    Jednak zbyt duża wartość max\_depth może 
+    prowadzić do przeuczenia (overfittingu) modelu.
+    \item \textbf{max\_features}: Określa maksymalną
+    liczbę cech, które należy wziąć pod uwagę
+    przy każdym podziale węzła. Do wyboru są trzy opcje:
+    \begin{itemize}
+        \item \textbf{None}: max\_features = n\_features
+        \item \textbf{sqrt}: max\_features = $\sqrt{n\_features}$
+        \item \textbf{log2}: max\_features = $\log_2{n\_features}$
+    \end{itemize}
+    \item \textbf{min\_samples\_split}: Określa minimalną 
+    liczbę próbek wymaganą do podziału węzła decyzyjnego. 
+    Jeśli liczba próbek w węźle jest mniejsza niż 
+    min\_samples\_split, to węzeł nie będzie podlegał 
+    dalszemu podziałowi, co prowadzi do utworzenia 
+    liścia. Niskie wartości min\_samples\_split mogą 
+    prowadzić do przeuczenia modelu, podczas gdy 
+    wysokie wartości mogą prowadzić do niedouczenia (underfittingu).
+    \item \textbf{criterion}: Określa funkcję używaną 
+    do pomiaru jakości podziału. Istnieją dwie do wyboru:
+    \begin{itemize}
+        \item \textbf{gini}: Współczynnik Giniego to miara
+        nieczystości węzła, wyrażona jako suma prawdopodobieństw
+        kwadratu prawdopodobieństwa każdej klasy.
+        \begin{equation}
+            G = 1 - \sum_{i=1}^{J}p_i^2
+        \end{equation}
+        gdzie: 
+        \begin{itemize}
+            \item $J$ - liczba klas
+            \item $p_i$ - prawdopodobieństwo wystąpienia klasy $i$
+        \end{itemize}
+        Im niższa wartość współczynnika Giniego, tym lepszy podział.
+        \item \textbf{entropy}: Entropia wyrażona równaniem:
+        \begin{equation}
+            E = -\sum_{i=1}^{J}p_i\log_2{p_i}
+        \end{equation}
+        Podobnie jak w przypadku współczynnika Giniego, im niższa
+        wartość entropii, tym lepszy podział.
+    \end{itemize}
+    \item \textbf{splitter}: Określa strategię 
+    wyboru podziału węzła. Do wylosowania jest
+    jedna z dwóch opcji:
+    \begin{itemize}
+        \item \textbf{best}: Wybiera najlepszy podział.
+        \item \textbf{random}: Wybiera najlepszy losowy podział.
+    \end{itemize}
+
 \end{itemize}
-model osiągał skuteczność na danych testowych wynoszącą $0.873$.
 
 \subsection{Las losowy}
 
 Podobnie jak w przypadku drzewa decyzyjnego, wykorzystując bibliotekę
-scikit-learn zaimplementowano model lasu losowego. 
-
-Dla następujących parametrów:
+scikit-learn zaimplementowano model, losując wartości
+następujących hiperparametrów:
 
 \begin{itemize}
-    \item n\_estimators: 16
-    \item max\_depth: 14
-    \item min\_samples\_split: 5
-    \item min\_samples\_leaf: 1
-    \item criterion: entropy
+    \item \textbf{n\_estimators}: Określa liczbę drzew decyzyjnych
+    w lesie losowym.
+    \item \textbf{max\_depth}: Określa maksymalną głębokość drzewa
+    decyzyjnego.
+    \item \textbf{max\_features}: Określa maksymalną liczbę cech,
+    które należy wziąć pod uwagę przy każdym podziale węzła.
+    \item \textbf{min\_samples\_split}: Określa minimalną liczbę
+    próbek wymaganą do podziału węzła decyzyjnego.
+    \item \textbf{min\_samples\_leaf}: Określa minimalną liczbę
+    próbek wymaganą do utworzenia liścia.
+    \item \textbf{criterion}: Określa funkcję używaną do pomiaru
+    jakości podziału.
 \end{itemize}
-model osiągał skuteczność na danych testowych wynoszącą $0.954$.
 
 \subsection{Własna implementacja Wielowarstwowego perceptronu}
 
 Z wykorzystaniem biblioteki numpy zaimplementowano model sieci neuronowej 
-typu wielowarstwowy perceptron zgodny z powyższą teorią do bazy MNIST-784 zawierającej 70000 obrazów cyfr z przedziału 0-9.
+typu wielowarstwowy perceptron zgodny z powyższą teorią do bazy MNIST-784.
 
 Architektura warstw stworzonej sieci wyglądała następująco:
 
@@ -582,7 +682,7 @@ Trenowanie before fine-tuning ustawiono na 10 epok:
     _________________________________________________________________
 \end{lstlisting}
 
-Trenowanie fine-tuning ustawiono na 100 epok:
+Trenowanie fine-tuning trwało 100 epok:
 
 \begin{figure}[H]
     \centering
@@ -605,8 +705,32 @@ wybrano wielokrotność liczności zbioru etykiet, 20.
 
 
 \section{Wyniki}
-\subsection{Drzewo losowe}
+\subsection{Drzewo decyzyjne}
+Przykładowo dla następujących parametrów dla bazy MNIST-784:
+
+\begin{itemize}
+    \item max\_depth: 19
+    \item max\_features: None
+    \item min\_samples\_split: 5
+    \item min\_samples\_leaf: 4
+    \item criterion: entropy
+    \item splitter: random
+\end{itemize}
+model osiągał skuteczność na danych testowych wynoszącą $0.873$.
 \subsection{Las losowy}
+
+Dla następujących parametrów dla bazy MNIST-784:
+
+\begin{itemize}
+    \item n\_estimators: 16
+    \item max\_depth: 18
+    \item max\_features: sqrt
+    \item min\_samples\_split: 18
+    \item min\_samples\_leaf: 1
+    \item criterion: entropy
+\end{itemize}
+model osiągał skuteczność na danych testowych wynoszącą $0.951$.
+
 \subsection{Własna implementacja Wielowarstwowego perceptronu}
 \subsection{Wielowarstwowy perceptron Tensorflow Keras}
 \subsection{Sieć konwolucyjna Tensorflow Keras}

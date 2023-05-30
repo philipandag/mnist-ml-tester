@@ -16,15 +16,16 @@ class RandomForest(Model):
 
     def fit(self, X_train, y_train, epochs):
         for i in range(epochs):
-            print(f"\rRandom Forest - fitting {i / epochs * 100}%", end="")
+            print(f"\rRandom Forest - fitting {i / epochs * 100:.2f}%", end="")
 
-            n_estimators = random.randint(1, 20)
-            max_depth = random.randint(1, 20)
+            n_estimators = random.randint(2, 20)
+            max_depth = random.randint(10, 20)
+            max_features = random.choice([None, 'sqrt', 'log2'])
             min_samples_split = random.randint(2, 20)
             min_samples_leaf = random.randint(1, 20)
             criterion = random.choice(['gini', 'entropy'])
 
-            model = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth,
+            model = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, max_features=max_features,
                                            min_samples_split=min_samples_split,
                                            min_samples_leaf=min_samples_leaf, criterion=criterion)
 
@@ -50,6 +51,7 @@ class RandomForest(Model):
         print("Random Forest - summary")
         print("n_estimators: " + str(params['n_estimators']))
         print("max_depth: " + str(params['max_depth']))
+        print("max_features: " + str(params['max_features']))
         print("min_samples_split: " + str(params['min_samples_split']))
         print("min_samples_leaf: " + str(params['min_samples_leaf']))
         print("criterion: " + str(params['criterion']))
