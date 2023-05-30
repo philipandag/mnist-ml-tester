@@ -11,7 +11,7 @@ class KNN:
         self.output_size = output_size
         self.K = output_size * 2
 
-    def fit(self, X_train: np.ndarray, y_train: np.ndarray, epochs):
+    def fit(self, X_train: np.ndarray, y_train: np.ndarray, _):
         print("KNN model - fitting started", end="")
         self.X = X_train
         self.y = y_train

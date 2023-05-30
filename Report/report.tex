@@ -5,7 +5,7 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{hyperref}
-\usepackage{amsfonts} 
+\usepackage{amsmath} 
 \usepackage{listings}
 \usepackage{tikz} % pgf package
 \usetikzlibrary{shapes.multipart}
@@ -13,9 +13,11 @@
 \usepackage[a4paper, margin=2.54cm]{geometry}
 
 \lstdefinestyle{siec}{
-    basicstyle=\ttfamily,
+    basicstyle=\ttfamily\footnotesize,
     frame = tb,
     title={Struktura sieci},
+    backgroundcolor=\color{gray!10},
+    float,
 }
 
 \title{Sprawozdanie z projektu ze Sztucznej Inteligencji \\ 
@@ -31,7 +33,6 @@ w problemie MNIST i jego pochodnych}
 
 \section{Opis problemu}
 
-Tutaj będzie bardzo ładny opis problemu.
 
 \section{Opis porównanych modeli}
 
@@ -230,13 +231,42 @@ która pośród nich powtarza się najczęściej jest odpowiedzią modelu na zad
 
 \section{Opis realizacji zadania}
 
-\subsection{Drzewo losowe}
+\subsection{Drzewo decyzyjne}
+
+Wykorzystując bibliotekę scikit-learn zaimplementowano model drzewa
+decyzyjnego. W celu znalezienia najlepszych parametrów modelu losowo
+wybierano wartości z pewnego przedziału i sprawdzano, dla których wartości
+model osiąga najlepsze wyniki. Przykładowo dla następujących parametrów:
+
+\begin{itemize}
+    \item max\_depth: 19
+    \item min\_samples\_split: 5
+    \item min\_samples\_leaf: 7
+    \item criterion: entropy
+    \item splitter: random
+\end{itemize}
+model osiągał skuteczność na danych testowych wynoszącą $0.873$.
+
 \subsection{Las losowy}
+
+Podobnie jak w przypadku drzewa decyzyjnego, wykorzystując bibliotekę
+scikit-learn zaimplementowano model lasu losowego. 
+
+Dla następujących parametrów:
+
+\begin{itemize}
+    \item n\_estimators: 16
+    \item max\_depth: 14
+    \item min\_samples\_split: 5
+    \item min\_samples\_leaf: 1
+    \item criterion: entropy
+\end{itemize}
+model osiągał skuteczność na danych testowych wynoszącą $0.954$.
+
 \subsection{Własna implementacja Wielowarstwowego perceptronu}
 
 Z wykorzystaniem biblioteki numpy zaimplementowano model sieci neuronowej 
 typu wielowarstwowy perceptron zgodny z powyższą teorią do bazy MNIST-784 zawierającej 70000 obrazów cyfr z przedziału 0-9.
-
 
 Architektura warstw stworzonej sieci wyglądała następująco:
 
@@ -310,13 +340,13 @@ Proces uczenia sieci trwał 500 epok, a jego przebieg przedstawiono na poniższy
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{../Saves/KerasMLP/KerasMLP_mnist_784_ep500_acc.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/KerasMLP/KerasMLP_mnist_784_ep500_acc.png}
     \caption{Wykres dokładności w zależności od epoki}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{../Saves/KerasMLP/KerasMLP_mnist_784_ep500_loss.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/KerasMLP/KerasMLP_mnist_784_ep500_loss.png}
     \caption{Wykres wartości funkcji straty w zależności od epoki}
 \end{figure}
 
@@ -360,13 +390,13 @@ Proces uczenia sieci trwał 500 epok, a jego przebieg przedstawiono na poniższy
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{../Saves/KerasCNN/KerasCNN_mnist_784_ep500_acc.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/KerasCNN/KerasCNN_mnist_784_ep500_acc.png}
     \caption{Wykres dokładności w zależności od epoki}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{../Saves/KerasCNN/KerasCNN_mnist_784_ep500_loss.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/KerasCNN/KerasCNN_mnist_784_ep500_loss.png}
     \caption{Wykres wartości funkcji straty w zależności od epoki}
 \end{figure}
 
@@ -452,13 +482,13 @@ Proces uczenia sieci skończył się na 10 epokach, a jego przebieg przedstawion
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{../Saves/KerasCNNv2/KerasCNNv2_mnist_784_ep10_acc.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/KerasCNNv2/KerasCNNv2_mnist_784_ep10_acc.png}
     \caption{Wykres dokładności w zależności od epoki}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{../Saves/KerasCNNv2/KerasCNNv2_mnist_784_ep10_loss.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/KerasCNNv2/KerasCNNv2_mnist_784_ep10_loss.png}
     \caption{Wykres wartości funkcji straty w zależności od epoki}
 \end{figure}
 
@@ -517,13 +547,13 @@ Trenowanie before fine-tuning ustawiono na 10 epok:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{../Saves/Transfer/Transfer_before_tuning_acc.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/Transfer/Transfer_before_tuning_acc.png}
     \caption{Wykres dokładności w zależności od epoki}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{../Saves/Transfer/Transfer_before_tuning_loss.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/Transfer/Transfer_before_tuning_loss.png}
     \caption{Wykres wartości funkcji straty w zależności od epoki}
 \end{figure}
 
@@ -556,13 +586,13 @@ Trenowanie fine-tuning ustawiono na 100 epok:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{../Saves/Transfer/Transfer_during_tuning_acc.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/Transfer/Transfer_during_tuning_acc.png}
     \caption{Wykres dokładności w zależności od epoki}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{../Saves/Transfer/Transfer_during_tuning_loss.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/Transfer/Transfer_during_tuning_loss.png}
     \caption{Wykres wartości funkcji straty w zależności od epoki}
 \end{figure}
 
@@ -578,79 +608,8 @@ wybrano wielokrotność liczności zbioru etykiet, 20.
 \subsection{Drzewo losowe}
 \subsection{Las losowy}
 \subsection{Własna implementacja Wielowarstwowego perceptronu}
-
-Ze zbioru MNIST-784 jako zbiór treningowy obrano 80\% danych a 
-jako zbiór testowy pozostałe 20\%. Wartość accuracy predykcji tego modelu na zbiorze testowym osiągnęła
-pik w pobliżu 0.92 po sześciu epochach treningu.
-
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|l|l|l|l|}
-    \hline
-    Klasa & Precyzja & Zwrot & F1   \\
-    \hline
-    1     & 0.95     & 0.97  & 0.96 \\
-    2     & 0.93     & 0.97  & 0.95 \\
-    3     & 0.90     & 0.91  & 0.92 \\
-    4     & 0.95     & 0.89  & 0.92 \\
-    5     & 0.87     & 0.92  & 0.9  \\
-    6     & 0.92     & 0.96  & 0.94 \\
-    7     & 0.91     & 0.87  & 0.89 \\
-    8     & 0.9      & 0.87  & 0.88 \\
-    9     & 0.9      & 0.92  & 0.9  \\
-    0     & 0.95     & 0.97  & 0.96 \\
-    \hline
-    \end{tabular}
-    \caption{Macierz konfuzji}
-\end{table}
-    
 \subsection{Wielowarstwowy perceptron Tensorflow Keras}
-
-\begin{table}[H]
-Ze zbioru MNIST-784 jako zbiór treningowy obrano 80\% danych a 
-jako zbiór testowy pozostałe 20\%. Wartość accuracy predykcji tego modelu na zbiorze testowym osiągnęła %TODO %
-    \centering
-    \begin{tabular}{|l|l|l|l|l|}
-    \hline
-    Klasa & Precyzja & Zwrot & F1 & Celność \\
-    \hline
-    1     & 0.91     & 0.99  & 0.95 & 0.98    \\
-    2     & 0.92     & 0.97  & 0.94 & 0.99    \\
-    3     & 0.85     & 0.96  & 0.90 & 0.98    \\
-    4     & 0.97     & 0.92  & 0.94 & 0.99    \\
-    5     & 0.98     & 0.85  & 0.91 & 0.98    \\
-    6     & 0.97     & 0.94  & 0.95 & 0.99    \\
-    7     & 0.95     & 0.94  & 0.95 & 0.98    \\
-    8     & 0.97     & 0.9   & 0.93 & 0.98    \\
-    9     & 0.93     & 0.92  & 0.93 & 0.98    \\
-    0     & 0.97     & 0.97  & 0.97 & 0.99   \\
-    \hline
-    \end{tabular}
-    \caption{Macierz konfuzji}
-\end{table}
-
 \subsection{Sieć konwolucyjna Tensorflow Keras}
-
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|l|l|l|l|l|}
-    \hline
-    Klasa & Precyzja & Zwrot & F1 \\
-    \hline
-    1     & 0.99     & 0.998 & 0.994 \\
-    2     & 0.984    & 0.987 & 0.986 \\
-    3     & 0.99     & 0.988 & 0.988 \\
-    4     & 0.992    & 0.99  & 0.99  \\
-    5     & 0.99     & 0.99  & 0.99  \\
-    6     & 0.99     & 0.994 & 0.99  \\
-    7     & 0.993    & 0.985 & 0.988 \\
-    8     & 0.987    & 0.982 & 0.984 \\
-    9     & 0.984    & 0.985 & 0.984 \\
-    0     & 0.992    & 0.995 & 0.993 \\
-    \hline
-    \end{tabular}
-    \caption{Macierz konfuzji}
-\end{table}
 
 Sieć konwolucyjna osiągnęła najwyższą celność na zbiorze testowym równą 0.989 po 
 sześciu epochach nie wykazując dużych zmian przy dalszym 
@@ -660,34 +619,12 @@ wielowarstwowego perceptronu dzięki warstwom konwolucyjnym, które ograniczyły
 potrzebnych warstw gęstych do jednej.
 
 \subsection{Sieć transferowa Tensorflow Keras}
-%TODO Wytrenowac porzadna i przetestowac%
 \subsection{Sieć grafowa}
-Wyniki.
 \subsection{K Nearest Neighbours}
 
 Z powodu długiego czasu predykcji modelu KNN testy wykonano na 10\% zbioru testowego, co odpowiada 1400 danych testowych.
 W tej sytuacji model KNN cechował się accuracy na poziomie $0.96$
 
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|l|l|l|l|l|}
-    \hline
-    Klasa & Precyzja & Zwrot & F1 \\
-    \hline
-    1     & 0.92     & 1.0   & 0.96 \\
-    2     & 0.97     & 0.91  & 0.94 \\
-    3     & 0.98     & 0.95  & 0.96 \\
-    4     & 0.96     & 0.96  & 0.96 \\
-    5     & 0.96     & 0.98  & 0.97 \\
-    6     & 0.97     & 0.99  & 0.98 \\
-    7     & 0.93     & 0.94  & 0.93 \\
-    8     & 0.98     & 0.90  & 0.94 \\
-    9     & 0.96     & 0.95  & 0.96 \\
-    0     & 0.98     & 0.99  & 0.99 \\
-    \hline
-    \end{tabular}
-    \caption{Macierz konfuzji dla modelu KNN}
-\end{table}
 
 Z powodu swojej konstrukcji model KNN sprawował się niemal perfekcyjnie 
 dla zbioru danych testowych, które przypominały w znacznym stopniu 
