@@ -36,8 +36,8 @@ models = [
     KerasCNNv2,
     KerasMLP,
     Transfer,
-    RandomForest,
     DecisionTree,
+    RandomForest,
     GraphModel,
     KNN,
     MyNetwork
@@ -243,13 +243,19 @@ class MainWindow(QMainWindow):
                     self.selected_base_label.setEnabled(True)
 
                     if self.plot_checkbox.isChecked():
+                        shown_labels = []
                         for i in range(10):
-                            plt.subplot(2, 5, i + 1)
+                            axes = plt.subplot(2, 5, i + 1)
                             random = np.random.randint(0, len(self.X))
+                            while self.y[random] in shown_labels:
+                                random = np.random.randint(0, len(self.X))
+                            shown_labels.append(self.y[random])
                             plt.imshow(self.X[random].reshape(self.canvas.resolution, self.canvas.resolution),
                                        cmap='gray',
                                        vmin=0, vmax=255)
                             plt.axis('off')
+                            axes.set_title(f"Klasa: {self.y[random]}")
+
                         plt.suptitle(f"Przykładowe obrazy z bazy {self.selected_base}")
                         plt.show()
 

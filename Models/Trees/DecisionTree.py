@@ -16,14 +16,17 @@ class DecisionTree(Model):
 
     def fit(self, X_train, y_train, epochs):
         for i in range(epochs):
-            print(f"\rDecision Tree - fitting {i / epochs * 100}%", end="")
-            max_depth = random.randint(1, 20)
+            print(f"\rDecision Tree - fitting {i / epochs * 100:.2f}%", end="")
+
+            max_depth = random.randint(10, 20)
+            max_features = random.choice([None, 'sqrt', 'log2'])
             min_samples_split = random.randint(2, 20)
             min_samples_leaf = random.randint(1, 20)
             criterion = random.choice(['gini', 'entropy'])
             splitter = random.choice(['best', 'random'])
 
-            model = DecisionTreeClassifier(max_depth=max_depth, min_samples_split=min_samples_split,
+            model = DecisionTreeClassifier(max_depth=max_depth, max_features=max_features,
+                                           min_samples_split=min_samples_split,
                                            min_samples_leaf=min_samples_leaf, criterion=criterion, splitter=splitter)
 
             model.fit(X_train, y_train)
@@ -47,6 +50,7 @@ class DecisionTree(Model):
         print("-----------------------------------")
         print("Decision Tree - summary")
         print("max_depth: " + str(params['max_depth']))
+        print("max_features: " + str(params['max_features']))
         print("min_samples_split: " + str(params['min_samples_split']))
         print("min_samples_leaf: " + str(params['min_samples_leaf']))
         print("criterion: " + str(params['criterion']))
