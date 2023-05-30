@@ -5,6 +5,9 @@ class Model(object):
 
     # initialize the object
     def __init__(self, input_size: int, output_size: int) -> None:
+        # model: the model object that will be used to train and predict
+        self.model = None
+
         raise NotImplementedError("__init__ not implemented")
 
     # fit the model to the training data
@@ -24,6 +27,10 @@ class Model(object):
     # prints a summary of the model
     def summary(self) -> None:
         raise NotImplementedError("summary not implemented")
+
+    # Optional: save the model to a *.h5 file
+    def save(self, path: str) -> None:
+        raise NotImplementedError("save not implemented")
 
 
 class DummyModel(Model):
@@ -53,3 +60,6 @@ class DummyModel(Model):
 
     def summary(self):
         print("Dummy model - summary")
+
+    def save(self, path: str) -> None:
+        print("Dummy model - save")

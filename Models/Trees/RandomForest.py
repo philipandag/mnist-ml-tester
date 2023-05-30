@@ -15,6 +15,7 @@ class RandomForest(Model):
         for i in range(epochs):
             print(f"\rRandom Forest - fitting {i / epochs * 100}%", end="")
             self.model.fit(X_train, y_train)
+        print(f"\rRandom Forest - fitting 100%")
 
     def predict(self, X_test):
         return to_categorical(self.model.predict(X_test), self.output_size)[0]

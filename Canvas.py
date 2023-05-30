@@ -99,11 +99,12 @@ class Canvas(QWidget):
         self.image = QImage(_image, self.resolution, self.resolution, QImage.Format.Format_Grayscale8)
         self.update()
 
-    def showResult(self, image, result):
+    def showResult(self, image, result, prediction):
         try:
-            plt.imshow(image.reshape(self.resolution, self.resolution), cmap='gray', vmin=0,
-                       vmax=255)
+            plt.close()
+            plt.imshow(image.reshape(self.resolution, self.resolution), cmap='gray', vmin=0, vmax=255)
             plt.title(f"Rozpoznano: {result}")
+            plt.xlabel(f"Prawdopodobieństwo: {max(prediction) * 100:.2f}%")
             plt.show()
         except:
             print("Nie można wyświetlić obrazka")

@@ -14,6 +14,7 @@ class KerasMLP(Model):
         self.output_size = output_size
 
         self.model = keras.models.Sequential()
+        self.fitted = False
 
         if self.input_size == 784:
             self.init_layers_784()
@@ -58,6 +59,9 @@ class KerasMLP(Model):
 
     def summary(self):
         self.model.summary()
+
+    def save(self, path):
+        self.model.save(path)
 
     def prepare_y(self, y):
         y = keras.utils.to_categorical(y, self.output_size)

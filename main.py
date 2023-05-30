@@ -373,11 +373,13 @@ class MainWindow(QMainWindow):
 
                 try:
                     history = self.model.fit(self.X_train, self.y_train, epochs)
+                    self.model.fitted = True
                     if self.plot_checkbox.isChecked() and history is not None:
                         try:
                             self.model.summary()
 
                             history = history.history
+                            epochs = len(history['accuracy'])
 
                             plt.plot(history['accuracy'])
                             plt.plot(history['val_accuracy'])
@@ -385,6 +387,7 @@ class MainWindow(QMainWindow):
                             plt.ylabel('accuracy')
                             plt.xlabel('epoch')
                             plt.legend(['train', 'val'], loc='upper left')
+                            plt.savefig(f"{self.selected_model}_{self.selected_base}_ep{epochs}_acc.png")
                             plt.show()
 
                             plt.figure()
@@ -395,6 +398,7 @@ class MainWindow(QMainWindow):
                             plt.ylabel('loss')
                             plt.xlabel('epoch')
                             plt.legend(['train', 'val'], loc='upper left')
+                            plt.savefig(f"{self.selected_model}_{self.selected_base}_ep{epochs}_loss.png")
                             plt.show()
                         except:
                             self.komunikat("Błąd wyświetlania historii", color="red")
@@ -450,7 +454,7 @@ class MainWindow(QMainWindow):
             self.predicted_value.setText(text)
 
             if self.plot_checkbox.isChecked():
-                self.canvas.showResult(image, value)
+                self.canvas.showResult(image, value, predicted)
             self.komunikat(f"Klasyfikacja zakończona, wynik: {value}", color="green")
 
     def mnistify(self, image):
