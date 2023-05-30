@@ -584,23 +584,33 @@ class MainWindow(QMainWindow):
                 print("\tF1: ", conf.fb(1))
                 print("\tAccuracy: ", conf.accuracy(), end="\n\n")
 
-
+            # Tworzenie macierzy konfuzji
             conf_matrix = sklearn.metrics.confusion_matrix(y_true=self.y_test, y_pred=predicted)
 
+            # Wyświetlanie macierzy konfuzji z paskiem skali
             fig, ax = plt.subplots(figsize=(7.5, 7.5))
-            ax.matshow(conf_matrix, cmap=plt.cm.Blues, alpha=0.3)
+            im = ax.imshow(conf_matrix, cmap=plt.cm.Blues)
+
+            text_colors = ["black", "white"]  # Kolor tekstu w zależności od jasności tła
+            thresh = conf_matrix.max() / 2.  # Próg jasności do zmiany koloru tekstu
+
             for i in range(conf_matrix.shape[0]):
                 for j in range(conf_matrix.shape[1]):
-                    ax.text(x=j, y=i, s=conf_matrix[i, j], va='center', ha='center')
+                    text_color = text_colors[int(conf_matrix[i, j] > thresh)]  # Wybór koloru tekstu
+                    ax.text(x=j, y=i, s=conf_matrix[i, j], va='center', ha='center', color=text_color)
+
+            # Dodawanie paska skali po prawej stronie
+            ax.figure.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+
             plt.xticks(range(self.output_size))
             plt.yticks(range(self.output_size))
             plt.xlabel('Predykcja')
             plt.ylabel('Właściwa klasa')
             plt.title('Macierz konfuzji ' + self.selected_model)
+            plt.savefig(f'{self.selected_model}_{self.selected_base}_conf_mat.png')
             plt.show()
 
             self.komunikat("Wygenerowano macierz konfuzji", color="green")
-
 
     def validation(self):
         if self.warunki_spelnione():
