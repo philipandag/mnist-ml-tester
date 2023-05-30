@@ -381,6 +381,8 @@ class MainWindow(QMainWindow):
                             history = history.history
                             epochs = len(history['accuracy'])
 
+                            plt.close('all')
+                            plt.figure()
                             plt.plot(history['accuracy'])
                             plt.plot(history['val_accuracy'])
                             plt.title(f'model {self.selected_model} accuracy')
@@ -391,7 +393,6 @@ class MainWindow(QMainWindow):
                             plt.show()
 
                             plt.figure()
-
                             plt.plot(history['loss'])
                             plt.plot(history['val_loss'])
                             plt.title(f'model {self.selected_model} loss')

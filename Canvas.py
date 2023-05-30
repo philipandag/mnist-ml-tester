@@ -101,7 +101,7 @@ class Canvas(QWidget):
 
     def showResult(self, image, result, prediction):
         try:
-            plt.close()
+            plt.close('all')
             plt.imshow(image.reshape(self.resolution, self.resolution), cmap='gray', vmin=0, vmax=255)
             plt.title(f"Rozpoznano: {result}")
             plt.xlabel(f"Prawdopodobieństwo: {max(prediction) * 100:.2f}%")
