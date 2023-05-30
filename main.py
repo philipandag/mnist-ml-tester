@@ -1,5 +1,7 @@
 import os
 
+import sklearn.metrics
+
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import sys
 from math import ceil, floor
@@ -16,6 +18,7 @@ from keras.models import load_model
 from matplotlib import pyplot as plt
 from scipy import ndimage
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
 
 from Canvas import Canvas
 from ConfusionMatrix import ConfusionMatrix
@@ -547,16 +550,17 @@ class MainWindow(QMainWindow):
 
             confusion_matrix = ConfusionMatrix(self.output_size)
 
+            predicted = np.zeros(len(self.y_test))
             for i in range(len(self.X_test)):
                 print(f"\rTworzę macierz konfuzji: {i / len(self.X_test) * 100:.3f}%", end="")
                 try:
-                    predicted = np.argmax(self.model.predict([self.X_test[i]]))
+                    predicted[i] = np.argmax(self.model.predict([self.X_test[i]]))
                 except:
                     self.komunikat("Błąd podczas predykcji", color="red")
                     print("Unexpected error:", sys.exc_info())
                     return
                 actual = self.y_test[i]
-                confusion_matrix.add(predicted, actual)
+                confusion_matrix.add(predicted[i], actual)
 
             print("\nConfusion matrix:")
             print("Precision: TP/(TP+FP) Stosunek poprawnie wybranych do wszystkich wybranych tej klasy")
@@ -574,7 +578,23 @@ class MainWindow(QMainWindow):
                 print("\tF1: ", conf.fb(1))
                 print("\tAccuracy: ", conf.accuracy(), end="\n\n")
 
-                self.komunikat("Wygenerowano macierz konfuzji", color="green")
+
+            conf_matrix = sklearn.metrics.confusion_matrix(y_true=self.y_test, y_pred=predicted)
+
+            fig, ax = plt.subplots(figsize=(7.5, 7.5))
+            ax.matshow(conf_matrix, cmap=plt.cm.Blues, alpha=0.3)
+            for i in range(conf_matrix.shape[0]):
+                for j in range(conf_matrix.shape[1]):
+                    ax.text(x=j, y=i, s=conf_matrix[i, j], va='center', ha='center')
+            plt.xticks(range(self.output_size))
+            plt.yticks(range(self.output_size))
+            plt.xlabel('Predykcja')
+            plt.ylabel('Właściwa klasa')
+            plt.title('Macierz konfuzji ' + self.selected_model)
+            plt.show()
+
+            self.komunikat("Wygenerowano macierz konfuzji", color="green")
+
 
     def validation(self):
         if self.warunki_spelnione():
