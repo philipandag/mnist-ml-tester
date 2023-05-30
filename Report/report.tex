@@ -6,10 +6,17 @@
 \usepackage{float}
 \usepackage{hyperref}
 \usepackage{amsfonts} 
+\usepackage{listings}
 \usepackage{tikz} % pgf package
 \usetikzlibrary{shapes.multipart}
 
 \usepackage[a4paper, margin=2.54cm]{geometry}
+
+\lstdefinestyle{siec}{
+    basicstyle=\ttfamily,
+    frame = tb,
+    title={Struktura sieci},
+}
 
 \title{Sprawozdanie z projektu ze Sztucznej Inteligencji \\ 
 Porównanie metod uczenia maszynowego \\ 
@@ -106,14 +113,14 @@ zwana propagacją w przód może być zrealizowana w każdej warstwie poprzez pr
 \end{equation}
 gdzie:
 \begin{itemize}
-    \item $X$ jest macierzą ~$(n, 1)$ parametrów będących danymi 
+    \item $X$ jest macierzą $(n, 1)$ parametrów będących danymi 
     wejściowymi sieci w przypadku warstwy pierwszej (wejściowej), 
     lub wartości zwróconych przez poprzednią warstwę w sieci
-    \item $W$ jest macierzą ~$(m, n)$ współczynników funkcji opisujących perceptrony, 
+    \item $W$ jest macierzą $(m, n)$ współczynników funkcji opisujących perceptrony, 
     w której każdy wiersz opisuje jeden perceptron, 
     a każda kolumna odpowiada wartości współczynnika tego perceptronu dla danego parametru 
     z wektora wejściowego warstwy
-    \item $S$ jest macierzą wynikową warstwy ~$(1, m)$ zawierającą wartości zwrócone przez 
+    \item $S$ jest macierzą wynikową warstwy $(1, m)$ zawierającą wartości zwrócone przez 
     funkcje opisujące perceptrony tworzące tę warstwę
 \end{itemize}
 
@@ -128,8 +135,8 @@ i może łatwo zadecydować o użyteczności sieci.
 \begin{itemize}
     \item $f(\cdot)$ jest wybraną funkcją aktywacji, która powinna być 
     różniczkowalna by możliwe było użycie jej w propagacji wstecz
-    \item $S$ jest macierzą wynikową ~$(1, m)$ warstwy
-    \item $Z$ jest macierzą ~$(1, m)$, w której każdy element jest intensywnością pobudzenia danego neuronu
+    \item $S$ jest macierzą wynikową $(1, m)$ warstwy
+    \item $Z$ jest macierzą $(1, m)$, w której każdy element jest intensywnością pobudzenia danego neuronu
 \end{itemize}
 
 Aby korzystać z sieci neuronowych do opisywania skomplikowanych modeli 
@@ -149,7 +156,7 @@ opisać macierzowo dla całej warstwy neuronów jako:
 \end{equation}
 gdzie:
 \begin{itemize}
-    \item $W_0$ jest macierzą ~$(m, n)$ współczynników perceptronów warstwy, a $W_1$ jest jej nową postacią
+    \item $W_0$ jest macierzą $(m, n)$ współczynników perceptronów warstwy, a $W_1$ jest jej nową postacią
     \item $\eta$ jest współczynnikiem $learning rate$ kontrolującym tempo uczenia
     \item $\frac{\partial E}{\partial Z}$ jest pochodną z sygnału błędu po 
     macierzy wynikowej $S$ danej warstwy. Sygnał błędu w przypadku ostatniej warstwy (wyjściowej) jest
@@ -276,59 +283,197 @@ analogicznej do tej zaimplementowanej ręcznie. Zastosowano kilka zmian w postac
 \begin{itemize}
 \item Do propagacji wstecz zamiast stochastycznego schodzenia po gradiencie użyto algorytmu 
 Adam będącego jego udoskonaleniem uwzględniającym momenty gradientu.
-\item Zastosowano mechanizm batchingu, ~$batch-size = 128$
+\item Zastosowano mechanizm batchingu, $batch_{size} = 128$
 \end{itemize}
+
+\begin{lstlisting}[style=siec]
+    Model: "sequential"
+    _________________________________________________________________
+    Layer (type)                Output Shape              Param #
+    =================================================================
+    dense (Dense)               (None, 512)               401920
+
+    dense_1 (Dense)             (None, 256)               131328
+
+    dense_2 (Dense)             (None, 128)               32896
+
+    dense_3 (Dense)             (None, 10)                1290
+                                                                    
+    =================================================================
+    Total params: 567,434
+    Trainable params: 567,434
+    Non-trainable params: 0
+    _________________________________________________________________
+\end{lstlisting}
+
+Proces uczenia sieci trwał 500 epok, a jego przebieg przedstawiono na poniższych wykresach:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../Saves/KerasMLP/KerasMLP_mnist_784_ep500_acc.png}
+    \caption{Wykres dokładności w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../Saves/KerasMLP/KerasMLP_mnist_784_ep500_loss.png}
+    \caption{Wykres wartości funkcji straty w zależności od epoki}
+\end{figure}
+
 \subsection{Sieć konwolucyjna Tensorflow Keras}
+
+\subsubsection{Wersja podstawowa}
 Sieć konwolucyjną zaimplementowano przy użyciu pakietu tensorflow keras. Wszystkie hiperparametry pozostały 
 identyczne z wielowarstwowym perceptronem zaimplementowanym z użyciem tych samych bibliotek. 
 Struktura sieci wyglądała następująco:
 
 % $28x28-> 32x(3,3), relu -> maxPooling(2,2) 64x(3,3), relu -> maxPooling(2,2)->Flatten->Dropout(0.5) -> 10, softmax$
 
-\begin{center}
-    \begin{tikzpicture}[every node/.style={minimum height=0.8cm, minimum width=1cm}]
-        \matrix[draw=none, column sep=0.5cm, row sep=0.6cm]{
-            \node[rectangle, draw] (input) {$28 \times 28$}; \\
-            \node[rectangle, draw] (hidden1) {$32 \times (3, 3)$}; \\
-            \node[rectangle, draw] (hidden2) {$64 \times (3, 3)$}; \\
-            \node[rectangle, draw] (hidden3) {maxPooling(2,2)}; \\
-            \node[rectangle, draw] (hidden4) {Flatten}; \\
-            \node[rectangle, draw] (hidden5) {Dropout(0.5)}; \\
-            \node[rectangle, draw] (output) {10}; \\
-        };
+\begin{lstlisting}[style=siec]
+    Model: "sequential"
+    _________________________________________________________________
+    Layer (type)                Output Shape              Param #   
+    =================================================================
+    conv2d (Conv2D)             (None, 28, 28, 32)        320       
+                                                                    
+    max_pooling2d (MaxPooling2D)  (None, 14, 14, 32)       0                                                                      
+                                                                    
+    conv2d_1 (Conv2D)           (None, 14, 14, 64)        18496     
+                                                                    
+    max_pooling2d_1 (MaxPooling  (None, 7, 7, 64)         0         
+    2D)                                                             
+                                                                    
+    flatten (Flatten)           (None, 3136)              0         
+                                                                    
+    dropout (Dropout)           (None, 3136)              0         
+                                                                    
+    dense (Dense)               (None, 10)                31370     
+                                                                    
+    =================================================================
+    Total params: 50,186
+    Trainable params: 50,186
+    Non-trainable params: 0
+    _________________________________________________________________
+\end{lstlisting}
 
-        % Opisy kwadratów
-        \node[above=0.3cm] at (input.north) {\textbf{Wejście}};
-        \node[below=0.3cm] at (output.south) {\textbf{Wyjście}};
+Proces uczenia sieci trwał 500 epok, a jego przebieg przedstawiono na poniższych wykresach:
 
-        % Opisy etapów
-        \node[below=0.3cm, right=0.0cm] at (input.south) {\tiny \textbf{relu}};
-        \node[below=0.3cm, right=0.0cm] at (hidden1.south) {\tiny \textbf{maxPooling(2,2)}};
-        \node[below=0.3cm, right=0.0cm] at (hidden2.south) {\tiny \textbf{relu}};
-        \node[below=0.3cm, right=0.0cm] at (hidden5.south) {\tiny \textbf{softmax}};
-        
-        % Strzałki między węzłami
-        \draw[->] (input) -- (hidden1);
-        \draw[->] (hidden1) -- (hidden2);
-        \draw[->] (hidden2) -- (hidden3);
-        \draw[->] (hidden3) -- (hidden4);
-        \draw[->] (hidden4) -- (hidden5);
-        \draw[->] (hidden5) -- (output);
-    \end{tikzpicture}
-\end{center}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../Saves/KerasCNN/KerasCNN_mnist_784_ep500_acc.png}
+    \caption{Wykres dokładności w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../Saves/KerasCNN/KerasCNN_mnist_784_ep500_loss.png}
+    \caption{Wykres wartości funkcji straty w zależności od epoki}
+\end{figure}
+
+\subsubsection{Wersja rozszerzona}
+
+Dodatkowo dodano więcej warstw konwolucyjnych oraz warstw gęstych.
+
+\begin{lstlisting}[style=siec]
+    Model: "sequential"
+    _________________________________________________________________
+     Layer (type)                Output Shape              Param #   
+    =================================================================
+     conv2d (Conv2D)             (None, 24, 24, 32)        832       
+                                                                     
+     conv2d_1 (Conv2D)           (None, 20, 20, 32)        25600     
+                                                                     
+     batch_normalization (BatchN  (None, 20, 20, 32)       128       
+     ormalization)                                                   
+                                                                     
+     activation (Activation)     (None, 20, 20, 32)        0         
+                                                                     
+     max_pooling2d (MaxPooling2D  (None, 10, 10, 32)       0         
+     )                                                               
+                                                                     
+     dropout (Dropout)           (None, 10, 10, 32)        0         
+                                                                     
+     conv2d_2 (Conv2D)           (None, 8, 8, 64)          18496     
+                                                                     
+     conv2d_3 (Conv2D)           (None, 6, 6, 64)          36864     
+                                                                     
+     batch_normalization_1 (Batc  (None, 6, 6, 64)         256       
+     hNormalization)                                                 
+                                                                     
+     activation_1 (Activation)   (None, 6, 6, 64)          0         
+                                                                     
+     max_pooling2d_1 (MaxPooling  (None, 3, 3, 64)         0         
+     2D)                                                             
+                                                                     
+     dropout_1 (Dropout)         (None, 3, 3, 64)          0         
+                                                                     
+     flatten (Flatten)           (None, 576)               0         
+                                                                     
+     dense (Dense)               (None, 256)               147456    
+                                                                     
+     batch_normalization_2 (Batc  (None, 256)              1024      
+     hNormalization)                                                 
+                                                                     
+     activation_2 (Activation)   (None, 256)               0         
+                                                                     
+     dense_1 (Dense)             (None, 128)               32768     
+                                                                     
+     batch_normalization_3 (Batc  (None, 128)              512       
+     hNormalization)                                                 
+                                                                     
+     activation_3 (Activation)   (None, 128)               0         
+                                                                     
+     dense_2 (Dense)             (None, 84)                10752     
+                                                                     
+     batch_normalization_4 (Batc  (None, 84)               336       
+     hNormalization)                                                 
+                                                                     
+     activation_4 (Activation)   (None, 84)                0         
+                                                                     
+     dropout_2 (Dropout)         (None, 84)                0         
+                                                                     
+     dense_3 (Dense)             (None, 10)                850       
+                                                                     
+    =================================================================
+    Total params: 275,874
+    Trainable params: 274,746
+    Non-trainable params: 1,128
+    _________________________________________________________________
+\end{lstlisting}
+
+Natomiast w celu poprawy wydajności trenowania dodano następujące callbacki:
+
+\begin{itemize}
+    \item EarlyStopping - zatrzymujący trenowanie w przypadku braku poprawy dokładności
+    \item ReduceLROnPlateau - zmniejszający współczynnik uczenia wraz z trenowaniem
+\end{itemize}
+
+Proces uczenia sieci skończył się na 10 epokach, a jego przebieg przedstawiono na poniższych wykresach:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../Saves/KerasCNNv2/KerasCNNv2_mnist_784_ep10_acc.png}
+    \caption{Wykres dokładności w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../Saves/KerasCNNv2/KerasCNNv2_mnist_784_ep10_loss.png}
+    \caption{Wykres wartości funkcji straty w zależności od epoki}
+\end{figure}
 
 \subsection{Sieć transferowa Tensorflow Keras}
 
 Sieć konwolucyjną transferową zbudowano z użyciem biblioteki tensorflow 
-keras oraz modelu transferowego ResNet50 klasyfikującego obrazy w 
-przestrzeni RGB o rozmiarze przynajmniej $75\times75$px.
+keras oraz modelu transferowego MobileNet klasyfikującego obrazy w 
+przestrzeni RGB o rozmiarze przynajmniej $32\times32$px.
 
-Z powodu rozbieżności rozmiarów obrazów, które wymaga sieć ResNet50 
+Z powodu rozbieżności rozmiarów obrazów, które wymaga sieć MobileNet 
 i obrazów należących do baz danych MNIST i podobnych konieczny był 
 preprocessing danych wejściowych. Do zastosowanych metod należały:
 
 \begin{itemize}
-\item skalowanie obrazów $28\times28$px do rozmiaru $75\times75$px
+\item skalowanie obrazów $28\times28$px do rozmiaru $32\times32$px
 \item zklonowanie skali szarości na kanały RGB 
 \end{itemize}
 
@@ -342,6 +487,84 @@ generowanie nowych danych treningowych w oparciu o dane z bazy z wykorzystaniem:
 \item obracania obrazów
 \item przesuwania obrazów w osiach X i Y
 \end{itemize}
+
+\subsubsection{Przed fine-tuningiem}
+
+\begin{lstlisting}[style=siec]
+    Model: "sequential"
+    _________________________________________________________________
+     Layer (type)                Output Shape              Param #
+    =================================================================
+     mobilenet_1.00_224 (Functio  (None, 1, 1, 1024)       3228864
+     nal)
+
+     flatten (Flatten)           (None, 1024)              0
+
+     dropout (Dropout)           (None, 1024)              0
+
+     dense (Dense)               (None, 512)               524800
+
+     dense_1 (Dense)             (None, 10)                5130
+
+    =================================================================
+    Total params: 3,758,794
+    Trainable params: 529,930
+    Non-trainable params: 3,228,864
+    _________________________________________________________________
+\end{lstlisting}
+
+Trenowanie before fine-tuning ustawiono na 10 epok:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../Saves/Transfer/Transfer_before_tuning_acc.png}
+    \caption{Wykres dokładności w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../Saves/Transfer/Transfer_before_tuning_loss.png}
+    \caption{Wykres wartości funkcji straty w zależności od epoki}
+\end{figure}
+
+\subsubsection{Fine-tuning}
+
+\begin{lstlisting}[style=siec]
+    Model: "sequential"
+    _________________________________________________________________
+     Layer (type)                Output Shape              Param #
+    =================================================================
+     mobilenet_1.00_224 (Functio  (None, 1, 1, 1024)       3228864
+     nal)
+
+     flatten (Flatten)           (None, 1024)              0
+
+     dropout (Dropout)           (None, 1024)              0
+
+     dense (Dense)               (None, 512)               524800
+
+     dense_1 (Dense)             (None, 10)                5130
+
+    =================================================================
+    Total params: 3,758,794
+    Trainable params: 3,736,906
+    Non-trainable params: 21,888
+    _________________________________________________________________
+\end{lstlisting}
+
+Trenowanie fine-tuning ustawiono na 100 epok:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../Saves/Transfer/Transfer_during_tuning_acc.png}
+    \caption{Wykres dokładności w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../Saves/Transfer/Transfer_during_tuning_loss.png}
+    \caption{Wykres wartości funkcji straty w zależności od epoki}
+\end{figure}
 
 
 \subsection{Sieć grafowa}
@@ -436,7 +659,7 @@ perceptronu. Dodatkowo proces uczenia tej sieci przebiegał o wiele szybciej ni�
 wielowarstwowego perceptronu dzięki warstwom konwolucyjnym, które ograniczyły ilość 
 potrzebnych warstw gęstych do jednej.
 
-\subsection{Konwolucyjna sieć transferowa Tensorflow Keras}
+\subsection{Sieć transferowa Tensorflow Keras}
 %TODO Wytrenowac porzadna i przetestowac%
 \subsection{Sieć grafowa}
 Wyniki.

@@ -374,9 +374,9 @@ class MainWindow(QMainWindow):
                 try:
                     history = self.model.fit(self.X_train, self.y_train, epochs)
                     self.model.fitted = True
+                    self.model.summary()
                     if self.plot_checkbox.isChecked() and history is not None:
                         try:
-                            self.model.summary()
 
                             history = history.history
                             epochs = len(history['accuracy'])
