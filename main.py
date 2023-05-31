@@ -30,7 +30,6 @@ from Models.Networks.Transfer import Transfer
 from Models.OtherModels.KNN import KNN
 from Models.Trees.DecisionTree import DecisionTree
 from Models.Trees.RandomForest import RandomForest
-from Models.Graph.graphModel import GraphModel
 from downloadDatabase import downloadBase
 
 # Tutaj wstaw swoje modele
@@ -41,7 +40,6 @@ models = [
     Transfer,
     DecisionTree,
     RandomForest,
-    GraphModel,
     KNN,
     MyNetwork
 ]
