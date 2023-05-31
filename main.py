@@ -1,5 +1,6 @@
 import os
 
+import pandas as pd
 import sklearn.metrics
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -129,10 +130,10 @@ class MainWindow(QMainWindow):
         # Add to the menu bar dummy buttons with
         # text about selected base and model
 
-        self.selected_model_label = QAction(f"Wybrany model: {self.selected_model}", self)
+        self.selected_model_label = QAction(f"Model: {self.selected_model}", self)
         self.selected_model_label.setEnabled(False)
 
-        self.selected_base_label = QAction(f"Wybrana baza: {self.selected_base}", self)
+        self.selected_base_label = QAction(f"Baza: {self.selected_base}", self)
         self.selected_base_label.setEnabled(False)
 
         menubar.addAction(self.selected_model_label)
@@ -240,7 +241,7 @@ class MainWindow(QMainWindow):
                     self.canvas.set_resolution(int(np.sqrt(self.X.shape[1])))
                     self.canvas.clear()
 
-                    self.selected_base_label.setText(f"Wybrana baza: {self.selected_base}")
+                    self.selected_base_label.setText(f"Baza: {self.selected_base}")
                     self.selected_base_label.setEnabled(True)
 
                     if self.plot_checkbox.isChecked():
@@ -306,7 +307,7 @@ class MainWindow(QMainWindow):
 
             if self.model is not None:
                 self.selected_model = model_type
-                self.selected_model_label.setText(f"Wybrany model: {self.selected_model}")
+                self.selected_model_label.setText(f"Model: {self.selected_model}")
                 self.selected_model_label.setEnabled(True)
                 self.komunikat(f"Wybrano model {self.selected_model}", color="green")
                 self.fitted = False
@@ -354,7 +355,7 @@ class MainWindow(QMainWindow):
                 print("Unexpected error:", sys.exc_info())
                 return
             self.selected_model = file_name.split("/")[-1].split("_")[0]
-            self.selected_model_label.setText(f"Wybrany model: {self.selected_model}")
+            self.selected_model_label.setText(f"Model: {self.selected_model}")
             self.selected_model_label.setEnabled(True)
             self.fitted = True
             print(f"Wczytano model {self.selected_model}")
@@ -387,6 +388,10 @@ class MainWindow(QMainWindow):
 
                             history = history.history
                             epochs = len(history['accuracy'])
+
+                            # save history to csv
+                            df = pd.DataFrame(history)
+                            df.to_csv(f"{self.selected_model}_{self.selected_base}_ep{epochs}_history.csv", index=False)
 
                             plt.close('all')
                             plt.figure()
@@ -567,12 +572,11 @@ class MainWindow(QMainWindow):
                 confusion_matrix.add(predicted[i], actual)
 
             print("\nConfusion matrix:")
-            print("Precision: TP/(TP+FP) Stosunek poprawnie wybranych do wszystkich wybranych tej klasy")
-            print("Recall:  TP/(TP+FN) Stosunek poprawnie wybranych do ilości wystąpień tej klasy")
-            print("F1: 2*Precision*Recall/(Precision+Recall) Wskaźnik wiążący precision i recall")
-            print("Accuracy:  (TP+TN)/(TP+FP+FN+TN) Stosunek poprawnie wybranych "
-                  "lub poprawnie odrzuconych do liczby danych")
-            print()
+            print("Precision:\tTP/(TP+FP) Stosunek poprawnie wybranych do wszystkich wybranych tej klasy")
+            print("Recall:\tTP/(TP+FN) Stosunek poprawnie wybranych do ilości wystąpień tej klasy")
+            print("F1:\t2*Precision*Recall/(Precision+Recall) Wskaźnik wiążący precision i recall")
+            print("Accuracy:\t(TP+TN)/(TP+FP+FN+TN) Stosunek poprawnie wybranych "
+                  "lub poprawnie odrzuconych do liczby danych\n")
 
             for i in range(len(confusion_matrix.matrix)):
                 conf = confusion_matrix.matrix[i]

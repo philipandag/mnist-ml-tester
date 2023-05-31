@@ -63,7 +63,7 @@ class KerasCNNv2(Model):
         )
 
         slow_down_learning_rate = ReduceLROnPlateau(monitor="loss", factor=0.2, patience=1)
-        end_training_early = EarlyStopping(monitor="accuracy", baseline=0.995, patience=10)
+        end_training_early = EarlyStopping(monitor="accuracy", min_delta=0.001, patience=10)
 
         return self.model.fit(train_generator.x, train_generator.y, epochs=self.epochs, batch_size=self.batch_size
                               , callbacks=[slow_down_learning_rate, end_training_early], validation_split=0.2)
