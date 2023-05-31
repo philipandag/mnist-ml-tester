@@ -573,8 +573,8 @@ class MainWindow(QMainWindow):
 
             print("\nConfusion matrix:")
             print("Precision:\tTP/(TP+FP) Stosunek poprawnie wybranych do wszystkich wybranych tej klasy")
-            print("Recall:\tTP/(TP+FN) Stosunek poprawnie wybranych do ilości wystąpień tej klasy")
-            print("F1:\t2*Precision*Recall/(Precision+Recall) Wskaźnik wiążący precision i recall")
+            print("Recall:\t\tTP/(TP+FN) Stosunek poprawnie wybranych do ilości wystąpień tej klasy")
+            print("F1:\t\t2*Precision*Recall/(Precision+Recall) Wskaźnik wiążący precision i recall")
             print("Accuracy:\t(TP+TN)/(TP+FP+FN+TN) Stosunek poprawnie wybranych "
                   "lub poprawnie odrzuconych do liczby danych\n")
 
@@ -604,6 +604,7 @@ class MainWindow(QMainWindow):
             # Dodawanie paska skali po prawej stronie
             ax.figure.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
 
+            plt.close('all')
             plt.xticks(range(self.output_size))
             plt.yticks(range(self.output_size))
             plt.xlabel('Predykcja')
