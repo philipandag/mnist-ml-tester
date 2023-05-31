@@ -589,6 +589,8 @@ class MainWindow(QMainWindow):
             # Tworzenie macierzy konfuzji
             conf_matrix = sklearn.metrics.confusion_matrix(y_true=self.y_test, y_pred=predicted)
 
+            plt.close('all')
+
             # Wyświetlanie macierzy konfuzji z paskiem skali
             fig, ax = plt.subplots(figsize=(7.5, 7.5))
             im = ax.imshow(conf_matrix, cmap=plt.cm.Blues)
@@ -604,7 +606,6 @@ class MainWindow(QMainWindow):
             # Dodawanie paska skali po prawej stronie
             ax.figure.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
 
-            plt.close('all')
             plt.xticks(range(self.output_size))
             plt.yticks(range(self.output_size))
             plt.xlabel('Predykcja')
