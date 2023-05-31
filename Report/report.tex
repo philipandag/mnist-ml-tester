@@ -435,21 +435,6 @@ Adam będącego jego udoskonaleniem uwzględniającym momenty gradientu.
     Non-trainable params: 0
     _________________________________________________________________
 \end{lstlisting}
-
-Proces uczenia sieci trwał 500 epok, a jego przebieg przedstawiono na poniższych wykresach:
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{../Saves/KerasMLP/mnist-784/KerasMLP_mnist_784_ep500_acc.png}
-    \caption{Wykres dokładności w zależności od epoki}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{../Saves/KerasMLP/mnist-784/KerasMLP_mnist_784_ep500_loss.png}
-    \caption{Wykres wartości funkcji straty w zależności od epoki}
-\end{figure}
-
 \subsection{Sieć konwolucyjna Tensorflow Keras}
 
 \subsubsection{Wersja podstawowa}
@@ -485,20 +470,6 @@ Struktura sieci wyglądała następująco:
     Non-trainable params: 0
     _________________________________________________________________
 \end{lstlisting}
-
-Proces uczenia sieci trwał 500 epok, a jego przebieg przedstawiono na poniższych wykresach:
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{../Saves/KerasCNN/mnist-784/KerasCNN_mnist_784_ep500_acc.png}
-    \caption{Wykres dokładności w zależności od epoki}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{../Saves/KerasCNN/mnist-784/KerasCNN_mnist_784_ep500_loss.png}
-    \caption{Wykres wartości funkcji straty w zależności od epoki}
-\end{figure}
 
 \subsubsection{Wersja rozszerzona}
 
@@ -578,19 +549,7 @@ Natomiast w celu poprawy wydajności trenowania dodano następujące callbacki:
     \item ReduceLROnPlateau - zmniejszający współczynnik uczenia wraz z trenowaniem
 \end{itemize}
 
-Proces uczenia sieci skończył się na 32 epokach, a jego przebieg przedstawiono na poniższych wykresach:
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{../Saves/KerasCNNv2/mnist-784/KerasCNNv2_mnist_784_ep32_acc.png}
-    \caption{Wykres dokładności w zależności od epoki}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{../Saves/KerasCNNv2/mnist-784/KerasCNNv2_mnist_784_ep32_loss.png}
-    \caption{Wykres wartości funkcji straty w zależności od epoki}
-\end{figure}
+Dodatkowo w celu poprawy generalizacji modelu wprowadzono data augmentation w postaci obracania obrazów z bazy MNIST-784 o $\pm10^\circ$.
 
 \subsection{Sieć transferowa Tensorflow Keras}
 
@@ -643,20 +602,6 @@ generowanie nowych danych treningowych w oparciu o dane z bazy z wykorzystaniem:
     _________________________________________________________________
 \end{lstlisting}
 
-Trenowanie before fine-tuning ustawiono na 10 epok:
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{../Saves/Transfer/mnist-784/Transfer_mnist_784_ep10_acc.png}
-    \caption{Wykres dokładności w zależności od epoki}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{../Saves/Transfer/mnist-784/Transfer_mnist_784_ep10_loss.png}
-    \caption{Wykres wartości funkcji straty w zależności od epoki}
-\end{figure}
-
 \subsubsection{Fine-tuning}
 
 \begin{lstlisting}[style=siec]
@@ -681,20 +626,6 @@ Trenowanie before fine-tuning ustawiono na 10 epok:
     Non-trainable params: 21,888
     _________________________________________________________________
 \end{lstlisting}
-
-Trenowanie fine-tuning trwało 100 epok:
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{../Saves/Transfer/mnist-784/Transfer_mnist_784_ep100_acc.png}
-    \caption{Wykres dokładności w zależności od epoki}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{../Saves/Transfer/mnist-784/Transfer_mnist_784_ep100_loss.png}
-    \caption{Wykres wartości funkcji straty w zależności od epoki}
-\end{figure}
 
 
 \subsection{Sieć grafowa}
@@ -733,16 +664,208 @@ model osiągał skuteczność na danych testowych wynoszącą $0.951$.
 
 \subsection{Własna implementacja Wielowarstwowego perceptronu}
 \subsection{Wielowarstwowy perceptron Tensorflow Keras}
-\subsection{Sieć konwolucyjna Tensorflow Keras}
 
-Sieć konwolucyjna osiągnęła najwyższą celność na zbiorze testowym równą 0.989 po 
-sześciu epochach nie wykazując dużych zmian przy dalszym 
-trenowaniu. Jest to wynik dużo lepszy niż w przypadku zwykłego wielowarstwowego 
-perceptronu. Dodatkowo proces uczenia tej sieci przebiegał o wiele szybciej niż 
-wielowarstwowego perceptronu dzięki warstwom konwolucyjnym, które ograniczyły ilość 
-potrzebnych warstw gęstych do jednej.
+Sieć wyuczono dla dwóch zbiorów danych: MNIST-784 i Fashion-MNIST. W obydwu przypadkach model był trenowany przez 500 epoch'ów. Proces i rezultaty widoczne są na poniższych wykresach:
+
+\subsubsection{MNIST-784}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/KerasMLP/mnist-784/KerasMLP_mnist_784_ep500_acc.png}
+    \caption{Wykres dokładności modelu Keras MLP dla bazy MNIST-784 w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/KerasMLP/mnist-784/KerasMLP_mnist_784_ep500_loss.png}
+    \caption{Wykres wartości funkcji straty modelu Keras MLP dla bazy MNIST-784 w zależności od epoki} 
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{../Saves/KerasMLP/mnist-784/KerasMLP_mnist_784_conf_mat.png}
+	\caption{Macierz konfuzji modelu Keras MLP dla bazy MNIST-784}
+\end{figure}
+Dla bazy MNIST-784 model Keras MLP zdołał uzyskać accuracy w wysokości $0.975$
+
+\subsubsection{Fashion-MNIST}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/KerasMLP/fashion-mnist/KerasMLP_fashion-mnist_ep500_acc.png}
+    \caption{Wykres dokładności modelu Keras MLP dla bazy Fashion-MNIST w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/KerasMLP/fashion-mnist/KerasMLP_fashion-mnist_ep500_loss.png}
+    \caption{Wykres wartości funkcji straty modelu Keras MLP dla bazy Fashion-MNIST w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{../Saves/KerasMLP/fashion-mnist/KerasMLP_fashion-mnist_conf_mat.png}
+	\caption{Macierz konfuzji modelu Keras MLP dla bazy Fashion-MNIST}
+\end{figure}
+Dla bazy Fashion-MNIST model Keras MLP zdołał uzyskać accuracy w wysokości $0.88$
+
+
+
+\subsection{Sieć konwolucyjna Tensorflow Keras, wersja podstawowa}
+Sieć wyuczono dla dwóch zbiorów danych: MNIST-784 i Fashion-MNIST. W obydwu przypadkach model był trenowany przez 500 epoch'ów. Proces i rezultaty widoczne są na poniższych wykresach:
+
+\subsubsection{MNIST-784}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/KerasCNN/mnist-784/KerasCNN_mnist_784_ep500_acc.png}
+    \caption{Wykres dokładności modelu Keras CNN dla bazy MNIST-784 w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/KerasCNN/mnist-784/KerasCNN_mnist_784_ep500_loss.png}
+    \caption{Wykres wartości funkcji straty modelu Keras CNN dla bazy MNIST-784 w zależności od epoki} 
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{../Saves/KerasCNN/mnist-784/KerasCNN_mnist_784_conf_mat.png}
+	\caption{Macierz konfuzji modelu Keras CNN dla bazy MNIST-784}
+\end{figure}
+Dla bazy MNIST-784 model Keras CNN zdołał uzyskać accuracy w wysokości $0.9899$
+
+\subsubsection{Fashion-MNIST}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/KerasCNN/fashion-mnist/KerasCNN_fashion-mnist_ep500_acc.png}
+    \caption{Wykres dokładności modelu Keras CNN dla bazy Fashion-MNIST w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/KerasCNN/fashion-mnist/KerasCNN_fashion-mnist_ep500_loss.png}
+    \caption{Wykres wartości funkcji straty modelu Keras CNN dla bazy Fashion-MNIST w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{../Saves/KerasCNN/fashion-mnist/KerasCNN_fashion-mnist_conf_mat.png}
+	\caption{Macierz konfuzji modelu Keras CNN dla bazy Fashion-MNIST}
+\end{figure}
+Dla bazy Fashion-MNIST model Keras CNN zdołał uzyskać accuracy w wysokości $0.924$
+
+
+\subsection{Sieć konwolucyjna Tensorflow Keras, wersja rozszerzona}
+Sieć wyuczono dla dwóch zbiorów danych: MNIST-784 i Fashion-MNIST. Dzięki zastosowaniu callbacków proces trenowania w przypadku bazy MNIST-784 trwał 32 epochy a w przypadku Fashion-MNIST 47 epochów. Proces i rezultaty widoczne są na poniższych wykresach:
+
+\subsubsection{MNIST-784}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/KerasCNNV2/mnist-784/KerasCNNV2_mnist_784_ep32_acc.png}
+    \caption{Wykres dokładności modelu Keras CNN dla bazy MNIST-784 w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/KerasCNNV2/mnist-784/KerasCNNV2_mnist_784_ep32_loss.png}
+    \caption{Wykres wartości funkcji straty modelu Keras CNNv2 dla bazy MNIST-784 w zależności od epoki} 
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{../Saves/KerasCNNV2/mnist-784/KerasCNNV2_mnist_784_conf_mat.png}
+	\caption{Macierz konfuzji modelu Keras CNNv2 dla bazy MNIST-784}
+\end{figure}
+Dla bazy MNIST-784 model Keras CNNv2 zdołał uzyskać accuracy w wysokości $0.9924$
+
+\subsubsection{Fashion-MNIST}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/KerasCNNV2/fashion-mnist/KerasCNNV2_fashion-mnist_ep47_acc.png}
+    \caption{Wykres dokładności modelu Keras CNN dla bazy Fashion-MNIST w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/KerasCNNV2/fashion-mnist/KerasCNNV2_fashion-mnist_ep47_loss.png}
+    \caption{Wykres wartości funkcji straty modelu Keras CNNv2 dla bazy Fashion-MNIST w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{../Saves/KerasCNNV2/fashion-mnist/KerasCNNV2_fashion-mnist_conf_mat.png}
+	\caption{Macierz konfuzji modelu Keras CNNv2 dla bazy Fashion-MNIST}
+\end{figure}
+Dla bazy Fashion-MNIST model Keras CNNv2 zdołał uzyskać accuracy w wysokości $0.912$
+
 
 \subsection{Sieć transferowa Tensorflow Keras}
+Sieć wyuczono dla dwóch zbiorów danych: MNIST-784 i Fashion-MNIST. W obydwu przypadkachmodel trenowany był najpierw przez 10 epochów, następnie przez 100 epochów z fine tuningiem. Proces i rezultaty widoczne są na poniższych wykresach:
+
+\subsubsection{MNIST-784}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/Transfer/mnist-784/Transfer_mnist_784_ep10_acc.png}
+    \caption{Wykres dokładności modelu Transferowego dla bazy MNIST-784 w zależności od epoki w trenowaniu wstępnym}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/Transfer/mnist-784/Transfer_mnist_784_ep10_loss.png}
+    \caption{Wykres wartości funkcji straty modelu Transferowego dla bazy MNIST-784 w zależności od epoki w trenowaniu wstępnym} 
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/Transfer/mnist-784/Transfer_mnist_784_ep100_acc.png}
+    \caption{Wykres dokładności modelu Transferowego dla bazy MNIST-784 w zależności od epoki w fine tuningu}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/Transfer/mnist-784/Transfer_mnist_784_ep100_loss.png}
+    \caption{Wykres wartości funkcji straty modelu Transferowego dla bazy MNIST-784 w zależności od epoki w fine tuningu} 
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{../Saves/Transfer/mnist-784/Transfer_mnist_784_conf_mat.png}
+	\caption{Macierz konfuzji modelu Transferowego dla bazy MNIST-784}
+\end{figure}
+Dla bazy MNIST-784 model Keras CNN zdołał uzyskać accuracy w wysokości $0.9929$
+
+\subsubsection{Fashion-MNIST}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/Transfer/fashion-mnist/Transfer_fashion-mnist_ep10_acc.png}
+    \caption{Wykres dokładności modelu Transferowego dla bazy Fashion-MNIST w zależności od epoki w trenowaniu wstępnym}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/Transfer/fashion-mnist/Transfer_fashion-mnist_ep10_loss.png}
+    \caption{Wykres wartości funkcji straty modelu Transferowego dla bazyFashion-MNIST w zależności od epoki w trenowaniu wstępnym} 
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/Transfer/fashion-mnist/Transfer_fashion-mnist_ep100_acc.png}
+    \caption{Wykres dokładności modelu Transferowego dla bazy Fashion-MNIST w zależności od epoki w fine tuningu}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/Transfer/fashion-mnist/Transfer_fashion-mnist_ep100_loss.png}
+    \caption{Wykres wartości funkcji straty modelu Transferowego dla bazy Fashion-MNIST w zależności od epoki w fine tuningu} 
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{../Saves/Transfer/fashion-mnist/Transfer_fashion-mnist_conf_mat.png}
+	\caption{Macierz konfuzji modelu Transferowego dla bazyFashion-MNIST}
+\end{figure}
+Dla bazy Fashion-MNIST model Keras CNN zdołał uzyskać accuracy w wysokości $0.9148$
+
+
+
 \subsection{Sieć grafowa}
 \subsection{K Nearest Neighbours}
 
