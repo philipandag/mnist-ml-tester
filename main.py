@@ -19,7 +19,7 @@ from keras.models import load_model
 from matplotlib import pyplot as plt
 from scipy import ndimage
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix as sklearn_confusion_matrix
 
 from Canvas import Canvas
 from ConfusionMatrix import ConfusionMatrix
@@ -245,6 +245,7 @@ class MainWindow(QMainWindow):
                     self.selected_base_label.setEnabled(True)
 
                     if self.plot_checkbox.isChecked():
+                        plt.close('all')
                         shown_labels = []
                         for i in range(10):
                             axes = plt.subplot(2, 5, i + 1)
@@ -587,7 +588,7 @@ class MainWindow(QMainWindow):
                 print("\tAccuracy: ", conf.accuracy(), end="\n\n")
 
             # Tworzenie macierzy konfuzji
-            conf_matrix = sklearn.metrics.confusion_matrix(y_true=self.y_test, y_pred=predicted)
+            conf_matrix = sklearn_confusion_matrix(y_true=self.y_test, y_pred=predicted)
 
             plt.close('all')
 
