@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QWidget
 
 
 class Canvas(QWidget):
-    def __init__(self, parent, width, height, resolution=64):
+    def __init__(self, parent, width, height, resolution=28):
         super().__init__(parent)
         self.width = width
         self.height = height
@@ -21,6 +21,8 @@ class Canvas(QWidget):
         self.last_point_canvas = QPoint()
         self.last_point_screen = QPoint()
         self.last_width = 0
+        self.last_stroke_time = 0
+
 
     def set_resolution(self, resolution):
         self.resolution = resolution
@@ -54,9 +56,12 @@ class Canvas(QWidget):
 
                     distx = pos[0] - (pixel_pos[0] + dx)
                     disty = pos[1] - (pixel_pos[1] + dy)
-                    dist = np.sqrt(distx ** 2 + disty ** 2) * 0.1
-                    value = 20 - dist * 255 / width_px
-                    # print(dist)
+                    dist = np.sqrt(distx ** 2 + disty ** 2) / width
+                    if self.resolution == 8:
+                        value = (width - dist)**1.9 * 50
+                    else:
+                        value = (width - dist) * 280
+
                     newR = round(max(min(color.red(), color.red() - value), 0))
                     newG = round(max(min(color.green(), color.green() - value), 0))
                     newB = round(max(min(color.blue(), color.blue() - value), 0))
@@ -65,18 +70,32 @@ class Canvas(QWidget):
                     self.image.setPixelColor(pixel_pos[0] + dx, pixel_pos[1] + dy, color)
 
     def drawLine(self, p1, p2, width):
-        self.drawPoint(p2, width)
+        difference = p2[0] - p1[0], p2[1] - p1[1]
+        module = np.sqrt(difference[0] ** 2 + difference[1] ** 2)
+        for i in range(int(module+1)):
+            p = p1[0] + difference[0] * (i / module), p1[1] + difference[1] * (i / module)
+            self.drawPoint(p, width)
+
+        #self.drawPoint(p2, width)
 
     def mouseMoveEvent(self, event):
-        if self.drawing:
+        if self.drawing and self.last_stroke_time + 10 < event.timestamp():
             pos_screen = event.pos()
             pos_canvas = self.scale_point_to_canvas(event.pos())
 
             dist = pos_screen - self.last_point_screen
             module = np.sqrt(dist.x() ** 2 + dist.y() ** 2)
 
-            width = max(self.resolution * 0.3 / (module + 1), 1)
-            width = self.last_width * 0.9 + width * 0.1
+            if module < self.resolution*0.2:
+                return
+
+            self.last_stroke_time = event.timestamp()
+            if self.resolution == 8:
+                width = max(self.resolution*0.2 / (module+8), 1.3)
+            else:
+                width = max(self.resolution / (module+12), 1.3)
+
+            #width = self.last_width * 0.9 + width * 0.1
             self.last_width = width
 
             self.drawLine(self.last_point_canvas, pos_canvas, width)

@@ -10,8 +10,19 @@
 \usepackage{listings}
 \usepackage{tikz} % pgf package
 \usetikzlibrary{shapes.multipart}
+\usepackage[shortlabels]{enumitem}
+\usepackage{fancyhdr}
+
+\usepackage[justification=centering]{caption}
 
 \usepackage[a4paper, margin=2.54cm]{geometry}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\leftmark}
+\fancyfoot[C]{\thepage}
+\setlength{\headheight}{13pt}
+\addtolength{\topmargin}{-1pt}
 
 \lstdefinestyle{siec}{
     basicstyle=\ttfamily\footnotesize,
@@ -29,7 +40,11 @@ w problemie MNIST i jego pochodnych}
 
 \maketitle
 
-\tableofcontents
+\begin{multicols}{2}
+    \tableofcontents
+\end{multicols}
+
+\newpage
 
 \section{Opis problemu}
 
@@ -46,7 +61,7 @@ jaką cyfrę przedstawia obraz.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{baza_mnist_784.png}
+    \includegraphics[width=0.8\textwidth]{img/baza_mnist_784.png}
 \end{figure}
 
 Zdecydowaliśmy się również na wykorzystanie bazy
@@ -56,7 +71,7 @@ każdy obraz przedstawia wybrane ubranie lub akcesorium.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{baza_fashion_mnist.png}
+    \includegraphics[width=0.8\textwidth]{img/baza_fashion_mnist.png}
 \end{figure}
 
 Opis klas w bazie danych Fashion-MNIST:
@@ -77,6 +92,59 @@ Opis klas w bazie danych Fashion-MNIST:
         \item Ankle boot
     \end{multicols}
 \end{enumerate}
+
+\section{Opis aplikacji}
+W ramach projektu stworzono aplikację służącą do testowania różnych modeli nauczania maszynowego dla
+problemu MNIST i jego pochodnych. Aplikacja umożliwia pobranie
+dowolnej bazy danych problemu klasyfikacji obrazu podobnej
+do MNIST ze strony OpenML. Następnie użytkownik może wybrać
+jeden z zaimplementowanych modeli, wytrenować go oraz przeprowadzić
+szereg testów. Przede wszystkim jednak aplikacja umożliwia
+ręczne rysowanie obrazu do klasyfikacji, lub wczytanie i
+modyfikację już istniejącego w bazie obrazu.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/gui.png}
+\end{figure}
+
+\begin{enumerate}
+    \item Model - zawiera opcje utworzenia
+     nowego modelu spośród zaimplementowanych,
+     zapisanie już wytrenowanego modelu oraz wczytanie
+     modelu z pliku.
+    \item Baza - zawiera opcje pobrania bazy danych
+     z serwisu OpenML i wczytania pobranej bazy z pliku.
+
+    \item Inne - zawiera opcje:
+        \begin{itemize}
+            \item Wczytania losowego obrazu wybranej klasy z załadowanej bazy
+            \item Walidacji modelu na zbiorze testowym załadowanej bazy
+            \item Kroswalidacji modelu dla wybranej ilości podziałów
+            \item Generowanie macierzy konfuzji
+            \item Opcję włączenia przetwarzania obrazów tak by były kompatybilne z bazą MNIST-784. W przypadku modyfikowania obrazów wczytanych z bazy lub korzystania z bazy innej niż MNIST-784 należy odznaczyć tę opcję.
+            \item Opcję wyświetlania danych wejściowych, które otrzyma model w postaci obrazka
+        \end{itemize}
+
+    \item Pasek stanu - wyświetla informacje o stanie aplikacji oraz komunikaty, w tym informacje o błędach i niektóre wyniki walidacji
+    \item Trenuj - przeprowadza proces uczenia modelu na załadowanej bazie danych. Gdy jest to możliwe generuje i pokazuje wykresy z przebiegu procesu trenowania
+    \item Kanwa - na niej można dokonywać zmian obrazu, który dostanie model do klasyfikacji
+    \item Klasyfikuj - wciśnięcie tego przycisku rozpocznie proces walidacji obrazu widocznego na kanwie. Obraz będzie poddany przetwarzaniu, jeżeli ta opcja z menu Inne jest wybrana.
+    \item Wyczyść - czyści kanwę
+    \item Wyniki klasyfikacji - wyświetla wyniki klasyfikacji obrazu do poszczególnych klas.
+\end{enumerate}
+
+Proces przetwarzania obrazów z kanwy jest niezwykle ważny
+w przypadku odręcznego rysowania cyfr dla modelu uczonego
+na bazie MNIST-784. Obrazy obecne w tej bazie muszą spełniać
+pewne założenia, dlatego model nie jest w stanie rozpoznawać
+cyfr, które drastycznie róznią się od tych obecnych w bazie.
+W celu przetwarzania obrazów z kanwy stosuje się:
+\begin{itemize}
+    \item Skalowanie - cyfra w bazie mnist musi mieć rozmiar $20\times20$ pikseli mimo, że obrazy w bazie maja rozmiar $28\times28$ pikseli. W tym celu do rozmiaru $20\times20$ pikseli skalowany jest prostokąt zawierający niezerowe piksele obrazu a następnie reszta uzupełniana jest zerami.
+    \item Środkowamie - obraz przesuwany jest tak, by jego środek masy znajdował się w środku obrazu $28\times28$ pikseli
+\end{itemize}
+
 
 
 \section{Opis porównanych modeli}
@@ -132,7 +200,8 @@ i dobrą wydajność nawet w przypadku dużych zbiorów danych.
 \subsection{Sieci neuronowe}
 Sieć neuronowa jest modelem statystycznym czerpiącym inspirację z natury i 
 działania układów nerwowych żywych organizmów.
-Modele te są stosowane zarówno do problemów regresji (aproksymacji) jak i klasyfikacji poprzez nauczanie nadzorowane.
+Modele te są stosowane zarówno do problemów regresji (aproksymacji) jak i klasyfikacji
+poprzez nauczanie nadzorowane.
 
 Podstawową składową każdej sieci neuronowej jest neuron, który może być reprezentowany 
 jako funkcja wielu parametrów zwracająca dyskretną wartość
@@ -247,6 +316,32 @@ rezultatu i zmniejszając szansę na przeuczenie sieci, co skutkowałoby doskona
 klasyfikowaniem danych, na których model był uczony, lecz nie radzeniem sobie 
 zupełnie z nowymi nie widzianymi przez niego danymi.
 \subsubsection{Sieć grafowa}
+Zastosowanie sieci neuronowej do analizy grafów wymaga przekształcenia
+tych grafów do postaci “zrozumiałej” przez sieć neuronową. W tym celu
+wykorzystana została biblioteka Spektral, stanowiąca rozszerzenie
+biblioteki Keras.
+
+Spektral pozwala na zastosowania obiektu Loadera, który otrzymawszy listę
+grafów, przekształca ją w serię porcji danych zwanych batchami, na których
+można trenować model. To sprawia, że dane wejściowe stają się w pełni
+kompatybilne ze wszystkimi mechanizmami dostarczanymi przez bibliotekę
+Keras.
+Przekształcanie listy grafów w batche polega na dopełnieniu ich macierzy
+sąsiedztwa zerami, tak, aby wszystie miały identyczny rozmiar.
+Następnie grafy te łączy się w trójwymiarowe tensory o wymiarach
+$rozmiarBatcha \times maxLiczbaWierzcholkow \times liczbaCechGrafu$. Rozmiar batcha
+jest ustalony z góry, na poziomie kodu.
+
+Tak, jak w przypadku pozostałych modeli w projekcie, sieć neuronowa została
+zbudowana przy użyciu gotowych warstw dostępnych w bibliotece Keras. Tym, co
+odróżnia model grafowy od pozostałych jest zastosowanie warstwy GCNConv,
+dostosowanej do działania na danych w postaci grafów.
+Warstwa ta działa analogicznie do warstwy konwolucyjnej w “tradycyjnych”
+neuronowych sieciach konwolucyjnych - to znaczy sprawia, że każdy punkt
+danych zostaje niejako wzbogacony o informacje na temat kontekstu w którym
+wystąpił - czyli sąsiadujących punktów danych. W tym przypadku “punktami
+danych” są wierzchołki grafu, a cały proces odbywa się na zasadzie przekazywania
+wiadomości między sąsiadującymi wierzchołkami.
 
 \subsubsection{Konwolucyjna sieć transferowa}
 Z racji, że różne zadania klasyfikacji obrazów nie różnią się od siebie tak drastycznie jak 
@@ -258,7 +353,8 @@ jedynie mała ilość nowych warstw, które zinterpretują wyniki juz gotowych i
 w klasyfikacji obrazów warstw konwolucyjnych. W pierwszych etapach nauczania należy pominąć 
 już wytrenowane warstwy konwolucyjne aby usprawnić ten proces. Gdy model jest już dostatecznie 
 dobrze wytrenowany można odblokować trenowanie warstw konwolucyjnych, by przeprowadzić tzw. 
-fine tuning, który pozwoli wyspecjalizować warstwy konwolucyjne w detekcji cech charakterystycznych dla danego problemu. 
+fine tuning, który pozwoli wyspecjalizować warstwy konwolucyjne w detekcji cech charakterystycznych
+dla danego problemu.
 
 
 \subsection{KNN - K Nearest Neighbours}
@@ -404,7 +500,8 @@ Architektura warstw stworzonej sieci wyglądała następująco:
 
 Za funkcję straty przyjęto funkcję Categorical Crossentropy, learning rate wynosił 0.01.
 W trakcie trenowania nie korzystano żadnych mechanizmów nieomówionych 
-w częsci teoretycznej w tym: batchingu czy przetwarzania danych wejściowych poza skalowaniem do zakresu $[0, 1]$.
+w części teoretycznej w tym: batchingu czy przetwarzania danych wejściowych
+poza skalowaniem do zakresu $[0, 1]$.
 \subsection{Wielowarstwowy perceptron Tensorflow Keras}
 
 Z wykorzystaniem pakietu tensorflow.keras utworzono sieć neuronową o architekturze 
@@ -442,7 +539,8 @@ Sieć konwolucyjną zaimplementowano przy użyciu pakietu tensorflow keras. Wszy
 identyczne z wielowarstwowym perceptronem zaimplementowanym z użyciem tych samych bibliotek. 
 Struktura sieci wyglądała następująco:
 
-% $28x28-> 32x(3,3), relu -> maxPooling(2,2) 64x(3,3), relu -> maxPooling(2,2)->Flatten->Dropout(0.5) -> 10, softmax$
+% $28x28-> 32x(3,3), relu -> maxPooling(2,2) 64x(3,3), relu ->
+% maxPooling(2,2)->Flatten->Dropout(0.5) -> 10, softmax$
 
 \begin{lstlisting}[style=siec]
     Model: "sequential"
@@ -549,7 +647,8 @@ Natomiast w celu poprawy wydajności trenowania dodano następujące callbacki:
     \item ReduceLROnPlateau - zmniejszający współczynnik uczenia wraz z trenowaniem
 \end{itemize}
 
-Dodatkowo w celu poprawy generalizacji modelu wprowadzono data augmentation w postaci obracania obrazów z bazy MNIST-784 o $\pm10^\circ$.
+Dodatkowo w celu poprawy generalizacji modelu wprowadzono data augmentation w
+postaci obracania obrazów z bazy MNIST-784 o $\pm10^\circ$.
 
 \subsection{Sieć transferowa Tensorflow Keras}
 
@@ -629,10 +728,83 @@ generowanie nowych danych treningowych w oparciu o dane z bazy z wykorzystaniem:
 
 
 \subsection{Sieć grafowa}
+
+Sieci grafowe były trenowane jedynie na zbiorze MNIST zawierającym cyfry,
+ze względu na fakt, że przekształcanie obrazów na grafy jest bardzo czasochłonne -
+przetworzenie jednego zbioru trwało kilkanaście minut.
+
+\begin{itemize}
+    \item Każdy obraz był najpierw dzielony na superpiksele - to znaczy klastry pikseli o
+    zbliżonej jasności. Do przypisania pikseli do klastrów wykorzystano metodę k-means.
+    \item Następnie na podstawie listy superpikseli tworzony był graf w postaci macierzy
+    sąsiedztwa. Każdy superpiksel stanowił jeden wierzchołek grafu. Stykające się superpiksele
+    były połączone krawędziami.
+    \item Każdy wierzchołek grafu (superpiksel) został opatrzony cechą -
+    uśrednioną jasnością składających się na niego pikseli (w zakresie 0 - 255).
+    Każda krawędź posiada wagę, będącą odległością między środkami ciężkości
+    łączonych przez nią superpikseli.
+\end{itemize}
+
+Próby zostały przeprowadzone na kilku zbiorach grafów. Każdy zestaw powstał na bazie
+identycznego zestawu danych źródłowych (obrazków):
+
+\begin{enumerate}[label=(\textbf{\Alph*})]
+    \item Grafy z max. 25 wierzchołkami
+    \item Grafy z max. 50 wierzchołkami
+    \item Grafy z max. 25 wierzchołkami, bez wag na krawędziach (wszystkie wagi równe 1)
+\end{enumerate}
+
+Maksymalna liczba wierzchołków była regulowana poprzez zmianę parametru algorytmu k-means - tzn.
+początkowej liczby klastrów do których dopasowywane są piksele.
+
+Obrazki po przetworzeniu wyglądały w sposób następujący:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/5Raw.png}
+    \caption{Obraz nieprzetworzony}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/5Sliced.png}
+    \caption{Obraz z podziałem na superpiksele}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/5Graph.png}
+    \caption{Graf powstały na bazie podzielonego obrazu.}
+\end{figure}
+
+Powyższe obrazy to wizualizacje macierzy zawierajacych jasności pikseli.
+Oryginalne obrazy są czarno-białe.
+
+Sieć grafowa została zbudowana w sposób następujący:
+\begin{lstlisting}[style=siec]
+    _________________________________________________________________
+    Layer (type)                Output Shape              Param #
+    =================================================================
+    gcn_conv (GCNConv)          multiple                  100
+
+    gcn_conv_1 (GCNConv)        multiple                  2550
+
+    global_sum_pool (GlobalSumP  multiple                 0
+    ool)
+
+    dense (Dense)               multiple                  26112
+
+    dense_1 (Dense)             multiple                  5130
+
+    =================================================================
+    Total params: 33,892
+    Trainable params: 33,892
+    Non-trainable params: 0
+    _________________________________________________________________
+\end{lstlisting}
+
 \subsection{K Nearest Neighbours}
 Model KNN został zaimplementowany z użyciem biblioteki numpy. Za parametr K 
 wybrano wielokrotność liczności zbioru etykiet, 20.
-
 
 
 \section{Wyniki}
@@ -663,7 +835,7 @@ Dla następujących parametrów dla bazy MNIST-784:
 model osiągał skuteczność na danych testowych wynoszącą $0.951$.
 
 \subsection{Własna implementacja Wielowarstwowego perceptronu}
-Sieć wyuczono dla zbioru MNIST-784 i Fashion-MNIST. Dla MNIST-784 model trenowany był przez 50 epochów. Dla Fashion-MNIST przez 30 epochów. 
+Sieć wyuczono dla zbioru MNIST-784 i Fashion-MNIST. Dla MNIST-784 model trenowany był przez 50 epochów. Dla Fashion-MNIST przez 30 epochów.
 
 \begin{figure}[H]
     \centering
@@ -681,7 +853,9 @@ Dla bazy Fashion-MNIST własna implementacja MLP osiągnęła accuracy równe $0
 
 \subsection{Wielowarstwowy perceptron Tensorflow Keras}
 
-Sieć wyuczono dla dwóch zbiorów danych: MNIST-784 i Fashion-MNIST. W obydwu przypadkach model był trenowany przez 500 epoch'ów. Proces i rezultaty widoczne są na poniższych wykresach:
+Sieć wyuczono dla dwóch zbiorów danych: MNIST-784 i Fashion-MNIST.
+W obydwu przypadkach model był trenowany przez 500 epoch'ów.
+Proces i rezultaty widoczne są na poniższych wykresach:
 
 \subsubsection{MNIST-784}
 \begin{figure}[H]
@@ -726,7 +900,8 @@ Dla bazy Fashion-MNIST model Keras MLP zdołał uzyskać accuracy w wysokości $
 
 
 \subsection{Sieć konwolucyjna Tensorflow Keras, wersja podstawowa}
-Sieć wyuczono dla dwóch zbiorów danych: MNIST-784 i Fashion-MNIST. W obydwu przypadkach model był trenowany przez 500 epoch'ów. Proces i rezultaty widoczne są na poniższych wykresach:
+Sieć wyuczono dla dwóch zbiorów danych: MNIST-784 i Fashion-MNIST. W obydwu przypadkach model
+był trenowany przez 500 epoch'ów. Proces i rezultaty widoczne są na poniższych wykresach:
 
 \subsubsection{MNIST-784}
 \begin{figure}[H]
@@ -814,7 +989,9 @@ Dla bazy Fashion-MNIST model Keras CNNv2 zdołał uzyskać accuracy w wysokości
 
 
 \subsection{Sieć transferowa Tensorflow Keras}
-Sieć wyuczono dla dwóch zbiorów danych: MNIST-784 i Fashion-MNIST. W obydwu przypadkachmodel trenowany był najpierw przez 10 epochów, następnie przez 100 epochów z fine tuningiem. Proces i rezultaty widoczne są na poniższych wykresach:
+Sieć wyuczono dla dwóch zbiorów danych: MNIST-784 i Fashion-MNIST. W obydwu
+przypadkach model trenowany był najpierw przez 10 epochów, następnie
+przez 100 epochów z fine tuningiem. Proces i rezultaty widoczne są na poniższych wykresach:
 
 \subsubsection{MNIST-784}
 \begin{figure}[H]
@@ -858,7 +1035,7 @@ Dla bazy MNIST-784 model Keras CNN zdołał uzyskać accuracy w wysokości $0.99
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{../Saves/Transfer/fashion-mnist/Transfer_fashion-mnist_ep10_loss.png}
-    \caption{Wykres wartości funkcji straty modelu Transferowego dla bazyFashion-MNIST w zależności od epoki w trenowaniu wstępnym} 
+    \caption{Wykres wartości funkcji straty modelu Transferowego dla bazy Fashion-MNIST w zależności od epoki w trenowaniu wstępnym}
 \end{figure}
 
 \begin{figure}[H]
@@ -876,17 +1053,114 @@ Dla bazy MNIST-784 model Keras CNN zdołał uzyskać accuracy w wysokości $0.99
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.6\textwidth]{../Saves/Transfer/fashion-mnist/Transfer_fashion-mnist_conf_mat.png}
-	\caption{Macierz konfuzji modelu Transferowego dla bazyFashion-MNIST}
+	\caption{Macierz konfuzji modelu Transferowego dla bazy Fashion-MNIST}
 \end{figure}
 Dla bazy Fashion-MNIST model Keras CNN zdołał uzyskać accuracy w wysokości $0.9148$
 
-
-
 \subsection{Sieć grafowa}
+
+\subsubsection{Zbiór A}
+
+Wyniki dla zbioru A:
+\begin{itemize}
+    \item Loss: 1.9428
+    \item Accuracy: 0.2689
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/graphModel25_acc.png}
+    \caption{Wykres celności dla modelu grafowego trenowanego na zbiorze A w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/graphModel25_loss.png}
+    \caption{Wykres wartości funkcji straty dla modelu grafowego trenowanego na zbiorze A w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/graphModel25_confusion.png}
+    \caption{Macierz konfuzji dla modelu grafowego trenowanego na zbiorze A w zależności od epoki}
+\end{figure}
+
+\subsubsection{Zbiór B}
+
+Wyniki dla zbioru B:
+\begin{itemize}
+    \item Loss: 2.7640
+    \item Accuracy: 0.1205
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/graphModel50_acc.png}
+    \caption{Wykres celności dla modelu grafowego trenowanego na zbiorze B w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/graphModel50_loss.png}
+    \caption{Wykres wartości funkcji straty dla modelu grafowego trenowanego na zbiorze B w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/graphModel50_confusion.png}
+    \caption{Macierz konfuzji dla modelu grafowego trenowanego na zbiorze B w zależności od epoki}
+\end{figure}
+
+\subsubsection{Zbiór C}
+
+Wyniki dla zbioru C:
+\begin{itemize}
+    \item Loss: 3.5503
+    \item Accuracy: 0.0924
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/graphModel25NoWeights_acc.png}
+    \caption{Wykres celności dla modelu grafowego trenowanego na zbiorze C w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/graphModel25_loss.png}
+    \caption{Wykres wartości funkcji straty dla modelu grafowego trenowanego na zbiorze C w zależności od epoki}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/graphModel25NoWeights_confusion.png}
+    \caption{Macierz konfuzji dla modelu grafowego trenowanego na zbiorze C w zależności od epoki}
+\end{figure}
+
+Sieć w żadnym z przypadków nie uzyskała zbyt imponujących
+wyników: celność w najlepszym wypadku wynosiła około 25\%.
+
+Można zauważyć, że zwiększanie ilości danych nie musi
+prowadzić do poprawienia wyników: w przypadku bardziej
+szczegółowych grafów o max. 50 wierzchołkach, wyniki były
+dużo słabsze niż w prostszym przypadku, gdzie grafy nie
+miały więcej niż 25 wierzchołków.
+
+O ile redukcja liczby wierzchołków ułatwiała sieci zadanie,
+to już usunięcie informacji o wagach krawędzi sprawiło,
+że zaczęła ona uzyskiwać fatalne wyniki.
+
+W oczy rzuca się także fakt, że badany model grafowy ma
+wyraźną tendencję do faworyzowania jednej konkretnej klasy
+i przypisywania do niej większości grafów - to zjawisko jest
+wyraźnie widoczne nawet w najlepszym spośród badanych przypadków.
+
 \subsection{K Nearest Neighbours}
 Model KNN przetestowano dla bazy danych MNIST i Fashion-MNIST.
 
 Z powodu bardzo długiego czasu predykcji modelu KNN testy wykonano na 10\% zbioru testowego, co odpowiada 1400 danych testowych.
+Z powodu długiego czasu predykcji modelu KNN testy wykonano na 10\% zbioru
+testowego, co odpowiada 1400 danych testowych.
 
 Dla bazy MNIST-784 model KNN osiągnął accuracy równe $0.96$
 
@@ -895,23 +1169,20 @@ Dla bazy Fashion-MNIST model KNN osiągnął accuracy równe $0.86$
 
 \section{Dyskusja}
 
-Najprawdopodobniej albo... albo szyny, 
-które nie były... nie są równe, 
-albo po prostu no, tak jak mówiłam we 
-wcześniejszym wejściu, ee, yy, szyny... 
-szyny były złe... a podwozie... podwozie... 
-podwozie... podwozie też było złe. \cite{szyny}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed vitae quam euismod, aliquam elit quis, ultricies nisl.
+Sed euismod, nisl quis aliquam ultricies, nisl nisl aliquam elit,
+quis aliquam elit nisl quis aliquam elit nisl quis aliquam elit.
+Sed euismod, nisl quis aliquam elit nisl quis aliquam elit.
+Sed euismod, nisl quis aliquam elit nisl quis aliquam elit.
+Sed euismod, nisl quis aliquam elit nisl quis aliquam elit.
+Sed euismod, nisl quis aliquam elit nisl quis aliquam elit.
 
 \renewcommand{\refname}{Źródła}
 \begin{thebibliography}{100}
-    \bibitem{szyny} Wikipedia, 
-    \textit{Szyny były złe} 
-    \\\url{https://pl.wikipedia.org/wiki/Szyny_by%C5%82y_z%C5%82e}
-    \bibitem{bib:2} Super strona,
-    \textit{Jest super}
-    \\\url{https://www.example.com}
-    \bibitem{alicjabogdan} Marek Kubale,
-    \textit{Łagodne wprowadzenie do algorytmów}, 2022
+    % \bibitem{bib:1} Autor,
+    % \textit{tytuł}, 2022
+    % \\\url{https://www.example.com}
 \end{thebibliography}
 
 \end{document}
