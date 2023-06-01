@@ -663,6 +663,22 @@ Dla następujących parametrów dla bazy MNIST-784:
 model osiągał skuteczność na danych testowych wynoszącą $0.951$.
 
 \subsection{Własna implementacja Wielowarstwowego perceptronu}
+Sieć wyuczono dla zbioru MNIST-784 i Fashion-MNIST. Dla MNIST-784 model trenowany był przez 50 epochów. Dla Fashion-MNIST przez 30 epochów. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/MyNetwork/mnist-784/MyNetwork_mnist_784_ep50_conf_mat.png}
+    \caption{Macierz konfuzji modelu własnego MLP dla bazy MNIST-784 w zależności od epoki}
+\end{figure}
+Dla bazy MNIST-784 własna implementacja MLP osiągnęła accuracy równe $0.793$
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/MyNetwork/mnist-784/MyNetwork_fashion-mnist_ep50_conf_mat.png}
+    \caption{Macierz konfuzji modelu własnego MLP dla bazy MNIST-784 w zależności od epoki}
+\end{figure}
+Dla bazy Fashion-MNIST własna implementacja MLP osiągnęła accuracy równe $0.722$
+
 \subsection{Wielowarstwowy perceptron Tensorflow Keras}
 
 Sieć wyuczono dla dwóch zbiorów danych: MNIST-784 i Fashion-MNIST. W obydwu przypadkach model był trenowany przez 500 epoch'ów. Proces i rezultaty widoczne są na poniższych wykresach:
@@ -868,23 +884,14 @@ Dla bazy Fashion-MNIST model Keras CNN zdołał uzyskać accuracy w wysokości $
 
 \subsection{Sieć grafowa}
 \subsection{K Nearest Neighbours}
+Model KNN przetestowano dla bazy danych MNIST i Fashion-MNIST.
 
-Z powodu długiego czasu predykcji modelu KNN testy wykonano na 10\% zbioru testowego, co odpowiada 1400 danych testowych.
-W tej sytuacji model KNN cechował się accuracy na poziomie $0.96$
+Z powodu bardzo długiego czasu predykcji modelu KNN testy wykonano na 10\% zbioru testowego, co odpowiada 1400 danych testowych.
 
+Dla bazy MNIST-784 model KNN osiągnął accuracy równe $0.96$
 
-Z powodu swojej konstrukcji model KNN sprawował się niemal perfekcyjnie 
-dla zbioru danych testowych, które przypominały w znacznym stopniu 
-dane treningowe. Niestety dla ręcznych rysunków nienależących do 
-bazy MNIST-784 model działał dużo gorzej od sieci konwolucyjnej, 
-która nie tylko porównuje punkt z danymi treningowymi, lecz 
-wynajduje schematy i cechy obrazów, które decydują o 
-przynależności do danej klasy. Należy również wspomnieć, 
-że z powodu nieporównywalnie większej ilości obliczeń 
-koniecznych do wykonania przez model KNN w porównaniu 
-do dowolnego innego modelu, podczas gdy proces weryfikacji 
-na 14000 danych testowych sieci neuronowych trwał zaledwie 
-kilka sekund, weryfikacja modelu KNN zajęła ponad 10 minut dla 1400 danych.
+Dla bazy Fashion-MNIST model KNN osiągnął accuracy równe $0.86$
+
 
 \section{Dyskusja}
 
