@@ -840,44 +840,95 @@ wybrano wielokrotność liczności zbioru etykiet, 20.
 Przykładowo dla następujących parametrów dla bazy MNIST-784:
 
 \begin{itemize}
-    \item max\_depth: 19
+    \item max\_depth: 16
     \item max\_features: None
-    \item min\_samples\_split: 5
+    \item min\_samples\_split: 4
     \item min\_samples\_leaf: 4
     \item criterion: entropy
-    \item splitter: random
+    \item splitter: best
 \end{itemize}
-model osiągał skuteczność na danych testowych wynoszącą $0.873$.
+model osiągał skuteczność na danych testowych wynoszącą $0.879$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/Trees/mnist-784/DecisionTree_mnist_784_conf_mat.png}
+    \caption{Macierz konfuzji dla drzewa decyzyjnego na bazie MNIST-784}
+\end{figure}
+
+Natomiast dla bazy Fashion-MNIST:
+
+\begin{itemize}
+    \item max\_depth: 14
+    \item max\_features: None
+    \item min\_samples\_split: 6
+    \item min\_samples\_leaf: 1
+    \item criterion: entropy
+    \item splitter: best
+\end{itemize}
+
+model osiągał skuteczność na danych testowych wynoszącą $0.8165$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/Trees/fashion-mnist/DecisionTree_fashion-mnist_conf_mat.png}
+    \caption{Macierz konfuzji dla drzewa decyzyjnego na bazie Fashion-MNIST}
+\end{figure}
+
 \subsection{Las losowy}
 
 Dla następujących parametrów dla bazy MNIST-784:
 
 \begin{itemize}
-    \item n\_estimators: 16
+    \item n\_estimators: 20
     \item max\_depth: 18
-    \item max\_features: sqrt
-    \item min\_samples\_split: 18
-    \item min\_samples\_leaf: 1
+    \item max\_features: log2
+    \item min\_samples\_split: 14
+    \item min\_samples\_leaf: 2
+    \item criterion: gini
+\end{itemize}
+model osiągał skuteczność na danych testowych wynoszącą $0.94878$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/Trees/mnist-784/RandomForest_mnist_784_conf_mat.png}
+    \caption{Macierz konfuzji dla lasu losowego na bazie MNIST-784}
+\end{figure}
+
+Natomiast dla bazy Fashion-MNIST:
+
+\begin{itemize}
+    \item n\_estimators: 19
+    \item max\_depth: 18
+    \item max\_features: None
+    \item min\_samples\_split: 6
+    \item min\_samples\_leaf: 13
     \item criterion: entropy
 \end{itemize}
-model osiągał skuteczność na danych testowych wynoszącą $0.951$.
+
+model osiągał skuteczność na danych testowych wynoszącą $0.8707$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/Trees/fashion-mnist/RandomForest_fashion-mnist_conf_mat.png}
+    \caption{Macierz konfuzji dla lasu losowego na bazie Fashion-MNIST}
+\end{figure}
 
 \subsection{Własna implementacja Wielowarstwowego perceptronu}
 Sieć wyuczono dla zbioru MNIST-784 i Fashion-MNIST. Dla MNIST-784 model trenowany był przez 50 epochów. Dla Fashion-MNIST przez 30 epochów.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{../Saves/MyNetwork/mnist-784/MyNetwork_mnist_784_ep50_conf_mat.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/MyNetwork/mnist-784/MyNetwork_mnist_784_conf_mat.png}
     \caption{Macierz konfuzji modelu własnego MLP dla bazy MNIST-784 w zależności od epoki}
 \end{figure}
-Dla bazy MNIST-784 własna implementacja MLP osiągnęła accuracy równe $0.793$
+Dla bazy MNIST-784 własna implementacja MLP osiągnęła accuracy równe $0.793$.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{../Saves/MyNetwork/mnist-784/MyNetwork_fashion-mnist_ep50_conf_mat.png}
-    \caption{Macierz konfuzji modelu własnego MLP dla bazy MNIST-784 w zależności od epoki}
+    \includegraphics[width=0.6\textwidth]{../Saves/MyNetwork/fashion-mnist/MyNetwork_fashion-mnist_conf_mat.png}
+    \caption{Macierz konfuzji modelu własnego MLP dla bazy Fashion-MNIST w zależności od epoki}
 \end{figure}
-Dla bazy Fashion-MNIST własna implementacja MLP osiągnęła accuracy równe $0.722$
+Dla bazy Fashion-MNIST własna implementacja MLP osiągnęła accuracy równe $0.722$.
 
 \subsection{Wielowarstwowy perceptron Tensorflow Keras}
 
@@ -903,7 +954,7 @@ Proces i rezultaty widoczne są na poniższych wykresach:
 	\includegraphics[width=0.6\textwidth]{../Saves/KerasMLP/mnist-784/KerasMLP_mnist_784_conf_mat.png}
 	\caption{Macierz konfuzji modelu Keras MLP dla bazy MNIST-784}
 \end{figure}
-Dla bazy MNIST-784 model Keras MLP zdołał uzyskać accuracy w wysokości $0.975$
+Dla bazy MNIST-784 model Keras MLP zdołał uzyskać accuracy w wysokości $0.975$.
 
 \subsubsection{Fashion-MNIST}
 \begin{figure}[H]
@@ -923,7 +974,7 @@ Dla bazy MNIST-784 model Keras MLP zdołał uzyskać accuracy w wysokości $0.97
 	\includegraphics[width=0.6\textwidth]{../Saves/KerasMLP/fashion-mnist/KerasMLP_fashion-mnist_conf_mat.png}
 	\caption{Macierz konfuzji modelu Keras MLP dla bazy Fashion-MNIST}
 \end{figure}
-Dla bazy Fashion-MNIST model Keras MLP zdołał uzyskać accuracy w wysokości $0.88$
+Dla bazy Fashion-MNIST model Keras MLP zdołał uzyskać accuracy w wysokości $0.88$.
 
 
 
@@ -949,7 +1000,7 @@ był trenowany przez 500 epoch'ów. Proces i rezultaty widoczne są na poniższy
 	\includegraphics[width=0.6\textwidth]{../Saves/KerasCNN/mnist-784/KerasCNN_mnist_784_conf_mat.png}
 	\caption{Macierz konfuzji modelu Keras CNN dla bazy MNIST-784}
 \end{figure}
-Dla bazy MNIST-784 model Keras CNN zdołał uzyskać accuracy w wysokości $0.9899$
+Dla bazy MNIST-784 model Keras CNN zdołał uzyskać accuracy w wysokości $0.9899$.
 
 \subsubsection{Fashion-MNIST}
 \begin{figure}[H]
@@ -969,7 +1020,7 @@ Dla bazy MNIST-784 model Keras CNN zdołał uzyskać accuracy w wysokości $0.98
 	\includegraphics[width=0.6\textwidth]{../Saves/KerasCNN/fashion-mnist/KerasCNN_fashion-mnist_conf_mat.png}
 	\caption{Macierz konfuzji modelu Keras CNN dla bazy Fashion-MNIST}
 \end{figure}
-Dla bazy Fashion-MNIST model Keras CNN zdołał uzyskać accuracy w wysokości $0.924$
+Dla bazy Fashion-MNIST model Keras CNN zdołał uzyskać accuracy w wysokości $0.924$.
 
 
 \subsection{Sieć konwolucyjna Tensorflow Keras, wersja rozszerzona}
@@ -993,7 +1044,7 @@ Sieć wyuczono dla dwóch zbiorów danych: MNIST-784 i Fashion-MNIST. Dzięki za
 	\includegraphics[width=0.6\textwidth]{../Saves/KerasCNNV2/mnist-784/KerasCNNV2_mnist_784_conf_mat.png}
 	\caption{Macierz konfuzji modelu Keras CNNv2 dla bazy MNIST-784}
 \end{figure}
-Dla bazy MNIST-784 model Keras CNNv2 zdołał uzyskać accuracy w wysokości $0.9924$
+Dla bazy MNIST-784 model Keras CNNv2 zdołał uzyskać accuracy w wysokości $0.9924$.
 
 \subsubsection{Fashion-MNIST}
 \begin{figure}[H]
@@ -1013,7 +1064,7 @@ Dla bazy MNIST-784 model Keras CNNv2 zdołał uzyskać accuracy w wysokości $0.
 	\includegraphics[width=0.6\textwidth]{../Saves/KerasCNNV2/fashion-mnist/KerasCNNV2_fashion-mnist_conf_mat.png}
 	\caption{Macierz konfuzji modelu Keras CNNv2 dla bazy Fashion-MNIST}
 \end{figure}
-Dla bazy Fashion-MNIST model Keras CNNv2 zdołał uzyskać accuracy w wysokości $0.912$
+Dla bazy Fashion-MNIST model Keras CNNv2 zdołał uzyskać accuracy w wysokości $0.912$.
 
 
 \subsection{Sieć transferowa Tensorflow Keras}
@@ -1051,7 +1102,7 @@ przez 100 epochów z fine tuningiem. Proces i rezultaty widoczne są na poniższ
 	\includegraphics[width=0.6\textwidth]{../Saves/Transfer/mnist-784/Transfer_mnist_784_conf_mat.png}
 	\caption{Macierz konfuzji modelu Transferowego dla bazy MNIST-784}
 \end{figure}
-Dla bazy MNIST-784 model Keras CNN zdołał uzyskać accuracy w wysokości $0.9929$
+Dla bazy MNIST-784 model Keras CNN zdołał uzyskać accuracy w wysokości $0.9929$.
 
 \subsubsection{Fashion-MNIST}
 \begin{figure}[H]
@@ -1083,7 +1134,7 @@ Dla bazy MNIST-784 model Keras CNN zdołał uzyskać accuracy w wysokości $0.99
 	\includegraphics[width=0.6\textwidth]{../Saves/Transfer/fashion-mnist/Transfer_fashion-mnist_conf_mat.png}
 	\caption{Macierz konfuzji modelu Transferowego dla bazy Fashion-MNIST}
 \end{figure}
-Dla bazy Fashion-MNIST model Keras CNN zdołał uzyskać accuracy w wysokości $0.9148$
+Dla bazy Fashion-MNIST model Keras CNN zdołał uzyskać accuracy w wysokości $0.9148$.
 
 \subsection{Sieć grafowa}
 
@@ -1185,14 +1236,10 @@ wyraźnie widoczne nawet w najlepszym spośród badanych przypadków.
 
 \subsection{K Nearest Neighbours}
 Model KNN przetestowano dla bazy danych MNIST i Fashion-MNIST.
-
-Z powodu bardzo długiego czasu predykcji modelu KNN testy wykonano na 10\% zbioru testowego, co odpowiada 1400 danych testowych.
-Z powodu długiego czasu predykcji modelu KNN testy wykonano na 10\% zbioru
-testowego, co odpowiada 1400 danych testowych.
-
-Dla bazy MNIST-784 model KNN osiągnął accuracy równe $0.96$
-
-Dla bazy Fashion-MNIST model KNN osiągnął accuracy równe $0.86$
+Z powodu bardzo długiego czasu predykcji modelu KNN testy wykonano na 10\% 
+zbioru testowego, co odpowiada 1400 danych testowych.
+Dla bazy MNIST-784 model KNN osiągnął accuracy równe $0.96$.
+Dla bazy Fashion-MNIST model KNN osiągnął accuracy równe $0.86$.
 
 
 \subsection{Porównanie miar celności modeli}
@@ -1203,11 +1250,11 @@ Dla bazy Fashion-MNIST model KNN osiągnął accuracy równe $0.86$
     \hline
     \textbf{Nazwa modelu} & \textbf{MNIST-784} & \textbf{Fashion-MNIST} \\
     \hline
-    Drzewo decyzyjne & 0.87 & 0.71 \\
+    Drzewo decyzyjne & 0.87992 & 0.8165 \\
     \hline
-    Las losowy & 0.97 & 0.84 \\
+    Las losowy & 0.94878 & 0.8707 \\
     \hline
-    Własny wielowarstwowy perceptron (MyNetwork) & 0.97 & 0.84 \\
+    Własny wielowarstwowy perceptron (MyNetwork) & 0.793 & 0.722 \\
     \hline
     Wielowarstwowy perceptron (KerasMLP)  & 0.96749 & 0.88042 \\
     \hline
@@ -1219,7 +1266,7 @@ Dla bazy Fashion-MNIST model KNN osiągnął accuracy równe $0.86$
     \hline
     Sieć grafowa (Graph) & 0.2689 & -- \\
     \hline
-    K Nearest Neighbours (KNN) & 0.96 & 0.96 \\
+    K Nearest Neighbours (KNN) & 0.96 & 0.86 \\
     \hline
     \end{tabular}
     \caption{Porównanie celności modeli}
@@ -1227,11 +1274,124 @@ Dla bazy Fashion-MNIST model KNN osiągnął accuracy równe $0.86$
 
 \section{Dyskusja}
 
+\subsection*{Modele drzew decyzyjnych i lasów losowych}
+W przypadku bazy danych MNIST-784 drzewo decyzyjne oraz las 
+losowy radziły sobie zdecydowanie gorzej niż modele sieci neuronowych. 
+Z racji dużej ilości cech (784) złożoność obliczeniowa wzrastała
+i proces budowania modeli trwał bardzo długo. Minusem jest również
+potrzeba dobrania odpowiednich hiperparametrów, które mocno wpływają
+na dokładności. Z drugiej strony, modele te bardzo szybko dokonywały
+predykcji, co jest ich dużą zaletą. W przypadku bazy danych Fashion-MNIST
+dokładności modeli były gorsze z powodu mniejszego zróżnicowania danych
+między klasami.
+
+\subsection*{Sieci MLP}
+Własna implementacja MLP osiągnęła dużo gorsze wyniki od 
+implementacji z użyciem biblioteki Keras. W głównej 
+mierze wynikało to z faktu, że własna implementacja nie 
+posiadała mechanizmu batchingu, który pozwala przeprowadzać 
+trenowanie wielowątkowo, przez co proces trwał dużo dłużej i 
+musiał być kończony przedwcześnie. W wykresach przedstawiających 
+proces uczenia sieci Keras MLP widać wyraźnie stabilizację a 
+następnie oscylację modelu wokół rozwiązania począwszy od okolicy 
+epochu setnego. Jest to spowodowane stałą wartością learning rate. 
+Wprowadzenie stopniowego ograniczania learning rate w miarę nauczania 
+mogłoby poprawić osiągi modeli.
+
+\subsection*{Sieci CNN}
+Dzięki wykorzystaniu warstw konwolucyjnych zaimplementowane sieci 
+dużo poprawiły swoje osiągi. Okazuje się, że proces wyszczególniania 
+ważnych cech obrazu przez konwolucję jest bardzo korzystny i pozwala 
+dużo łatwiej osiągnąć dobrą generalizację modelu na mniejszej ilości 
+danych treningowych. Porównując pierwszą i drugą implementację sieci 
+konwolucyjnej z użyciem tensorflow keras widoczne jest, że zwiększenie 
+rozmiaru sieci poprawia jej rezultaty. Niestety wraz z rozbudowywaniem 
+sieci drastycznie rośnie złożoność jej procesu uczenia. W związku z tym 
+o ile nie posiadamy nieskończenie wielkiej mocy obliczeniowej ważne jest 
+by dobrze zaplanować strukturę sieci i dostosować jej rozmiar do 
+oczekiwanych przez nas rezultatów i posiadanych możliwości. Na wykresach 
+obrazujących proces nauczania sieci konwolucyjnej drugiej możemy również 
+zauważyć bardzo korzystny skutek implementacji funkcji callback redukującej 
+learning rate. Dzięki temu obserwuje się jednostajny, choć powolny wzrost 
+accuracy i spadek funkcji straty w miejsce gwałtownych oscylacji.
+
+Dzięki wykorzystaniu warstw konwolucyjnych o już wytrenowanych 
+współczynnikach jesteśmy w stanie w pewien sposób skorzystać zarówno 
+z stosunkowo krótkiego procesu nauczania oraz wysokiej skuteczności 
+bardzo dużej sieci. Niestety z powodów technicznych udało się stworzyć 
+jedynie model transferowy z wykorzystaniem stosunkowo małego modelu 
+MobileNet. Wyraźnie widoczna jest słabość tego modelu na wykresie 
+przedstawiającym wstępne trenowanie, w trakcie którego warstwy transferowe 
+były zamrożone. Bez przeprowadzenia fine-tuningu model nie był w stanie 
+skutecznie poprawiać się. Mimo tego wyniki tego modelu dla bazy MNIST-784 
+są dużo lepsze od pozostałych metod. W przypadku bazy Fashion-MNIST nie jest 
+widoczna wyraźna poprawa jakości modelu. Fashion-MNIST jest zbiorem danych 
+dużo trudniejszym od MNIST-784. Niektóre z obecnych w nim klas są do siebie 
+bardzo podobne i często ciężkie do rozróżnienia nawet dla ludzi. Lepsze 
+rezultaty dla tego zbioru można by próbować osiągnąć powtarzając wielokrotnie 
+proces uczenia by trafić na jak najlepsze warunki początkowe, ucząc sieć przez 
+dużo dłuższy czas, próbując drobnych zmian w strukturze sieci lub decydując się 
+na skorzystanie z większych modeli transferowych.
+
+Wszystkie trzy sieci konwolucyjne sprawowały się zadowalająco w rozpoznawaniu 
+cyfr pisanych ręcznie z użyciem aplikacji. W szczególności wersja druga sieci 
+konwolucyjnej oraz sieć transferowa wykonywały to zadanie bardzo skutecznie 
+również w nietrywialnych przypadkach.
+Również w przypadku bazy Fashion-MNIST, choć tutaj możliwości ręcznego rysowania 
+są dużo bardziej ograniczone, było możliwe zauważenie możliwości tych sieci w 
+rozpoznawaniu kształtów przypominających dane klasy ze zbioru.
+
+\subsection*{Sieci grafowe}
+
+Sieć w żadnym z przypadków nie uzyskała zbyt imponujących
+wyników: celność w najlepszym wypadku wynosiła około 25\%.
+
+Można zauważyć, że zwiększanie ilości danych nie musi
+prowadzić do poprawienia wyników: w przypadku bardziej
+szczegółowych grafów o max. 50 wierzchołkach, wyniki były
+dużo słabsze niż w prostszym przypadku, gdzie grafy nie
+miały więcej niż 25 wierzchołków.
+
+O ile redukcja liczby wierzchołków ułatwiała sieci zadanie,
+to już usunięcie informacji o wagach krawędzi sprawiło,
+że zaczęła ona uzyskiwać fatalne wyniki.
+
+W oczy rzuca się także fakt, że badany model grafowy ma
+wyraźną tendencję do faworyzowania jednej konkretnej klasy
+i przypisywania do niej większości grafów - to zjawisko jest
+wyraźnie widoczne nawet w najlepszym spośród badanych przypadków.
+
+\subsection*{KNN}
+Model ten jest niezwykle prosty w implementacji i 
+działaniu oraz nie wymaga procesu trenowania. Niestety 
+przypłaca to niezwykle wysokim kosztem obliczeniowym predykcji 
+co sprawia, że jest on zupełnie nieprzydatny w systemach czasu 
+rzeczywistego, czy w innych aplikacjach, w których wymaga się 
+szybkiej reakcji. Jeżeli nie zakładamy wykonywania predykcji wiele 
+razy może być on w zupełności wystarczający, jednak mimo tego nie jest 
+w stanie przezwyciężyć dobrze wytrenowanej głębokiej sieci konwolucyjnej.
+
+
+
 \renewcommand{\refname}{Źródła}
 \begin{thebibliography}{100}
-    \bibitem{} Wikipedia,
+    \bibitem{1} Kurs e-nauczanie Sztuczna Inteligencja\\
+    \textit{Temat 4. Dane i ocena jakości}\\
+    \textit{Temat 5. Sieci neuronowe}\\
+    \textit{Temat 6. Sieci neuronowe uczenie i propagacja wsteczna}\\
+    \textit{Temat 7. Grafowe sieci neuronowe}
+    \bibitem{2} Wikipedia,
     \textit{Sieć neuronowa}
     \\\url{https://pl.wikipedia.org/wiki/Sie%C4%87_neuronowa}
+    \bibitem{3} Wikipedia,
+    \textit{Perceptron wielowarstowy}
+    \\\url{https://pl.wikipedia.org/wiki/Perceptron_wielowarstwowy}
+    \bibitem{4} Wikipedia,
+    \textit{Funkcja aktywacji}
+    \\\url{https://pl.wikipedia.org/wiki/Funkcja_aktywacji}
+    \bibitem{5} KerasIO,
+    \textit{Keras: The Python Deep Learning library}
+    \\\url{https://keras.io/}
 \end{thebibliography}
 
 \end{document}
