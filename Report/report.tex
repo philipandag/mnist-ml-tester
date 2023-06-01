@@ -1216,24 +1216,6 @@ Wyniki dla zbioru C:
     \caption{Macierz konfuzji dla modelu grafowego trenowanego na zbiorze C w zależności od epoki} 
 \end{figure}
 
-Sieć w żadnym z przypadków nie uzyskała zbyt imponujących
-wyników: celność w najlepszym wypadku wynosiła około 25\%.
-
-Można zauważyć, że zwiększanie ilości danych nie musi
-prowadzić do poprawienia wyników: w przypadku bardziej
-szczegółowych grafów o max. 50 wierzchołkach, wyniki były
-dużo słabsze niż w prostszym przypadku, gdzie grafy nie
-miały więcej niż 25 wierzchołków.
-
-O ile redukcja liczby wierzchołków ułatwiała sieci zadanie,
-to już usunięcie informacji o wagach krawędzi sprawiło,
-że zaczęła ona uzyskiwać fatalne wyniki.
-
-W oczy rzuca się także fakt, że badany model grafowy ma
-wyraźną tendencję do faworyzowania jednej konkretnej klasy
-i przypisywania do niej większości grafów - to zjawisko jest
-wyraźnie widoczne nawet w najlepszym spośród badanych przypadków.
-
 \subsection{K Nearest Neighbours}
 Model KNN przetestowano dla bazy danych MNIST i Fashion-MNIST.
 Z powodu bardzo długiego czasu predykcji modelu KNN testy wykonano na 10\% 
