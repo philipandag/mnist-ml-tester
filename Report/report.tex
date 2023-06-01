@@ -95,12 +95,12 @@ Opis klas w bazie danych Fashion-MNIST:
 
 \section{Opis aplikacji}
 W ramach projektu stworzono aplikację służącą do testowania różnych modeli nauczania maszynowego dla
-problemu MNIST i jego pochodnych. Aplikacja umożliwia pobranie 
+problemu MNIST i jego pochodnych. Aplikacja umożliwia pobranie
 dowolnej bazy danych problemu klasyfikacji obrazu podobnej
 do MNIST ze strony OpenML. Następnie użytkownik może wybrać
 jeden z zaimplementowanych modeli, wytrenować go oraz przeprowadzić
-szereg testów. Przede wszystkim jednak aplikacja umożliwia 
-ręczne rysowanie obrazu do klasyfikacji, lub wczytanie i 
+szereg testów. Przede wszystkim jednak aplikacja umożliwia
+ręczne rysowanie obrazu do klasyfikacji, lub wczytanie i
 modyfikację już istniejącego w bazie obrazu.
 
 \begin{figure}[H]
@@ -111,11 +111,11 @@ modyfikację już istniejącego w bazie obrazu.
 \begin{enumerate}
     \item Model - zawiera opcje utworzenia
      nowego modelu spośród zaimplementowanych,
-     zapisanie już wytrenowanego modelu oraz wczytanie 
+     zapisanie już wytrenowanego modelu oraz wczytanie
      modelu z pliku.
     \item Baza - zawiera opcje pobrania bazy danych
      z serwisu OpenML i wczytania pobranej bazy z pliku.
-    
+
     \item Inne - zawiera opcje:
         \begin{itemize}
             \item Wczytania losowego obrazu wybranej klasy z załadowanej bazy
@@ -136,15 +136,15 @@ modyfikację już istniejącego w bazie obrazu.
 
 Proces przetwarzania obrazów z kanwy jest niezwykle ważny
 w przypadku odręcznego rysowania cyfr dla modelu uczonego
-na bazie MNIST-784. Obrazy obecne w tej bazie muszą spełniać 
+na bazie MNIST-784. Obrazy obecne w tej bazie muszą spełniać
 pewne założenia, dlatego model nie jest w stanie rozpoznawać
 cyfr, które drastycznie różnią się od tych obecnych w bazie.
 W celu przetwarzania obrazów z kanwy stosuje się:
 \begin{itemize}
-    \item Skalowanie - cyfra w bazie mnist musi mieć rozmiar $20\times20$ pikseli mimo, 
-    że obrazy w bazie mają rozmiar $28\times28$ pikseli. W tym celu do rozmiaru $20\times20$ 
+    \item Skalowanie - cyfra w bazie mnist musi mieć rozmiar $20\times20$ pikseli mimo,
+    że obrazy w bazie mają rozmiar $28\times28$ pikseli. W tym celu do rozmiaru $20\times20$
     pikseli skalowany jest prostokąt zawierający niezerowe piksele obrazu a następnie reszta uzupełniana jest zerami.
-    \item Środkowanie - obraz przesuwany jest tak, by jego środek masy znajdował się w środku 
+    \item Środkowanie - obraz przesuwany jest tak, by jego środek masy znajdował się w środku
     obrazu $28\times28$ pikseli
 \end{itemize}
 
@@ -183,15 +183,15 @@ uczone przez model, a jedynie wpływają na jego działanie.
 W przypadku drzew decyzyjnych najważniejszymi hiperparametrami
 są:
 \begin{itemize}
-    \item \textbf{max\_depth}: Określa maksymalną 
-    głębokość drzewa decyzyjnego. 
-    Głębokość drzewa to liczba poziomów w 
-    drzewie, które składają się z węzłów 
-    decyzyjnych i liści. Im większa wartość 
-    max\_depth, tym bardziej skomplikowane 
-    drzewo może zostać utworzone, co może 
-    prowadzić do bardziej dopasowanego modelu. 
-    Jednak zbyt duża wartość max\_depth może 
+    \item \textbf{max\_depth}: Określa maksymalną
+    głębokość drzewa decyzyjnego.
+    Głębokość drzewa to liczba poziomów w
+    drzewie, które składają się z węzłów
+    decyzyjnych i liści. Im większa wartość
+    max\_depth, tym bardziej skomplikowane
+    drzewo może zostać utworzone, co może
+    prowadzić do bardziej dopasowanego modelu.
+    Jednak zbyt duża wartość max\_depth może
     prowadzić do przeuczenia (overfittingu) modelu.
     \item \textbf{max\_features}: Określa maksymalną
     liczbę cech, które należy wziąć pod uwagę
@@ -201,15 +201,15 @@ są:
         \item \textbf{sqrt}: max\_features = $\sqrt{n\_features}$
         \item \textbf{log2}: max\_features = $\log_2{n\_features}$
     \end{itemize}
-    \item \textbf{min\_samples\_split}: Określa minimalną 
-    liczbę próbek wymaganą do podziału węzła decyzyjnego. 
-    Jeśli liczba próbek w węźle jest mniejsza niż 
-    min\_samples\_split, to węzeł nie będzie podlegał 
-    dalszemu podziałowi, co prowadzi do utworzenia 
-    liścia. Niskie wartości min\_samples\_split mogą 
-    prowadzić do przeuczenia modelu, podczas gdy 
+    \item \textbf{min\_samples\_split}: Określa minimalną
+    liczbę próbek wymaganą do podziału węzła decyzyjnego.
+    Jeśli liczba próbek w węźle jest mniejsza niż
+    min\_samples\_split, to węzeł nie będzie podlegał
+    dalszemu podziałowi, co prowadzi do utworzenia
+    liścia. Niskie wartości min\_samples\_split mogą
+    prowadzić do przeuczenia modelu, podczas gdy
     wysokie wartości mogą prowadzić do niedouczenia (underfittingu).
-    \item \textbf{criterion}: Określa funkcję używaną 
+    \item \textbf{criterion}: Określa funkcję używaną
     do pomiaru jakości podziału. Istnieją dwie do wyboru:
     \begin{itemize}
         \item \textbf{gini}: Współczynnik Giniego to miara
@@ -218,7 +218,7 @@ są:
         \begin{equation}
             G = 1 - \sum_{i=1}^{J}p_i^2
         \end{equation}
-        gdzie: 
+        gdzie:
         \begin{itemize}
             \item $J$ - liczba klas
             \item $p_i$ - prawdopodobieństwo wystąpienia klasy $i$
@@ -231,7 +231,7 @@ są:
         Podobnie jak w przypadku współczynnika Giniego, im niższa
         wartość entropii, tym lepszy podział.
     \end{itemize}
-    \item \textbf{splitter}: Określa strategię 
+    \item \textbf{splitter}: Określa strategię
     wyboru podziału węzła. Do wylosowania jest
     jedna z dwóch opcji:
     \begin{itemize}
@@ -287,7 +287,7 @@ parametrów. W przypadku lasu losowego są to:
 \subsection{Sieci neuronowe}
 Sieć neuronowa jest modelem statystycznym czerpiącym inspirację z natury i 
 działania układów nerwowych żywych organizmów.
-Modele te są stosowane zarówno do problemów regresji (aproksymacji) jak i klasyfikacji 
+Modele te są stosowane zarówno do problemów regresji (aproksymacji) jak i klasyfikacji
 poprzez nauczanie nadzorowane.
 
 Podstawową składową każdej sieci neuronowej jest neuron, który może być reprezentowany 
@@ -385,7 +385,7 @@ funkcję, nakłada na nie filtr, którego wagi są współczynnikami
 neuronu. Filtr może być w postaci wektora, małej macierzy kwadratowej, 
 lub kilku macierzy w zależności od tego czy interpretujemy dane wejściowe 
 jako wektor, powierzchnię czy przestrzeń punktów. Odpowiednio wytrenowana 
-sieć konwolucyjna jest w stanie skutecznie wykrywać i wzmacniać poprzez 
+sieć konwolucyjna jest w stanie skutecznie wykrywać i wzmacniać poprzez
 nakładanie filtrów istotne cechy danych, które następnie mogą posłużyć 
 jako wejście dla warstwy zwykłych perceptronów, które dzięki temu wyszczególnieniu 
 kluczowych cech dużo skuteczniej poradzą sobie w rozwiązaniu zadania.
@@ -405,7 +405,7 @@ zupełnie z nowymi nie widzianymi przez niego danymi.
 \subsubsection{Sieć grafowa}
 Zastosowanie sieci neuronowej do analizy grafów wymaga przekształcenia
 tych grafów do postaci “zrozumiałej” przez sieć neuronową. W tym celu
-wykorzystana została biblioteka Spektral, stanowiąca rozszerzenie 
+wykorzystana została biblioteka Spektral, stanowiąca rozszerzenie
 biblioteki Keras.
 
 Spektral pozwala na zastosowania obiektu Loadera, który otrzymawszy listę
@@ -414,20 +414,20 @@ można trenować model. To sprawia, że dane wejściowe stają się w pełni
 kompatybilne ze wszystkimi mechanizmami dostarczanymi przez bibliotekę
 Keras.
 Przekształcanie listy grafów w batche polega na dopełnieniu ich macierzy
-sąsiedztwa zerami, tak, aby wszystie miały identyczny rozmiar. 
-Następnie grafy te łączy się w trójwymiarowe tensory o wymiarach 
-$rozmiarBatcha \times maxLiczbaWierzcholkow \times liczbaCechGrafu$. Rozmiar batcha 
+sąsiedztwa zerami, tak, aby wszystie miały identyczny rozmiar.
+Następnie grafy te łączy się w trójwymiarowe tensory o wymiarach
+$rozmiarBatcha \times maxLiczbaWierzcholkow \times liczbaCechGrafu$. Rozmiar batcha
 jest ustalony z góry, na poziomie kodu.
 
-Tak, jak w przypadku pozostałych modeli w projekcie, sieć neuronowa została 
-zbudowana przy użyciu gotowych warstw dostępnych w bibliotece Keras. Tym, co 
-odróżnia model grafowy od pozostałych jest zastosowanie warstwy GCNConv, 
+Tak, jak w przypadku pozostałych modeli w projekcie, sieć neuronowa została
+zbudowana przy użyciu gotowych warstw dostępnych w bibliotece Keras. Tym, co
+odróżnia model grafowy od pozostałych jest zastosowanie warstwy GCNConv,
 dostosowanej do działania na danych w postaci grafów.
-Warstwa ta działa analogicznie do warstwy konwolucyjnej w “tradycyjnych” 
-neuronowych sieciach konwolucyjnych - to znaczy sprawia, że każdy punkt 
-danych zostaje niejako wzbogacony o informacje na temat kontekstu w którym 
-wystąpił - czyli sąsiadujących punktów danych. W tym przypadku “punktami 
-danych” są wierzchołki grafu, a cały proces odbywa się na zasadzie przekazywania 
+Warstwa ta działa analogicznie do warstwy konwolucyjnej w “tradycyjnych”
+neuronowych sieciach konwolucyjnych - to znaczy sprawia, że każdy punkt
+danych zostaje niejako wzbogacony o informacje na temat kontekstu w którym
+wystąpił - czyli sąsiadujących punktów danych. W tym przypadku “punktami
+danych” są wierzchołki grafu, a cały proces odbywa się na zasadzie przekazywania
 wiadomości między sąsiadującymi wierzchołkami.
 
 W praktyce jest to zrealizowane przy pomocy następujących operacji macierzowych:
@@ -436,13 +436,13 @@ W praktyce jest to zrealizowane przy pomocy następujących operacji macierzowyc
     X' = \hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}} X W + b
 \end{equation}
 
-gdzie: 
+gdzie:
 \begin{itemize}
     \item $X$ - dane wejściowe
     \item $X'$ - dane wyjściowe
     \item $W$ - wektor wag modelu
     \item $b$ - bias
-    \item $\hat{A}, \hat{D}$ - macierze sąsiedztwa z pętlami (A + I) i stopni 
+    \item $\hat{A}, \hat{D}$ - macierze sąsiedztwa z pętlami (A + I) i stopni
     wierzchołków grafu
 \end{itemize}
 
@@ -456,8 +456,8 @@ jedynie mała ilość nowych warstw, które zinterpretują wyniki juz gotowych i
 w klasyfikacji obrazów warstw konwolucyjnych. W pierwszych etapach nauczania należy pominąć 
 już wytrenowane warstwy konwolucyjne aby usprawnić ten proces. Gdy model jest już dostatecznie 
 dobrze wytrenowany można odblokować trenowanie warstw konwolucyjnych, by przeprowadzić tzw. 
-fine tuning, który pozwoli wyspecjalizować warstwy konwolucyjne w detekcji cech charakterystycznych 
-dla danego problemu. 
+fine tuning, który pozwoli wyspecjalizować warstwy konwolucyjne w detekcji cech charakterystycznych
+dla danego problemu.
 
 
 \subsection{KNN - K Nearest Neighbours}
@@ -528,7 +528,7 @@ Architektura warstw stworzonej sieci wyglądała następująco:
 
 Za funkcję straty przyjęto funkcję Categorical Crossentropy, learning rate wynosił 0.01.
 W trakcie trenowania nie korzystano żadnych mechanizmów nieomówionych 
-w części teoretycznej w tym: batchingu czy przetwarzania danych wejściowych 
+w części teoretycznej w tym: batchingu czy przetwarzania danych wejściowych
 poza skalowaniem do zakresu $[0, 1]$.
 \subsection{Wielowarstwowy perceptron Tensorflow Keras}
 
@@ -567,7 +567,7 @@ Sieć konwolucyjną zaimplementowano przy użyciu pakietu tensorflow keras. Wszy
 identyczne z wielowarstwowym perceptronem zaimplementowanym z użyciem tych samych bibliotek. 
 Struktura sieci wyglądała następująco:
 
-% $28x28-> 32x(3,3), relu -> maxPooling(2,2) 64x(3,3), relu -> 
+% $28x28-> 32x(3,3), relu -> maxPooling(2,2) 64x(3,3), relu ->
 % maxPooling(2,2)->Flatten->Dropout(0.5) -> 10, softmax$
 
 \begin{lstlisting}[style=siec]
@@ -675,7 +675,7 @@ Natomiast w celu poprawy wydajności trenowania dodano następujące callbacki:
     \item ReduceLROnPlateau - zmniejszający współczynnik uczenia wraz z trenowaniem
 \end{itemize}
 
-Dodatkowo w celu poprawy generalizacji modelu wprowadzono data augmentation w 
+Dodatkowo w celu poprawy generalizacji modelu wprowadzono data augmentation w
 postaci obracania obrazów z bazy MNIST-784 o $\pm10^\circ$.
 
 \subsection{Sieć transferowa Tensorflow Keras}
@@ -757,12 +757,12 @@ generowanie nowych danych treningowych w oparciu o dane z bazy z wykorzystaniem:
 
 \subsection{Sieć grafowa}
 
-Sieci grafowe były trenowane jedynie na zbiorze MNIST zawierającym cyfry, 
-ze względu na fakt, że przekształcanie obrazów na grafy jest bardzo czasochłonne - 
+Sieci grafowe były trenowane jedynie na zbiorze MNIST zawierającym cyfry,
+ze względu na fakt, że przekształcanie obrazów na grafy jest bardzo czasochłonne -
 przetworzenie jednego zbioru trwało kilkanaście minut.
 
 \begin{itemize}
-    \item Każdy obraz był najpierw dzielony na superpiksele - to znaczy klastry pikseli o 
+    \item Każdy obraz był najpierw dzielony na superpiksele - to znaczy klastry pikseli o
     zbliżonej jasności. Do przypisania pikseli do klastrów wykorzystano metodę k-means.
     \item Następnie na podstawie listy superpikseli tworzony był graf w postaci macierzy
     sąsiedztwa. Każdy superpiksel stanowił jeden wierzchołek grafu. Stykające się superpiksele
@@ -773,8 +773,8 @@ przetworzenie jednego zbioru trwało kilkanaście minut.
     łączonych przez nią superpikseli.
 \end{itemize}
 
-Próby zostały przeprowadzone na kilku zbiorach grafów. Każdy zestaw powstał na bazie 
-identycznego zestawu danych źródłowych (obrazków): 
+Próby zostały przeprowadzone na kilku zbiorach grafów. Każdy zestaw powstał na bazie
+identycznego zestawu danych źródłowych (obrazków):
 
 \begin{enumerate}[label=(\textbf{\Alph*})]
     \item Grafy z max. 25 wierzchołkami
@@ -782,47 +782,47 @@ identycznego zestawu danych źródłowych (obrazków):
     \item Grafy z max. 25 wierzchołkami, bez wag na krawędziach (wszystkie wagi równe 1)
 \end{enumerate}
 
-Maksymalna liczba wierzchołków była regulowana poprzez zmianę parametru algorytmu k-means - tzn. 
+Maksymalna liczba wierzchołków była regulowana poprzez zmianę parametru algorytmu k-means - tzn.
 początkowej liczby klastrów do których dopasowywane są piksele.
 
 Obrazki po przetworzeniu wyglądały w sposób następujący:
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{img/5Raw.png}
-    \caption{Obraz nieprzetworzony} 
+    \caption{Obraz nieprzetworzony}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{img/5Sliced.png}
-    \caption{Obraz z podziałem na superpiksele} 
+    \caption{Obraz z podziałem na superpiksele}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{img/5Graph.png}
-    \caption{Graf powstały na bazie podzielonego obrazu.} 
+    \caption{Graf powstały na bazie podzielonego obrazu.}
 \end{figure}
 
-Powyższe obrazy to wizualizacje macierzy zawierajacych jasności pikseli. 
-Oryginalne obrazy są czarno-białe. 
+Powyższe obrazy to wizualizacje macierzy zawierajacych jasności pikseli.
+Oryginalne obrazy są czarno-białe.
 
 Sieć grafowa została zbudowana w sposób następujący:
 \begin{lstlisting}[style=siec]
     _________________________________________________________________
-    Layer (type)                Output Shape              Param #   
+    Layer (type)                Output Shape              Param #
     =================================================================
-    gcn_conv (GCNConv)          multiple                  100       
-                                                                    
-    gcn_conv_1 (GCNConv)        multiple                  2550      
-                                                                    
-    global_sum_pool (GlobalSumP  multiple                 0         
-    ool)                                                            
-                                                                    
-    dense (Dense)               multiple                  26112     
-                                                                    
-    dense_1 (Dense)             multiple                  5130      
-                                                                    
+    gcn_conv (GCNConv)          multiple                  100
+
+    gcn_conv_1 (GCNConv)        multiple                  2550
+
+    global_sum_pool (GlobalSumP  multiple                 0
+    ool)
+
+    dense (Dense)               multiple                  26112
+
+    dense_1 (Dense)             multiple                  5130
+
     =================================================================
     Total params: 33,892
     Trainable params: 33,892
@@ -863,10 +863,26 @@ Dla następujących parametrów dla bazy MNIST-784:
 model osiągał skuteczność na danych testowych wynoszącą $0.951$.
 
 \subsection{Własna implementacja Wielowarstwowego perceptronu}
+Sieć wyuczono dla zbioru MNIST-784 i Fashion-MNIST. Dla MNIST-784 model trenowany był przez 50 epochów. Dla Fashion-MNIST przez 30 epochów.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/MyNetwork/mnist-784/MyNetwork_mnist_784_ep50_conf_mat.png}
+    \caption{Macierz konfuzji modelu własnego MLP dla bazy MNIST-784 w zależności od epoki}
+\end{figure}
+Dla bazy MNIST-784 własna implementacja MLP osiągnęła accuracy równe $0.793$
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../Saves/MyNetwork/mnist-784/MyNetwork_fashion-mnist_ep50_conf_mat.png}
+    \caption{Macierz konfuzji modelu własnego MLP dla bazy MNIST-784 w zależności od epoki}
+\end{figure}
+Dla bazy Fashion-MNIST własna implementacja MLP osiągnęła accuracy równe $0.722$
+
 \subsection{Wielowarstwowy perceptron Tensorflow Keras}
 
-Sieć wyuczono dla dwóch zbiorów danych: MNIST-784 i Fashion-MNIST. 
-W obydwu przypadkach model był trenowany przez 500 epoch'ów. 
+Sieć wyuczono dla dwóch zbiorów danych: MNIST-784 i Fashion-MNIST.
+W obydwu przypadkach model był trenowany przez 500 epoch'ów.
 Proces i rezultaty widoczne są na poniższych wykresach:
 
 \subsubsection{MNIST-784}
@@ -912,7 +928,7 @@ Dla bazy Fashion-MNIST model Keras MLP zdołał uzyskać accuracy w wysokości $
 
 
 \subsection{Sieć konwolucyjna Tensorflow Keras, wersja podstawowa}
-Sieć wyuczono dla dwóch zbiorów danych: MNIST-784 i Fashion-MNIST. W obydwu przypadkach model 
+Sieć wyuczono dla dwóch zbiorów danych: MNIST-784 i Fashion-MNIST. W obydwu przypadkach model
 był trenowany przez 500 epoch'ów. Proces i rezultaty widoczne są na poniższych wykresach:
 
 \subsubsection{MNIST-784}
@@ -1001,8 +1017,8 @@ Dla bazy Fashion-MNIST model Keras CNNv2 zdołał uzyskać accuracy w wysokości
 
 
 \subsection{Sieć transferowa Tensorflow Keras}
-Sieć wyuczono dla dwóch zbiorów danych: MNIST-784 i Fashion-MNIST. W obydwu 
-przypadkach model trenowany był najpierw przez 10 epochów, następnie 
+Sieć wyuczono dla dwóch zbiorów danych: MNIST-784 i Fashion-MNIST. W obydwu
+przypadkach model trenowany był najpierw przez 10 epochów, następnie
 przez 100 epochów z fine tuningiem. Proces i rezultaty widoczne są na poniższych wykresach:
 
 \subsubsection{MNIST-784}
@@ -1047,7 +1063,7 @@ Dla bazy MNIST-784 model Keras CNN zdołał uzyskać accuracy w wysokości $0.99
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{../Saves/Transfer/fashion-mnist/Transfer_fashion-mnist_ep10_loss.png}
-    \caption{Wykres wartości funkcji straty modelu Transferowego dla bazy Fashion-MNIST w zależności od epoki w trenowaniu wstępnym} 
+    \caption{Wykres wartości funkcji straty modelu Transferowego dla bazy Fashion-MNIST w zależności od epoki w trenowaniu wstępnym}
 \end{figure}
 
 \begin{figure}[H]
@@ -1082,7 +1098,7 @@ Wyniki dla zbioru A:
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{../Saves/Graph/graphModel25_acc.png}
-    \caption{Wykres celności dla modelu grafowego trenowanego na zbiorze A w zależności od epoki} 
+    \caption{Wykres celności dla modelu grafowego trenowanego na zbiorze A w zależności od epoki}
 \end{figure}
 
 \begin{figure}[H]
@@ -1149,43 +1165,35 @@ Wyniki dla zbioru C:
     \caption{Macierz konfuzji dla modelu grafowego trenowanego na zbiorze C w zależności od epoki} 
 \end{figure}
 
-Sieć w żadnym z przypadków nie uzyskała zbyt imponujących 
-wyników: celność w najlepszym wypadku wynosiła około 25\%. 
+Sieć w żadnym z przypadków nie uzyskała zbyt imponujących
+wyników: celność w najlepszym wypadku wynosiła około 25\%.
 
-Można zauważyć, że zwiększanie ilości danych nie musi 
-prowadzić do poprawienia wyników: w przypadku bardziej 
-szczegółowych grafów o max. 50 wierzchołkach, wyniki były 
-dużo słabsze niż w prostszym przypadku, gdzie grafy nie 
+Można zauważyć, że zwiększanie ilości danych nie musi
+prowadzić do poprawienia wyników: w przypadku bardziej
+szczegółowych grafów o max. 50 wierzchołkach, wyniki były
+dużo słabsze niż w prostszym przypadku, gdzie grafy nie
 miały więcej niż 25 wierzchołków.
 
-O ile redukcja liczby wierzchołków ułatwiała sieci zadanie, 
-to już usunięcie informacji o wagach krawędzi sprawiło, 
+O ile redukcja liczby wierzchołków ułatwiała sieci zadanie,
+to już usunięcie informacji o wagach krawędzi sprawiło,
 że zaczęła ona uzyskiwać fatalne wyniki.
 
-W oczy rzuca się także fakt, że badany model grafowy ma 
-wyraźną tendencję do faworyzowania jednej konkretnej klasy 
-i przypisywania do niej większości grafów - to zjawisko jest 
+W oczy rzuca się także fakt, że badany model grafowy ma
+wyraźną tendencję do faworyzowania jednej konkretnej klasy
+i przypisywania do niej większości grafów - to zjawisko jest
 wyraźnie widoczne nawet w najlepszym spośród badanych przypadków.
 
 \subsection{K Nearest Neighbours}
+Model KNN przetestowano dla bazy danych MNIST i Fashion-MNIST.
 
-Z powodu długiego czasu predykcji modelu KNN testy wykonano na 10\% zbioru 
+Z powodu bardzo długiego czasu predykcji modelu KNN testy wykonano na 10\% zbioru testowego, co odpowiada 1400 danych testowych.
+Z powodu długiego czasu predykcji modelu KNN testy wykonano na 10\% zbioru
 testowego, co odpowiada 1400 danych testowych.
-W tej sytuacji model KNN cechował się accuracy na poziomie $0.96$
 
+Dla bazy MNIST-784 model KNN osiągnął accuracy równe $0.96$
 
-Z powodu swojej konstrukcji model KNN sprawował się niemal perfekcyjnie 
-dla zbioru danych testowych, które przypominały w znacznym stopniu 
-dane treningowe. Niestety dla ręcznych rysunków nienależących do 
-bazy MNIST-784 model działał dużo gorzej od sieci konwolucyjnej, 
-która nie tylko porównuje punkt z danymi treningowymi, lecz 
-wynajduje schematy i cechy obrazów, które decydują o 
-przynależności do danej klasy. Należy również wspomnieć, 
-że z powodu nieporównywalnie większej ilości obliczeń 
-koniecznych do wykonania przez model KNN w porównaniu 
-do dowolnego innego modelu, podczas gdy proces weryfikacji 
-na 14000 danych testowych sieci neuronowych trwał zaledwie 
-kilka sekund, weryfikacja modelu KNN zajęła ponad 10 minut dla 1400 danych.
+Dla bazy Fashion-MNIST model KNN osiągnął accuracy równe $0.86$
+
 
 \subsection{Porównanie miar celności modeli}
 
