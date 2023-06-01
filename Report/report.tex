@@ -95,13 +95,55 @@ Opis klas w bazie danych Fashion-MNIST:
 
 \section{Opis aplikacji}
 W ramach projektu stworzono aplikację służącą do testowania różnych modeli nauczania maszynowego dla
-problemu MNIST i jego pochodnych. 
+problemu MNIST i jego pochodnych. Aplikacja umożliwia pobranie 
+dowolnej bazy danych problemu klasyfikacji obrazu podobnej
+do MNIST ze strony OpenML. Następnie użytkownik może wybrać
+jeden z zaimplementowanych modeli, wytrenować go oraz przeprowadzić
+szereg testów. Przede wszystkim jednak aplikacja umożliwia 
+ręczne rysowanie obrazu do klasyfikacji, lub wczytanie i 
+modyfikację już istniejącego w bazie obrazu.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{img/gui.png}
 \end{figure}
 
+\begin{enumerate}
+    \item Model - zawiera opcje utworzenia
+     nowego modelu spośród zaimplementowanych,
+     zapisanie już wytrenowanego modelu oraz wczytanie 
+     modelu z pliku.
+    \item Baza - zawiera opcje pobrania bazy danych
+     z serwisu OpenML i wczytania pobranej bazy z pliku.
+    
+    \item Inne - zawiera opcje:
+        \begin{itemize}
+            \item Wczytania losowego obrazu wybranej klasy z załadowanej bazy
+            \item Walidacji modelu na zbiorze testowym załadowanej bazy
+            \item Kroswalidacji modelu dla wybranej ilości podziałów
+            \item Generowanie macierzy konfuzji
+            \item Opcję włączenia przetwarzania obrazów tak by były kompatybilne z bazą MNIST-784. W przypadku modyfikowania obrazów wczytanych z bazy lub korzystania z bazy innej niż MNIST-784 należy odznaczyć tę opcję.
+            \item Opcję wyświetlania danych wejściowych, które otrzyma model w postaci obrazka
+        \end{itemize}
+
+    \item Pasek stanu - wyświetla informacje o stanie aplikacji oraz komunikaty, w tym informacje o błędach i niektóre wyniki walidacji
+    \item Trenuj - przeprowadza proces uczenia modelu na załadowanej bazie danych. Gdy jest to możliwe generuje i pokazuje wykresy z przebiegu procesu trenowania
+    \item Kanwa - na niej można dokonywać zmian obrazu, który dostanie model do klasyfikacji
+    \item Klasyfikuj - wciśnięcie tego przycisku rozpocznie proces walidacji obrazu widocznego na kanwie. Obraz będzie poddany przetwarzaniu, jeżeli ta opcja z menu Inne jest wybrana.
+    \item Wyczyść - czyści kanwę
+    \item Wyniki klasyfikacji - wyświetla wyniki klasyfikacji obrazu do poszczególnych klas.
+\end{enumerate}
+
+Proces przetwarzania obrazów z kanwy jest niezwykle ważny
+w przypadku odręcznego rysowania cyfr dla modelu uczonego
+na bazie MNIST-784. Obrazy obecne w tej bazie muszą spełniać 
+pewne założenia, dlatego model nie jest w stanie rozpoznawać
+cyfr, które drastycznie róznią się od tych obecnych w bazie.
+W celu przetwarzania obrazów z kanwy stosuje się:
+\begin{itemize}
+    \item Skalowanie - cyfra w bazie mnist musi mieć rozmiar $20\times20$ pikseli mimo, że obrazy w bazie maja rozmiar $28\times28$ pikseli. W tym celu do rozmiaru $20\times20$ pikseli skalowany jest prostokąt zawierający niezerowe piksele obrazu a następnie reszta uzupełniana jest zerami.
+    \item Środkowamie - obraz przesuwany jest tak, by jego środek masy znajdował się w środku obrazu $28\times28$ pikseli
+\end{itemize}
 
 
 
