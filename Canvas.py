@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QWidget
 
 
 class Canvas(QWidget):
-    def __init__(self, parent, width, height, resolution=64):
+    def __init__(self, parent, width, height, resolution=28):
         super().__init__(parent)
         self.width = width
         self.height = height
@@ -58,7 +58,7 @@ class Canvas(QWidget):
                     disty = pos[1] - (pixel_pos[1] + dy)
                     dist = np.sqrt(distx ** 2 + disty ** 2) / width
                     value = (width - dist) * 280
-                    # print(dist)
+
                     newR = round(max(min(color.red(), color.red() - value), 0))
                     newG = round(max(min(color.green(), color.green() - value), 0))
                     newB = round(max(min(color.blue(), color.blue() - value), 0))
@@ -88,7 +88,6 @@ class Canvas(QWidget):
 
             self.last_stroke_time = event.timestamp()
             width = max(self.resolution / (module+12), 1.3)
-            print(module, ": ", width)
             #width = self.last_width * 0.9 + width * 0.1
             self.last_width = width
 
