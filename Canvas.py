@@ -57,7 +57,10 @@ class Canvas(QWidget):
                     distx = pos[0] - (pixel_pos[0] + dx)
                     disty = pos[1] - (pixel_pos[1] + dy)
                     dist = np.sqrt(distx ** 2 + disty ** 2) / width
-                    value = (width - dist) * 280
+                    if self.resolution == 8:
+                        value = (width - dist)**1.9 * 50
+                    else:
+                        value = (width - dist) * 280
 
                     newR = round(max(min(color.red(), color.red() - value), 0))
                     newG = round(max(min(color.green(), color.green() - value), 0))
@@ -87,7 +90,11 @@ class Canvas(QWidget):
                 return
 
             self.last_stroke_time = event.timestamp()
-            width = max(self.resolution / (module+12), 1.3)
+            if self.resolution == 8:
+                width = max(self.resolution*0.2 / (module+8), 1.3)
+            else:
+                width = max(self.resolution / (module+12), 1.3)
+
             #width = self.last_width * 0.9 + width * 0.1
             self.last_width = width
 
