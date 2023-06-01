@@ -122,8 +122,8 @@ modyfikację już istniejącego w bazie obrazu.
             \item Walidacji modelu na zbiorze testowym załadowanej bazy
             \item Kroswalidacji modelu dla wybranej ilości podziałów
             \item Generowanie macierzy konfuzji
+            \item Opcję generowania wykresów z przebiegu procesu trenowania, wykresów z wynikami walidacji oraz wykresów z macierzy konfuzji
             \item Opcję włączenia przetwarzania obrazów tak by były kompatybilne z bazą MNIST-784. W przypadku modyfikowania obrazów wczytanych z bazy lub korzystania z bazy innej niż MNIST-784 należy odznaczyć tę opcję.
-            \item Opcję wyświetlania danych wejściowych, które otrzyma model w postaci obrazka
         \end{itemize}
 
     \item Pasek stanu - wyświetla informacje o stanie aplikacji oraz komunikaty, w tym informacje o błędach i niektóre wyniki walidacji
@@ -138,13 +138,15 @@ Proces przetwarzania obrazów z kanwy jest niezwykle ważny
 w przypadku odręcznego rysowania cyfr dla modelu uczonego
 na bazie MNIST-784. Obrazy obecne w tej bazie muszą spełniać 
 pewne założenia, dlatego model nie jest w stanie rozpoznawać
-cyfr, które drastycznie róznią się od tych obecnych w bazie.
+cyfr, które drastycznie różnią się od tych obecnych w bazie.
 W celu przetwarzania obrazów z kanwy stosuje się:
 \begin{itemize}
-    \item Skalowanie - cyfra w bazie mnist musi mieć rozmiar $20\times20$ pikseli mimo, że obrazy w bazie maja rozmiar $28\times28$ pikseli. W tym celu do rozmiaru $20\times20$ pikseli skalowany jest prostokąt zawierający niezerowe piksele obrazu a następnie reszta uzupełniana jest zerami.
-    \item Środkowamie - obraz przesuwany jest tak, by jego środek masy znajdował się w środku obrazu $28\times28$ pikseli
+    \item Skalowanie - cyfra w bazie mnist musi mieć rozmiar $20\times20$ pikseli mimo, 
+    że obrazy w bazie mają rozmiar $28\times28$ pikseli. W tym celu do rozmiaru $20\times20$ 
+    pikseli skalowany jest prostokąt zawierający niezerowe piksele obrazu a następnie reszta uzupełniana jest zerami.
+    \item Środkowanie - obraz przesuwany jest tak, by jego środek masy znajdował się w środku 
+    obrazu $28\times28$ pikseli
 \end{itemize}
-
 
 
 \section{Opis porównanych modeli}
@@ -174,6 +176,71 @@ obliczeniowa w przypadku dużych zbiorów danych. Jednakże,
 mogą być podatne na przetrenowanie, co oznacza, że mogą zbyt 
 dobrze dopasować się do danych treningowych i słabo generalizować na nowe dane.
 
+Ważną czynnością podczas tworzenia drzewa decyzyjnego jest
+wybór tzw. hiperparametrów. Są to parametry, które nie są
+uczone przez model, a jedynie wpływają na jego działanie.
+
+W przypadku drzew decyzyjnych najważniejszymi hiperparametrami
+są:
+\begin{itemize}
+    \item \textbf{max\_depth}: Określa maksymalną 
+    głębokość drzewa decyzyjnego. 
+    Głębokość drzewa to liczba poziomów w 
+    drzewie, które składają się z węzłów 
+    decyzyjnych i liści. Im większa wartość 
+    max\_depth, tym bardziej skomplikowane 
+    drzewo może zostać utworzone, co może 
+    prowadzić do bardziej dopasowanego modelu. 
+    Jednak zbyt duża wartość max\_depth może 
+    prowadzić do przeuczenia (overfittingu) modelu.
+    \item \textbf{max\_features}: Określa maksymalną
+    liczbę cech, które należy wziąć pod uwagę
+    przy każdym podziale węzła. Do wyboru są trzy opcje:
+    \begin{itemize}
+        \item \textbf{None}: max\_features = n\_features
+        \item \textbf{sqrt}: max\_features = $\sqrt{n\_features}$
+        \item \textbf{log2}: max\_features = $\log_2{n\_features}$
+    \end{itemize}
+    \item \textbf{min\_samples\_split}: Określa minimalną 
+    liczbę próbek wymaganą do podziału węzła decyzyjnego. 
+    Jeśli liczba próbek w węźle jest mniejsza niż 
+    min\_samples\_split, to węzeł nie będzie podlegał 
+    dalszemu podziałowi, co prowadzi do utworzenia 
+    liścia. Niskie wartości min\_samples\_split mogą 
+    prowadzić do przeuczenia modelu, podczas gdy 
+    wysokie wartości mogą prowadzić do niedouczenia (underfittingu).
+    \item \textbf{criterion}: Określa funkcję używaną 
+    do pomiaru jakości podziału. Istnieją dwie do wyboru:
+    \begin{itemize}
+        \item \textbf{gini}: Współczynnik Giniego to miara
+        nieczystości węzła, wyrażona jako suma prawdopodobieństw
+        kwadratu prawdopodobieństwa każdej klasy.
+        \begin{equation}
+            G = 1 - \sum_{i=1}^{J}p_i^2
+        \end{equation}
+        gdzie: 
+        \begin{itemize}
+            \item $J$ - liczba klas
+            \item $p_i$ - prawdopodobieństwo wystąpienia klasy $i$
+        \end{itemize}
+        Im niższa wartość współczynnika Giniego, tym lepszy podział.
+        \item \textbf{entropy}: Entropia wyrażona równaniem:
+        \begin{equation}
+            E = -\sum_{i=1}^{J}p_i\log_2{p_i}
+        \end{equation}
+        Podobnie jak w przypadku współczynnika Giniego, im niższa
+        wartość entropii, tym lepszy podział.
+    \end{itemize}
+    \item \textbf{splitter}: Określa strategię 
+    wyboru podziału węzła. Do wylosowania jest
+    jedna z dwóch opcji:
+    \begin{itemize}
+        \item \textbf{best}: Wybiera najlepszy podział.
+        \item \textbf{random}: Wybiera najlepszy losowy podział.
+    \end{itemize}
+
+\end{itemize}
+
 \subsubsection{Las losowy}
 Las losowy (ang. Random Forest) jest złożonym modelem 
 predykcyjnym, który opiera się na kombinacji wielu drzew decyzyjnych. 
@@ -196,6 +263,26 @@ takich jak klasyfikacja obrazów, przetwarzanie
 języka naturalnego, analiza danych medycznych itp. 
 Jest to popularny model ze względu na swoją elastyczność 
 i dobrą wydajność nawet w przypadku dużych zbiorów danych.
+
+Podobnie jak w przypadku drzew decyzyjnych, w celu
+zainicjalizowania modelu należy podać wartości
+parametrów. W przypadku lasu losowego są to:
+
+\begin{itemize}
+    \item \textbf{n\_estimators}: Określa liczbę drzew decyzyjnych
+    w lesie losowym.
+    \item \textbf{max\_depth}: Określa maksymalną głębokość drzewa
+    decyzyjnego.
+    \item \textbf{max\_features}: Określa maksymalną liczbę cech,
+    które należy wziąć pod uwagę przy każdym podziale węzła.
+    \item \textbf{min\_samples\_split}: Określa minimalną liczbę
+    próbek wymaganą do podziału węzła decyzyjnego.
+    \item \textbf{min\_samples\_leaf}: Określa minimalną liczbę
+    próbek wymaganą do utworzenia liścia.
+    \item \textbf{criterion}: Określa funkcję używaną do pomiaru
+    jakości podziału.
+\end{itemize}
+
 
 \subsection{Sieci neuronowe}
 Sieć neuronowa jest modelem statystycznym czerpiącym inspirację z natury i 
@@ -272,7 +359,7 @@ opisać macierzowo dla całej warstwy neuronów jako:
 gdzie:
 \begin{itemize}
     \item $W_0$ jest macierzą $(m, n)$ współczynników perceptronów warstwy, a $W_1$ jest jej nową postacią
-    \item $\eta$ jest współczynnikiem $learning rate$ kontrolującym tempo uczenia
+    \item $\eta$ jest współczynnikiem $learning\_rate$ kontrolującym tempo uczenia
     \item $\frac{\partial E}{\partial Z}$ jest pochodną z sygnału błędu po 
     macierzy wynikowej $S$ danej warstwy. Sygnał błędu w przypadku ostatniej warstwy (wyjściowej) jest
     gradientem funkcji błędu macierzy wynikowej, w przypadku reszty warstw 
@@ -298,7 +385,7 @@ funkcję, nakłada na nie filtr, którego wagi są współczynnikami
 neuronu. Filtr może być w postaci wektora, małej macierzy kwadratowej, 
 lub kilku macierzy w zależności od tego czy interpretujemy dane wejściowe 
 jako wektor, powierzchnię czy przestrzeń punktów. Odpowiednio wytrenowana 
-sieć konwolicyjna jest w stanie skutecznie wykrywać i wzmacniać poprzez 
+sieć konwolucyjna jest w stanie skutecznie wykrywać i wzmacniać poprzez 
 nakładanie filtrów istotne cechy danych, które następnie mogą posłużyć 
 jako wejście dla warstwy zwykłych perceptronów, które dzięki temu wyszczególnieniu 
 kluczowych cech dużo skuteczniej poradzą sobie w rozwiązaniu zadania.
@@ -343,6 +430,22 @@ wystąpił - czyli sąsiadujących punktów danych. W tym przypadku “punktami
 danych” są wierzchołki grafu, a cały proces odbywa się na zasadzie przekazywania 
 wiadomości między sąsiadującymi wierzchołkami.
 
+W praktyce jest to zrealizowane przy pomocy następujących operacji macierzowych:
+
+\begin{equation}
+    X' = \hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}} X W + b
+\end{equation}
+
+gdzie: 
+\begin{itemize}
+    \item $X$ - dane wejściowe
+    \item $X'$ - dane wyjściowe
+    \item $W$ - wektor wag modelu
+    \item $b$ - bias
+    \item $\hat{A}, \hat{D}$ - macierze sąsiedztwa z pętlami (A + I) i stopni 
+    wierzchołków grafu
+\end{itemize}
+
 \subsubsection{Konwolucyjna sieć transferowa}
 Z racji, że różne zadania klasyfikacji obrazów nie różnią się od siebie tak drastycznie jak 
 mogłoby się wydawać, popularnym sposobem na tworzenie bardzo dokładnych 
@@ -377,87 +480,12 @@ która pośród nich powtarza się najczęściej jest odpowiedzią modelu na zad
 Wykorzystując bibliotekę scikit-learn zaimplementowano model drzewa
 decyzyjnego. W celu znalezienia najlepszych parametrów modelu losowo
 wybierano wartości z pewnego przedziału i sprawdzano, dla których wartości
-model osiąga najlepsze wyniki. Hiperparametry, które były brane pod uwagę to:
-
-\begin{itemize}
-    \item \textbf{max\_depth}: Określa maksymalną 
-    głębokość drzewa decyzyjnego. 
-    Głębokość drzewa to liczba poziomów w 
-    drzewie, które składają się z węzłów 
-    decyzyjnych i liści. Im większa wartość 
-    max\_depth, tym bardziej skomplikowane 
-    drzewo może zostać utworzone, co może 
-    prowadzić do bardziej dopasowanego modelu. 
-    Jednak zbyt duża wartość max\_depth może 
-    prowadzić do przeuczenia (overfittingu) modelu.
-    \item \textbf{max\_features}: Określa maksymalną
-    liczbę cech, które należy wziąć pod uwagę
-    przy każdym podziale węzła. Do wyboru są trzy opcje:
-    \begin{itemize}
-        \item \textbf{None}: max\_features = n\_features
-        \item \textbf{sqrt}: max\_features = $\sqrt{n\_features}$
-        \item \textbf{log2}: max\_features = $\log_2{n\_features}$
-    \end{itemize}
-    \item \textbf{min\_samples\_split}: Określa minimalną 
-    liczbę próbek wymaganą do podziału węzła decyzyjnego. 
-    Jeśli liczba próbek w węźle jest mniejsza niż 
-    min\_samples\_split, to węzeł nie będzie podlegał 
-    dalszemu podziałowi, co prowadzi do utworzenia 
-    liścia. Niskie wartości min\_samples\_split mogą 
-    prowadzić do przeuczenia modelu, podczas gdy 
-    wysokie wartości mogą prowadzić do niedouczenia (underfittingu).
-    \item \textbf{criterion}: Określa funkcję używaną 
-    do pomiaru jakości podziału. Istnieją dwie do wyboru:
-    \begin{itemize}
-        \item \textbf{gini}: Współczynnik Giniego to miara
-        nieczystości węzła, wyrażona jako suma prawdopodobieństw
-        kwadratu prawdopodobieństwa każdej klasy.
-        \begin{equation}
-            G = 1 - \sum_{i=1}^{J}p_i^2
-        \end{equation}
-        gdzie: 
-        \begin{itemize}
-            \item $J$ - liczba klas
-            \item $p_i$ - prawdopodobieństwo wystąpienia klasy $i$
-        \end{itemize}
-        Im niższa wartość współczynnika Giniego, tym lepszy podział.
-        \item \textbf{entropy}: Entropia wyrażona równaniem:
-        \begin{equation}
-            E = -\sum_{i=1}^{J}p_i\log_2{p_i}
-        \end{equation}
-        Podobnie jak w przypadku współczynnika Giniego, im niższa
-        wartość entropii, tym lepszy podział.
-    \end{itemize}
-    \item \textbf{splitter}: Określa strategię 
-    wyboru podziału węzła. Do wylosowania jest
-    jedna z dwóch opcji:
-    \begin{itemize}
-        \item \textbf{best}: Wybiera najlepszy podział.
-        \item \textbf{random}: Wybiera najlepszy losowy podział.
-    \end{itemize}
-
-\end{itemize}
+model osiąga najlepsze wyniki.
 
 \subsection{Las losowy}
 
 Podobnie jak w przypadku drzewa decyzyjnego, wykorzystując bibliotekę
-scikit-learn zaimplementowano model, losując wartości
-następujących hiperparametrów:
-
-\begin{itemize}
-    \item \textbf{n\_estimators}: Określa liczbę drzew decyzyjnych
-    w lesie losowym.
-    \item \textbf{max\_depth}: Określa maksymalną głębokość drzewa
-    decyzyjnego.
-    \item \textbf{max\_features}: Określa maksymalną liczbę cech,
-    które należy wziąć pod uwagę przy każdym podziale węzła.
-    \item \textbf{min\_samples\_split}: Określa minimalną liczbę
-    próbek wymaganą do podziału węzła decyzyjnego.
-    \item \textbf{min\_samples\_leaf}: Określa minimalną liczbę
-    próbek wymaganą do utworzenia liścia.
-    \item \textbf{criterion}: Określa funkcję używaną do pomiaru
-    jakości podziału.
-\end{itemize}
+scikit-learn zaimplementowano model, losując wartości parametrów początkowych.
 
 \subsection{Własna implementacja Wielowarstwowego perceptronu}
 
@@ -510,7 +538,7 @@ analogicznej do tej zaimplementowanej ręcznie. Zastosowano kilka zmian w postac
 \begin{itemize}
 \item Do propagacji wstecz zamiast stochastycznego schodzenia po gradiencie użyto algorytmu 
 Adam będącego jego udoskonaleniem uwzględniającym momenty gradientu.
-\item Zastosowano mechanizm batchingu, $batch_{size} = 128$
+\item Zastosowano mechanizm batchingu, $batch\_size = 128$
 \end{itemize}
 
 \begin{lstlisting}[style=siec]
@@ -1053,19 +1081,19 @@ Wyniki dla zbioru A:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{img/graphModel25_acc.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/Graph/graphModel25_acc.png}
     \caption{Wykres celności dla modelu grafowego trenowanego na zbiorze A w zależności od epoki} 
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{img/graphModel25_loss.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/Graph/graphModel25_loss.png}
     \caption{Wykres wartości funkcji straty dla modelu grafowego trenowanego na zbiorze A w zależności od epoki} 
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{img/graphModel25_confusion.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/Graph/graphModel25_confusion.png}
     \caption{Macierz konfuzji dla modelu grafowego trenowanego na zbiorze A w zależności od epoki} 
 \end{figure}
 
@@ -1079,19 +1107,19 @@ Wyniki dla zbioru B:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{img/graphModel50_acc.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/Graph/graphModel50_acc.png}
     \caption{Wykres celności dla modelu grafowego trenowanego na zbiorze B w zależności od epoki} 
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{img/graphModel50_loss.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/Graph/graphModel50_loss.png}
     \caption{Wykres wartości funkcji straty dla modelu grafowego trenowanego na zbiorze B w zależności od epoki} 
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{img/graphModel50_confusion.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/Graph/graphModel50_confusion.png}
     \caption{Macierz konfuzji dla modelu grafowego trenowanego na zbiorze B w zależności od epoki} 
 \end{figure}
 
@@ -1105,19 +1133,19 @@ Wyniki dla zbioru C:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{img/graphModel25NoWeights_acc.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/Graph/graphModel25NoWeights_acc.png}
     \caption{Wykres celności dla modelu grafowego trenowanego na zbiorze C w zależności od epoki} 
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{img/graphModel25_loss.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/Graph/graphModel25_loss.png}
     \caption{Wykres wartości funkcji straty dla modelu grafowego trenowanego na zbiorze C w zależności od epoki} 
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{img/graphModel25NoWeights_confusion.png}
+    \includegraphics[width=0.6\textwidth]{../Saves/Graph/graphModel25NoWeights_confusion.png}
     \caption{Macierz konfuzji dla modelu grafowego trenowanego na zbiorze C w zależności od epoki} 
 \end{figure}
 
@@ -1159,22 +1187,43 @@ do dowolnego innego modelu, podczas gdy proces weryfikacji
 na 14000 danych testowych sieci neuronowych trwał zaledwie 
 kilka sekund, weryfikacja modelu KNN zajęła ponad 10 minut dla 1400 danych.
 
-\section{Dyskusja}
+\subsection{Porównanie miar celności modeli}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-Sed vitae quam euismod, aliquam elit quis, ultricies nisl.
-Sed euismod, nisl quis aliquam ultricies, nisl nisl aliquam elit,
-quis aliquam elit nisl quis aliquam elit nisl quis aliquam elit.
-Sed euismod, nisl quis aliquam elit nisl quis aliquam elit.
-Sed euismod, nisl quis aliquam elit nisl quis aliquam elit.
-Sed euismod, nisl quis aliquam elit nisl quis aliquam elit.
-Sed euismod, nisl quis aliquam elit nisl quis aliquam elit.
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| l | l | l |}
+    \hline
+    \textbf{Nazwa modelu} & \textbf{MNIST-784} & \textbf{Fashion-MNIST} \\
+    \hline
+    Drzewo decyzyjne & 0.87 & 0.71 \\
+    \hline
+    Las losowy & 0.97 & 0.84 \\
+    \hline
+    Własny wielowarstwowy perceptron (MyNetwork) & 0.97 & 0.84 \\
+    \hline
+    Wielowarstwowy perceptron (KerasMLP)  & 0.96749 & 0.88042 \\
+    \hline
+    Sieć konwolucyjna (KerasCNN) & 0.98985 & 0.92428 \\
+    \hline
+    Sieć konwolucyjna rozszerzona (KerasCNNv2) & 0.99235 & 0.91178 \\
+    \hline
+    Sieć transferowa (Transfer) & 0.99293 & 0.91478 \\
+    \hline
+    Sieć grafowa (Graph) & 0.2689 & -- \\
+    \hline
+    K Nearest Neighbours (KNN) & 0.96 & 0.96 \\
+    \hline
+    \end{tabular}
+    \caption{Porównanie celności modeli}
+\end{table}
+
+\section{Dyskusja}
 
 \renewcommand{\refname}{Źródła}
 \begin{thebibliography}{100}
-    % \bibitem{bib:1} Autor,
-    % \textit{tytuł}, 2022
-    % \\\url{https://www.example.com}
+    \bibitem{} Wikipedia,
+    \textit{Sieć neuronowa}
+    \\\url{https://pl.wikipedia.org/wiki/Sie%C4%87_neuronowa}
 \end{thebibliography}
 
 \end{document}
