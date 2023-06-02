@@ -455,9 +455,9 @@ class MainWindow(QMainWindow):
 
             for i in range(len(predicted)):  # If predicted is a vector of probabilities
                 if i == value:
-                    text += f"<b>{i}: {predicted[i]:.4f}</b>"
+                    text += f"<b>{i}: {predicted[i]:.3f}</b>"
                 else:
-                    text += f"{i}: {predicted[i]:.4f}"
+                    text += f"{i}: {predicted[i]:.3f}"
                 if i % 2 == 1:
                     text += "<br>"
                 else:

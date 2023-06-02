@@ -20,7 +20,7 @@ def downloadBase(nazwa_bazy):
     mnist.data[mnist.data < 0] = 0  # Zamień wartości ujemne na 0
 
     # Zamień tablicę klas na inty jeśli jest stringiem
-    if type(mnist.target[0]) == str:
+    if type(mnist.target[0]) == str or type(mnist.target[0] == np.float64):
         mnist.target = mnist.target.astype(np.int8)
 
     joblib.dump(mnist, f'{nazwa_bazy}.joblib')
